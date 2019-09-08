@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '18.217.114.209',
     'localhost',
-    'ubuntu@ec2-18-217-114-209.us-east-2.compute.amazonaws.com'
+    'ec2-18-217-114-209.us-east-2.compute.amazonaws.com'
 ]
 
 
