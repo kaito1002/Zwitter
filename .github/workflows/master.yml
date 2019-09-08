@@ -18,12 +18,11 @@ jobs:
         docker-compose up -d
     - name: Run Connection Test
       run: |
-        python webhook.py &
+        cat docker_external.txt >> docker-compose.yml
         curl -f -I http://127.0.0.1:80
     - name: Kill Containers
       run: |
         docker down
-        ps u | grep webhook.py | awk '{ print $2 }' | xargs kill -KILL
     - name: deploy
       env: |
         KEY: ${{ secrets.KEY }}
