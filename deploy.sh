@@ -7,7 +7,7 @@ cd ${PROJECT}
 git fetch && git reset --hard origin/master
 
 if [ ${OS} = "Linux" ]; then
-  docker_external.txt >> docker-compose.yml
+  cat docker_external.txt >> docker-compose.yml
 fi
 
 sudo docker-compose build
