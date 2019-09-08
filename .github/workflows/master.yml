@@ -1,6 +1,9 @@
 name: Zwitter
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -27,4 +30,20 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest -v
+        pytest django_project -v
+    - name: Set up Containers
+      run: |
+        docker-compose build
+        docker-compose up -d
+        python webhook.py
+    - name: Run Connection Test
+      run: |
+        curl -f -I http://127.0.0.1:80
+    - name: Kill Containers
+      run: |
+        docker down
+    - name: deploy
+      env: |
+        KEY: ${{ secrets.KEY }}
+      run: |
+        curl http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook -X POST -H "Content-Type: application/json" -d '{"key": "${KEY}"}'
