@@ -1,7 +1,9 @@
 REPO="https://github.com/kaito1002/Zwitter.git"
+PROJECT="Zwitter"
 OS=$(uname)
 
 sudo docker-compose down
+cd ${PROJECT}
 git fetch && git reset --hard origin/master
 
 if [ ${OS} = "Linux" ]; then
