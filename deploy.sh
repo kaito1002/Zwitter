@@ -3,10 +3,10 @@ PROJECT="Zwitter"
 OS=$(uname)
 
 sudo docker-compose down
-cd ${PROJECT}
-git fetch && git reset --hard origin/master
 
 if [ ${OS} = "Linux" ]; then
+  cd ${PROJECT}
+  git fetch && git reset --hard origin/master
   cat docker_external.txt >> docker-compose.yml
 fi
 
