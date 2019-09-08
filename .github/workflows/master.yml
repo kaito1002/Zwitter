@@ -28,4 +28,8 @@ jobs:
         URL: http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook
         KEY: ${{ secrets.KEY }}
       run: |
+        URL="http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook"
+        KEY='"'${{ secrets.KEY }}'"'
+        echo ${URL}
+        echo ${KEY}
         curl -X POST ${URL} -d '{"key":"'"${KEY}"'"}'
