@@ -67,7 +67,7 @@ class Content(models.Model):
                     MaxValueValidator(2)]
         )
     # とりあえず文字列
-    data = models.CharField(max_length=1000)
+    data = models.TextField()
     posted_at = models.DateTimeField(default=timezone.now)
 
     def __repr__(self):
@@ -76,7 +76,7 @@ class Content(models.Model):
             1: '解答',
             2: 'その他'
         }[self.type]
-        return "{}: {}<{}>".format(self.pk, self.exam.name, _type)
+        return "{}: {}<{}>".format(self.pk, self.exam.subject.name, _type)
 
     __str__ = __repr__
 
@@ -88,6 +88,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE
         )
     posted_at = models.DateTimeField(default=timezone.now)
+    data = models.TextField()
     sender = models.ForeignKey(
         User,
         related_name='senders',
