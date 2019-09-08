@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && cp -r build/ ../django_project/build/ && cp -r build/static/ ../nginx/static/",
+    "build": "react-scripts build && cp -r build ../django_project/ && cp -r build/static ../nginx/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
