@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinLengthValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(models.Model):
@@ -10,18 +11,18 @@ class User(models.Model):
         validators=[MinLengthValidator(6)]
     )
     passwd = models.CharField(max_length=20)
-    coin = models.IntegerField()
+    coin = models.IntegerField(default=0)
 
 
 class Subject(models.Model):
     name = models.CharField(max_length=20)
     grade = models.IntegerField(
-        max_length=4,
-        validators=[MinLengthValidator(1)]
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(4)]
         )
     quarter = models.IntegerField(
-        max_length=4,
-        validators=[MinLengthValidator(1)]
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(4)]
         )
 
 
@@ -42,8 +43,8 @@ class Content(models.Model):
     2. その他
     """
     type = models.IntegerField(
-        max_length=2,
-        validators=[MinLengthValidator(0)]
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(2)]
         )
     # とりあえず文字列
     data = models.CharField(max_length=1000)
@@ -59,11 +60,13 @@ class Comment(models.Model):
     posted_at = models.DateTimeField(default=timezone.now)
     sender = models.ForeignKey(
         User,
-        related_name='users',
-        on_delete=models.CASCADE
+        related_name='senders',
+        on_delete=models.SET_NULL,
+        null=True
         )
     receiver = models.ForeignKey(
         User,
-        related_name='users',
-        on_delete=models.CASCADE
+        related_name='receivers',
+        on_delete=models.SET_NULL,
+        null=True
         )
