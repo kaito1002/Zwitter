@@ -5,7 +5,10 @@ import threading
 
 
 def deploy():
-    subprocess.call(['bash', 'deploy.sh'])
+    subprocess.run(
+        ['bash', '/home/ubuntu/Zwitter/deploy.sh'],
+        cwd="/home/ubuntu/Zwitter"
+        )
 
 
 def webhook(environ, start_response):
