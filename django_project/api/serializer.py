@@ -11,22 +11,31 @@ class UserSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ('name', 'grade', 'quater')
+        fields = ('name', 'grade', 'quarter')
 
 
 class ExamSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+
     class Meta:
         model = Exam
         fields = ('subject', 'year')
 
 
 class ContentSerializer(serializers.ModelSerializer):
+    exam = ExamSerializer()
+    poster = UserSerializer()
+
     class Meta:
         model = Content
-        fields = ('exam', 'type', 'data', 'posted_at')
+        fields = ('exam', 'type', 'data', 'poster', 'posted_at')
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    exam = ExamSerializer()
+    sender = UserSerializer()
+    # bef_comment = CommentSerializer()
+
     class Meta:
         model = Comment
-        fields = ('content', 'posted_at', 'sender')
+        fields = ('exam', 'posted_at', 'sender', 'bef_comment')
