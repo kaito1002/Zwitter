@@ -13,6 +13,11 @@ class User(models.Model):
     passwd = models.CharField(max_length=20)
     coin = models.IntegerField(default=0)
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+
+    __str__ = __repr__
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=20)
@@ -25,6 +30,11 @@ class Subject(models.Model):
                     MaxValueValidator(4)]
         )
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+
+    __str__ = __repr__
+
 
 class Exam(models.Model):
     subject = models.ForeignKey(
@@ -34,6 +44,11 @@ class Exam(models.Model):
         )
     year = models.IntegerField()
 
+    def __repr__(self):
+        return "{}: {}({})".format(self.pk, self.subject.name, self.year)
+
+    __str__ = __repr__
+
 
 class Content(models.Model):
     """
@@ -42,6 +57,11 @@ class Content(models.Model):
     1. 解答
     2. その他
     """
+    exam = models.ForeignKey(
+        Exam,
+        related_name='contents',
+        on_delete=models.CASCADE,
+        )
     type = models.IntegerField(
         validators=[MinValueValidator(0),
                     MaxValueValidator(2)]
@@ -50,11 +70,21 @@ class Content(models.Model):
     data = models.CharField(max_length=1000)
     posted_at = models.DateTimeField(default=timezone.now)
 
+    def __repr__(self):
+        _type = {
+            0: '問題',
+            1: '解答',
+            2: 'その他'
+        }[self.type]
+        return "{}: {}<{}>".format(self.pk, self.exam.name, _type)
+
+    __str__ = __repr__
+
 
 class Comment(models.Model):
     content = models.ForeignKey(
         Content,
-        related_name='contents',
+        related_name='comments',
         on_delete=models.CASCADE
         )
     posted_at = models.DateTimeField(default=timezone.now)
@@ -70,3 +100,8 @@ class Comment(models.Model):
         on_delete=models.SET_NULL,
         null=True
         )
+
+    def __repr__(self):
+        return "{}: {} -> {}".format(self.pk, self.sender, self.receiver)
+
+    __str__ = __repr__
