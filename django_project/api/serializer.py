@@ -23,10 +23,10 @@ class ExamSerializer(serializers.ModelSerializer):
 class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
-        fields = ('type', 'data', 'posted_at')
+        fields = ('exam', 'type', 'data', 'posted_at')
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('content', 'posted_at', 'sender', 'receiver')
+        fields = ('content', 'posted_at', 'sender')
