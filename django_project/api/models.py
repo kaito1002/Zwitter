@@ -11,6 +11,7 @@ class User(models.Model):
         validators=[MinLengthValidator(1)]
     )
     number = models.CharField(
+        unique=True,
         max_length=8,
         validators=[MinLengthValidator(8)]
     )
@@ -30,7 +31,11 @@ class User(models.Model):
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(
+        unique=True,
+        max_length=20,
+        validators=[MinLengthValidator(1)]
+    )
     grade = models.IntegerField(
         validators=[MinValueValidator(1),
                     MaxValueValidator(4)]
