@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import User, Subject, Exam, Content, Comment
 
@@ -5,7 +6,21 @@ from .models import User, Subject, Exam, Content, Comment
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('name', 'number', 'coin')
+        fields = ('name', 'number', 'coin', 'passwd')
+        extra_kwargs = {
+            'coin': {'read_only': True},
+            'passwd': {'write_only': True}
+            }
+
+    def create(self, validated_data):
+        user = User(
+            name=validated_data['name'],
+            number=validated_data['number'],
+            coin=0,
+            passwd=make_password(validated_data['passwd'])
+        )
+        user.save()
+        return user
 
 
 class SubjectSerializer(serializers.ModelSerializer):

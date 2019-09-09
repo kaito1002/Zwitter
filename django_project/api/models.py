@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.hashers import check_password
 
 
 class User(models.Model):
@@ -15,6 +16,9 @@ class User(models.Model):
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
+
+    def auth(self, passwd):
+        return check_password(passwd, self.passwd)
 
     __str__ = __repr__
 
