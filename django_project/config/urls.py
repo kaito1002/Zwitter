@@ -15,11 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from spa.views import index
+from spa import views
 from api.urls import router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', index),
-    path('api/', include(router.urls))
+    path('api/', include(router.urls)),
+    path('', views.index, name='index'),
+    path('<filename>', views.file, name='file')
 ]
