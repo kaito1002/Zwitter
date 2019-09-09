@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import axios from 'axios';
 
 function App() {
   return (
@@ -24,3 +25,14 @@ function App() {
 }
 
 export default App;
+
+// Test Using Axios
+
+axios
+  .get('api/users')
+  .then(response => {
+    console.log(response.data);
+  })
+  .catch(err => {
+    console.log(err);
+  })
