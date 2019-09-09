@@ -6,12 +6,19 @@ from django.contrib.auth.hashers import check_password
 
 
 class User(models.Model):
-    name = models.CharField(max_length=32)
-    number = models.CharField(
-        max_length=32,
-        validators=[MinLengthValidator(6)]
+    name = models.CharField(
+        max_length=15,
+        validators=[MinLengthValidator(1)]
     )
-    passwd = models.CharField(max_length=20)
+    number = models.CharField(
+        unique=True,
+        max_length=8,
+        validators=[MinLengthValidator(8)]
+    )
+    passwd = models.CharField(
+        max_length=30,
+        validators=[MinLengthValidator(5)]
+    )
     coin = models.IntegerField(default=0)
 
     def __repr__(self):
@@ -24,7 +31,11 @@ class User(models.Model):
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(
+        unique=True,
+        max_length=20,
+        validators=[MinLengthValidator(1)]
+    )
     grade = models.IntegerField(
         validators=[MinValueValidator(1),
                     MaxValueValidator(4)]
