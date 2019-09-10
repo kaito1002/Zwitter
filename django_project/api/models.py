@@ -134,7 +134,7 @@ class Comment(models.Model):
     def __repr__(self):
         return "{}: {} on {}".format(
             self.pk,
-            self.sender.name,
+            self.sender,
             self.exam)
 
     __str__ = __repr__
