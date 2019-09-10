@@ -2,9 +2,10 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import csv
+import os
 
 
-def get_subjects_to_csv(write_path, time_sep=10):
+def get_subjects_to_csv(write_path=os.getcwd() + 'subjects.csv', time_sep=10):
     links = []
     codes = []
     subjects = []
@@ -57,3 +58,6 @@ def get_detail(url):
     year = tables[1].text.replace(' ', '').replace('\n', '').replace('\r', '').split(',')
     return quater, year
 
+
+if __name__ == "__main__":
+    get_subjects_to_csv()
