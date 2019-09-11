@@ -24,8 +24,10 @@ jobs:
         node-version: 10.x
     - name: npm Build
       run: |
+        cd frontend
         npm install
-        npm build
+        npm run build
+        cd ..
     - name: Set up Containers
       run: |
         cat docker_external.txt >> docker-compose.yml
