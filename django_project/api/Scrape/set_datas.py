@@ -1,9 +1,10 @@
 import os
 import csv
+from config.settings import BASE_DIR
 from api.models import Subject
 
 
-def set_datas(csv_path, ):
+def set_datas(csv_path=os.path.join(BASE_DIR, 'api/Scrape/subjects.csv')):
     with open(csv_path, 'r') as f:
         reader = csv.reader(f)
         dataset = [row for row in reader]
