@@ -14,8 +14,8 @@ jobs:
     - uses: actions/checkout@v1
     - name: Set up webhook
       run: |
-        cp ./.github/webhook.service /etc/systemd/system/
-        chmod 0755 ./.github/webhook.py
+        sudo cp ./.github/webhook.service /etc/systemd/system/
+        sudo chmod 0755 ./.github/webhook.py
         sudo systemctl enable webhook.service
         sudo systemctl start webhook.service
     - name: Set up Containers
@@ -29,6 +29,7 @@ jobs:
     - name: Kill Containers
       run: |
         docker-compose down
+        systemctl stop webhook.service
     - name: deploy
       run: |
         URL="http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook"
