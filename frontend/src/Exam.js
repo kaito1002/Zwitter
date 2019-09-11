@@ -64,15 +64,18 @@ class SelectSubjects extends React.Component {
 
   componentDidMount() {
     axios
-      .get('/api/subjects')
+      // .get('/api/subjects')
+      .get('/api/subjects/?offset=80')
       .then(subjectsResponse => {
         let subjects = [];
         for (let i = 0; i < subjectsResponse.data.results.length; i++) {
           subjects.push(subjectsResponse.data.results[i])
+          var pk = subjectsResponse.data.results[i].pk;
+
 
           // 最新の年情報をうまいこと会得する
           axios
-            .get('/api/exams')
+            .get(`/api/exams?subject`)
             .then(examResponse => {
               let years = [];
               for (let j = 0; j < examResponse.data.results.length; j++) {
@@ -80,15 +83,20 @@ class SelectSubjects extends React.Component {
                   years.push(examResponse.data.results[i].year)
                 }
               }
-              let year = Math.max.apply(null, years);
-              // console.log(subjectsResponse.data.results[i].name + " " + year)
-              if (year !== Infinity) {
+              if (years.length !== 0) {
+                this.props.setSubjectYear(years);
+                this.setState({
+                  subjectYear: years
+                })
+                subjects[i]["year"] = years;
+              } else {
+                var now = new Date();
+                var year = now.getFullYear();
                 this.props.setSubjectYear(year);
                 this.setState({
-                  subjectYear: year
+                  subjectYear: [year]
                 })
-                subjects[i]["year"] = year;
-              } else {
+                subjects[i]["year"] = [year];
                 console.log("ERROR!")
               }
 
@@ -128,6 +136,7 @@ class SubjectPosts extends React.Component {
     return (
       <div className="SubjectPosts">
         <h1>{this.props.subjectsName}</h1>
+        <h2>hogehoge</h2>
       </div>
     )
   }
