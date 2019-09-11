@@ -2,7 +2,7 @@
 Description = Webhook server
 
 [Service]
-ExecStart = python /.github/webhook.py
+ExecStart = /usr/bin/python /home/runner/work/Zwitter/Zwitter/webhook.py
 Restart = always
 Type = simple
 
