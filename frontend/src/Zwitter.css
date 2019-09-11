@@ -1,8 +1,8 @@
-.Exam{
+.Zwitter{
     display: flex;
 }
 
-.ExamContents{
+.ZwitterContents{
     height: 100vh;
     margin: 0px 0px 0px 10vw;
     /* outline: solid 1px #555; */
@@ -19,4 +19,9 @@
     /* outline: solid 1px #555; */
     /* width: calc(10vw - 8px); */
     width: 10vw;
+}
+
+.configIcon{
+    /* outline: solid 5px #555; */
+    position: relative;
 }

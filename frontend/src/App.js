@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import axios from 'axios';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import Zwitter from './Zwitter.js';
@@ -14,8 +16,12 @@ class App extends React.Component {
         <Router>
           <div className="LeftsideBar">
             <ul>
-              <li><Link to="/">Zwitter</Link></li>
-              <li><Link to="/exam">Exam</Link></li>
+              <li><Link to="/">
+                <FontAwesomeIcon icon={['fas', 'comment']} size="5x" />
+              </Link></li>
+              <li><Link to="/exam">
+                <FontAwesomeIcon icon={['fas', 'pencil-ruler']} size="5x" />
+              </Link></li>
             </ul>
           </div>
           <Route exact path="/" component={Zwitter} />
