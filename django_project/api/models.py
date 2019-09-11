@@ -143,3 +143,50 @@ class Comment(models.Model):
             self.exam)
 
     __str__ = __repr__
+
+
+class Post(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='users',
+        on_delete=models.CASCADE,
+        blank=False)
+    posted_at = models.DateTimeField(default=timezone.now)
+    bef_post = models.ForeignKey(
+        'self',
+        related_name='aft_comments',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True)
+    content = models.CharField(
+        max_length=140,
+        validators=[MinLengthValidator(1)]
+    )
+
+
+class Like(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=False
+    )
+    post = models.ForeignKey(
+        Post,
+        related_name='likes',
+        on_delete=models.CASCADE,
+        blank=False
+    )
+
+
+class Share(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        blank=False
+    )
+    post = models.ForeignKey(
+        Post,
+        # related_name='shares',
+        on_delete=models.CASCADE,
+        blank=False
+    )

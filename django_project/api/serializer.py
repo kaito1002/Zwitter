@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import User, Subject, Exam, Content, Comment
+from .models import Post, Like, Share
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -54,3 +55,27 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('exam', 'posted_at', 'sender', 'bef_comment')
+
+
+class PostSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Post
+        fields = ('user', 'posted_at', 'bef_post', 'content')
+
+class LikeSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    post = PostSerializer()
+
+    class Meta:
+        model = Like
+        fields = ('user', 'post')
+
+class ShareSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    post = PostSerializer()
+
+    class Meta:
+        model = Share
+        fields = ('user', 'post')

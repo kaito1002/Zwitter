@@ -2,8 +2,10 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Subject, Exam, Content, Comment
+from .models import Post, Like, Share
 from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
+from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 
@@ -48,3 +50,24 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'sender', 'bef_comment')
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('user', 'bef_post')
+
+
+class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('post')
+
+
+class ShareViewSet(viewsets.ModelViewSet):
+    queryset = Share.objects.all()
+    serializer_class = ShareSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('post')
