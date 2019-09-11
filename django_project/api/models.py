@@ -36,14 +36,19 @@ class Subject(models.Model):
         max_length=20,
         validators=[MinLengthValidator(1)]
     )
-    grade = models.IntegerField(
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(4)]
-        )
-    quarter = models.IntegerField(
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(4)]
-        )
+    grade = models.CharField(
+        max_length=10,
+        validators=[MinLengthValidator(1)]
+    )
+    quarter = models.CharField(
+        max_length=10,
+        validators=[MinLengthValidator(1)]
+    )
+
+    def set_grades_from_text_list(self, origin):
+        _ = origin.replace("'", "").replace("[", "")
+        _ = _.replace("]", "").replace(" ", "")
+        self.grade = _
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
