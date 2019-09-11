@@ -1,0 +1,16 @@
+.Exam{
+    display: flex;
+}
+
+.ExamContents{
+    height: 100vh;
+    outline: solid 1px #555;
+    width: 80vw;
+}
+
+.RightsideBar{
+    height: 100vh;
+    outline: solid 1px #555;
+    /* width: calc(10vw - 8px); */
+    width: 10vw;
+}
