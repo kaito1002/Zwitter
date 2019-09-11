@@ -1,0 +1,10 @@
+[Unit]
+Description = Webhook server
+
+[Service]
+ExecStart = python /.github/webhook.py
+Restart = always
+Type = simple
+
+[Install]
+WantedBy = multi-user.target
