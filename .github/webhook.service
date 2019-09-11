@@ -1,0 +1,10 @@
+[Unit]
+Description = Webhook server
+
+[Service]
+ExecStart = /usr/bin/python /home/runner/work/Zwitter/Zwitter/webhook.py
+Restart = always
+Type = simple
+
+[Install]
+WantedBy = multi-user.target

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import User, Subject, Exam, Content, Comment
+from .models import Post, Like, Share
 
 
 @admin.register(User)
@@ -24,4 +25,19 @@ class ContentAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Post)
+class Post(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Like)
+class Like(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Share)
+class Share(admin.ModelAdmin):
     pass
