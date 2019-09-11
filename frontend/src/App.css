@@ -1,4 +1,4 @@
-.App {
+/* .App {
   text-align: center;
 }
 
@@ -30,4 +30,24 @@
   to {
     transform: rotate(360deg);
   }
+} */
+
+.App{
+  display: flex;
+}
+
+.LeftsideBar{
+  height: 100vh;
+  width: 10vw;
+}
+
+.LeftsideBar ul{
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.LeftsideBar li{
+  outline: solid 1px #555;
+  padding: 10px 0px 10px 0px;
 }
