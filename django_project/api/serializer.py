@@ -64,6 +64,7 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ('user', 'posted_at', 'bef_post', 'content')
 
+
 class LikeSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     post = PostSerializer()
@@ -71,6 +72,7 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
         fields = ('user', 'post')
+
 
 class ShareSerializer(serializers.ModelSerializer):
     user = UserSerializer()

@@ -16,7 +16,7 @@ class User(models.Model):
         validators=[MinLengthValidator(8)]
     )
     passwd = models.CharField(
-        max_length=30,
+        max_length=100,
         validators=[MinLengthValidator(5)]
     )
     coin = models.IntegerField(default=0)
@@ -33,15 +33,15 @@ class User(models.Model):
 class Subject(models.Model):
     name = models.CharField(
         unique=True,
-        max_length=20,
+        max_length=80,
         validators=[MinLengthValidator(1)]
     )
     grade = models.CharField(
-        max_length=10,
+        max_length=30,
         validators=[MinLengthValidator(1)]
     )
     quarter = models.CharField(
-        max_length=10,
+        max_length=30,
         validators=[MinLengthValidator(1)]
     )
 
@@ -150,7 +150,8 @@ class Post(models.Model):
         User,
         related_name='users',
         on_delete=models.CASCADE,
-        blank=False)
+        blank=False
+    )
     posted_at = models.DateTimeField(default=timezone.now)
     bef_post = models.ForeignKey(
         'self',
@@ -162,6 +163,14 @@ class Post(models.Model):
         max_length=140,
         validators=[MinLengthValidator(1)]
     )
+
+    def __repr__(self):
+        return "{}: {} says {}".format(
+            self.pk,
+            self.user,
+            self.content)
+
+    __str__ = __repr__
 
 
 class Like(models.Model):
@@ -177,6 +186,16 @@ class Like(models.Model):
         blank=False
     )
 
+    def __repr__(self):
+        return "{}: {} likes ({} says {})".format(
+            self.pk,
+            self.user.name,
+            self.post.user.name,
+            self.post.content
+            )
+
+    __str__ = __repr__
+
 
 class Share(models.Model):
     user = models.ForeignKey(
@@ -190,3 +209,13 @@ class Share(models.Model):
         on_delete=models.CASCADE,
         blank=False
     )
+
+    def __repr__(self):
+        return "{}: {} shares ({} says {})".format(
+            self.pk,
+            self.user.name,
+            self.post.user.name,
+            self.post.content
+        )
+
+    __str__ = __repr__
