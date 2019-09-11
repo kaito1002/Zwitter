@@ -4,6 +4,8 @@ zwitter.pem
 subjects.csv
 migrations
 main.py
+build
+nginx/static
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -28,9 +28,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    '18.217.114.209',
+    '18.219.184.183',
     'localhost',
-    'ec2-18-217-114-209.us-east-2.compute.amazonaws.com'
+    'ec2-18-219-184-183.us-east-2.compute.amazonaws.com'
 ]
 
 
