@@ -6,14 +6,7 @@ import cgi
 
 # let
 key = ''
-port = '8080'
-
-
-def deploy():
-    subprocess.run(
-        ['sudo', 'bash', '/home/ubuntu/Zwitter/deploy.sh'],
-        cwd="/home/ubuntu/Zwitter"
-        )
+port = 54333
 
 
 def webhook(environ, start_response):
@@ -32,12 +25,10 @@ def webhook(environ, start_response):
 
     data = json.loads([_ for _ in form][0])
 
-    if data['key'] == 'sahfkjhajhdfksjdfs':
+    if data['key'] == key:
         # auth
         message = "OK"
         print("Authorized.")
-        deploy_thread = threading.Thread(target=deploy)
-        deploy_thread.start()
     else:
         message = "Fail"
         print("Failed.")
