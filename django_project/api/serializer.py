@@ -7,7 +7,7 @@ from .models import Post, Like, Share
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('name', 'number', 'coin', 'passwd')
+        fields = ('pk', 'name', 'number', 'coin', 'passwd')
         extra_kwargs = {
             'coin': {'read_only': True},
             'passwd': {'write_only': True}
@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ('name', 'grade', 'quarter')
+        fields = ('pk', 'name', 'grade', 'quarter')
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class ExamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exam
-        fields = ('subject', 'year')
+        fields = ('pk', 'subject', 'year')
 
 
 class ContentSerializer(serializers.ModelSerializer):
@@ -44,7 +44,7 @@ class ContentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Content
-        fields = ('exam', 'type', 'data', 'poster', 'posted_at')
+        fields = ('pk', 'exam', 'type', 'data', 'poster', 'posted_at')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('exam', 'posted_at', 'sender', 'bef_comment')
+        fields = ('pk', 'exam', 'posted_at', 'sender', 'bef_comment')
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('user', 'posted_at', 'bef_post', 'content')
+        fields = ('pk', 'user', 'posted_at', 'bef_post', 'content')
 
 
 class LikeSerializer(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ('user', 'post')
+        fields = ('pk', 'user', 'post')
 
 
 class ShareSerializer(serializers.ModelSerializer):
@@ -80,4 +80,4 @@ class ShareSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Share
-        fields = ('user', 'post')
+        fields = ('pk', 'user', 'post')
