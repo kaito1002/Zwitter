@@ -1,6 +1,9 @@
 # add
 *.DS_Store
 zwitter.pem
+subjects.csv
+migrations
+main.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
