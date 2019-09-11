@@ -29,7 +29,7 @@ jobs:
     - name: Kill Containers
       run: |
         docker-compose down
-        systemctl stop webhook.service
+        sudo systemctl stop webhook.service
     - name: deploy
       run: |
         URL="http://ec2-18-217-114-209.us-east-2.compute.amazonaws.com/webhook"
