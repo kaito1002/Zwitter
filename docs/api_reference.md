@@ -2,18 +2,20 @@
 
 ## ユーザー
 
-| エンドポイント | 用途 |
-|:---:|:---:|
-| api/users | ユーザー一覧 |
+| メソッド | エンドポイント | 用途 |
+| :---: |:---:|:---:|
+| GET | /api/users | ユーザー一覧の取得 |
+| POST | /api/users | 新規ユーザーの追加 |
+| GET | /api/users/<user_id> | ユーザー情報の取得 |
+| PUT | /api/users/<user_id> | ユーザー情報の更新 |
+| DELETE | /api/users/<user_id> | ユーザーの削除 |
+| POST | /api/users/<user_id>/login | ユーザー認証 |
 
-## 試験対策
+## コンテンツ
 
-| エンドポイント | 用途 |
-|:---:|:---:|
-| api/subjects | 科目一覧 |
-| api/exams | 試験一覧 |
-| api/contents | 投稿内容一覧 |
-| api/comments | コメント一覧 |
+| メソッド | エンドポイント | 用途 |
+|:---:|:---:|:---:|
+| GET | /api/contents | 試験関連の投稿一覧を取得 |
 
 ## Zwitter(SNS)
 
