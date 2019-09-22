@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'Zwitter',
         'USER': 'koshikawa',
         'PASSWORD': 'wakashiko',
-        'HOST': '18.217.114.209',
+        'HOST': '18.219.184.183',
         'PORT': '3306',
     }
 }
