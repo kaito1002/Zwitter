@@ -15,11 +15,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     @action(methods=['POST'], detail=True, url_path='login')
-    def login(self, request, passwd, pk=None):
+    def login(self, request, pk=None):
+        # return request
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         success_login = False
-        if user is not None and user.auth(passwd):
+        if user is not None and user.auth(request.POST['passwd']):
             success_login = True
         return Response({'success': success_login})
 
