@@ -76,3 +76,7 @@ class ShareViewSet(viewsets.ModelViewSet):
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post')
+
+
+# from rest_framework.authtoken.models import Token
+# Token.objects.select_related('user').get(key=TOKEN).user_id
