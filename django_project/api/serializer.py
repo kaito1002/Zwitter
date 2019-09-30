@@ -7,21 +7,26 @@ from .models import Post, Like, Share
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('pk', 'name', 'number', 'coin', 'passwd')
+        fields = ('pk', 'name', 'number', 'email', 'coin', 'password')
         extra_kwargs = {
             'coin': {'read_only': True},
-            'passwd': {'write_only': True}
+            'email': {'read_only': True},
+            'password': {'write_only': True}
             }
 
     def create(self, validated_data):
-        user = User(
+        User.create_user(
             name=validated_data['name'],
             number=validated_data['number'],
             coin=0,
-            passwd=make_password(validated_data['passwd'])
+            password=make_password(validated_data['password'])
         )
-        user.save()
-        return user
+        return User(
+            name=validated_data['name'],
+            number=validated_data['number'],
+            coin=0,
+            password=validated_data['password']
+        )
 
 
 class SubjectSerializer(serializers.ModelSerializer):
