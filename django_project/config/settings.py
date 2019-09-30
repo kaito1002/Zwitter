@@ -33,7 +33,6 @@ ALLOWED_HOSTS = [
     'ec2-18-219-184-183.us-east-2.compute.amazonaws.com'
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
