@@ -8,11 +8,13 @@ from .serializer import ContentSerializer, CommentSerializer
 from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+# from rest_framework.authentication import TokenAuthentication
+# from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    authentication_classes = []
+    permission_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -28,9 +30,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
@@ -38,9 +37,6 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
 
 class ExamViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
     filter_backends = [DjangoFilterBackend]
@@ -48,9 +44,6 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 
 class ContentViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
     filter_backends = [DjangoFilterBackend]
@@ -58,9 +51,6 @@ class ContentViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = [DjangoFilterBackend]
@@ -68,9 +58,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend]
@@ -78,9 +65,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class LikeViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
@@ -88,9 +72,6 @@ class LikeViewSet(viewsets.ModelViewSet):
 
 
 class ShareViewSet(viewsets.ModelViewSet):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
