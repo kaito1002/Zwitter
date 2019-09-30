@@ -108,7 +108,7 @@ class Grade(models.Model):
 class Quarter(models.Model):
     subject = models.ForeignKey(
         Subject,
-        related_name='quarter',
+        related_name='quarters',
         on_delete=models.CASCADE
         )
     quarter = models.CharField(
