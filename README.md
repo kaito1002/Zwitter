@@ -10,5 +10,5 @@ Zwitter coming soon ...
 
 ``` sh
 $ chmod 400 zwitter.pem
-$ ssh -i "zwitter.pem" ubuntu@ec2-18-217-114-209.us-east-2.compute.amazonaws.com
+$ ssh -i "zwitter.pem" ubuntu@ec2-18-219-184-183.us-east-2.compute.amazonaws.com
 ```
