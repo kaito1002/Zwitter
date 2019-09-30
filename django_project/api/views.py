@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Subject, Exam, Content, Comment
 from .models import Post, Like, Share
+from .models import Grade, Quarter
 from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
 from .serializer import PostSerializer, LikeSerializer, ShareSerializer
+from .serializer import GradeSerializer, QuarterSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 # from rest_framework.authentication import TokenAuthentication
@@ -33,7 +35,20 @@ class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('grade', 'quarter', )
+
+
+class GradeViewSet(viewsets.ModelViewSet):
+    queryset = Grade.objects.all()
+    serializer_class = GradeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('subject', )
+
+
+class QuarterViewSet(viewsets.ModelViewSet):
+    queryset = Quarter.objects.all()
+    serializer_class = QuarterSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ('subject', )
 
 
 class ExamViewSet(viewsets.ModelViewSet):

@@ -84,22 +84,39 @@ class Subject(models.Model):
         max_length=80,
         validators=[MinLengthValidator(1)]
     )
-    grade = models.CharField(
-        max_length=30,
-        validators=[MinLengthValidator(1)]
-    )
-    quarter = models.CharField(
-        max_length=30,
-        validators=[MinLengthValidator(1)]
-    )
-
-    def set_grades_from_text_list(self, origin):
-        _ = origin.replace("'", "").replace("[", "")
-        _ = _.replace("]", "").replace(" ", "")
-        self.grade = _
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
+
+    __str__ = __repr__
+
+
+class Grade(models.Model):
+    subject = models.ForeignKey(
+        Subject,
+        related_name='grades',
+        on_delete=models.CASCADE
+        )
+    grade = models.IntegerField()
+
+    def __repr__(self):
+        return "{}: {} => {}".format(self.pk, self.subject.name, self.grade)
+
+    __str__ = __repr__
+
+
+class Quarter(models.Model):
+    subject = models.ForeignKey(
+        Subject,
+        related_name='quarter',
+        on_delete=models.CASCADE
+        )
+    quarter = models.CharField(
+        max_length=255
+    )
+
+    def __repr__(self):
+        return "{}: {} => {}".format(self.pk, self.subject.name, self.quarter)
 
     __str__ = __repr__
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, Subject, Exam, Content, Comment
 from .models import Post, Like, Share
+from .models import Grade, Quarter
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,7 +26,23 @@ class UserSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ('pk', 'name', 'grade', 'quarter')
+        fields = ('pk', 'name', )
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+
+    class Meta:
+        model = Grade
+        fields = ('pk', 'subject', 'grade')
+
+
+class QuarterSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+
+    class Meta:
+        model = Quarter
+        fields = ('pk', 'subject', 'quarter')
 
 
 class ExamSerializer(serializers.ModelSerializer):
