@@ -41,14 +41,14 @@ class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('subject', )
+    filterset_fields = ('subject', 'grade', )
 
 
 class QuarterViewSet(viewsets.ModelViewSet):
     queryset = Quarter.objects.all()
     serializer_class = QuarterSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('subject', )
+    filterset_fields = ('subject', 'quarter', )
 
 
 class ExamViewSet(viewsets.ModelViewSet):
