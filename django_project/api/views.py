@@ -41,9 +41,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        TOKEN = "17a9fe94ee4e1be64f3d4bb89bc90d4c12da3966"
-        user = Token.objects.select_related('user').get(key=TOKEN)
-        period = self.get_period(user=user)
+        period = self.get_period(user=request.user)
         quarter = Q(quarter=period["quarter"][0])
         for i in range(1, len(period["quarter"])):
             quarter = quarter | Q(quarter=period["quarter"][i])
@@ -70,16 +68,33 @@ class SubjectViewSet(viewsets.ModelViewSet):
             subject
         ).values())
 
-    def get_period(self, user: User, time=datetime.now()):
+    def get_period(self, user: User, now=datetime.now()):
         """
         user => grade
-        time => quarter
+        time => quarter(4, 6, 10, 12)
         """
         # とりあえずサンプル値を返す
         return {
-            'grade': 1,
-            'quarter': ["前期", "1学期"]
+            'grade': self.get_grade(user, now),
+            'quarter': self.get_quarters(now)
         }
+
+    def get_grade(self, user: User, now):
+        grade = now.year - int(user.number[1:5]) - 766
+        return grade - 1 if now.month in [1, 2, 3] else grade
+
+    def get_quarters(self, now):
+        month = now.month
+        quarters = []
+        if month > 10:   # 4 Quarter
+            quarters = ["前期", "第4学期"]
+        elif month > 6:  # 3 Quarter
+            quarters = ["前期", "第3学期"]
+        elif month > 4:  # 2 Quarter
+            quarters = ["後期", "第2学期"]
+        else:            # 1 Quarter
+            quarters = ["後期", "第1学期"]
+        return quarters
 
 
 class GradeViewSet(viewsets.ModelViewSet):
