@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             number=validated_data['number'],
             coin=0,
-            password=make_password(validated_data['password'])
+            password=validated_data['password']
         )
 
 
