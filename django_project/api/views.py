@@ -8,6 +8,8 @@ from .serializer import ContentSerializer, CommentSerializer
 from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,12 +22,15 @@ class UserViewSet(viewsets.ModelViewSet):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         success_login = False
-        if user is not None and user.auth(request.POST['passwd']):
+        if user is not None and user.auth(request.POST['password']):
             success_login = True
         return Response({'success': success_login})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     queryset = Subject.objects.all()
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
