@@ -1,4 +1,3 @@
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import User, Subject, Exam, Content, Comment
 from .models import Post, Like, Share
