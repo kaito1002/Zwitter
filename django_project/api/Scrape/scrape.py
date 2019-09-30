@@ -1,11 +1,17 @@
 from bs4 import BeautifulSoup
+from config.settings import BASE_DIR
 import requests
 import time
 import csv
 import os
 
+defalut_csv = os.path.join(
+    BASE_DIR,
+    'api/Scrape/subjects.csv'
+)
 
-def get_subjects_to_csv(write_path=os.getcwd() + 'subjects.csv', time_sep=10):
+
+def get_subjects_to_csv(write_path=defalut_csv, time_sep=10):
     links = []
     codes = []
     subjects = []
@@ -27,7 +33,7 @@ def get_subjects_to_csv(write_path=os.getcwd() + 'subjects.csv', time_sep=10):
         detail = get_detail(links[i])
         _ = [i, codes[i], subjects[i], detail[0], detail[1]]
         results.append(_)
-        write_csv(results)
+        write_csv(write_path, results)
 
         time.sleep(time_sep)
 
