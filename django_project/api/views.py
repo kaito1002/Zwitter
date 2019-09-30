@@ -10,7 +10,6 @@ from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from .serializer import GradeSerializer, QuarterSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from rest_framework.authtoken.models import Token
 from datetime import datetime
 from django.db.models import Q
 # from rest_framework.authentication import TokenAuthentication
@@ -41,24 +40,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        period = self.get_period(user=request.user)
-        quarter = Q(quarter=period["quarter"][0])
-        for i in range(1, len(period["quarter"])):
-            quarter = quarter | Q(quarter=period["quarter"][i])
-
-        proper_quarter = set([_["subject_id"] for _ in Quarter.objects.filter(
-            quarter
-        ).values()])
-
-        proper_grade = set([_["subject_id"] for _ in Grade.objects.filter(
-            grade=period["grade"]
-        ).values()])
-
-        quarter = Q(quarter=period["quarter"][0])
-        for i in range(1, len(period["quarter"])):
-            quarter = quarter | Q(quarter=period["quarter"][i])
-
-        subjects = list(proper_grade & proper_quarter)
+        subjects = get_subjects(user=request.user)
 
         subject = Q(id=subjects[0])
         for i in range(1, len(subjects)):
@@ -67,34 +49,6 @@ class SubjectViewSet(viewsets.ModelViewSet):
         return Response(Subject.objects.filter(
             subject
         ).values())
-
-    def get_period(self, user: User, now=datetime.now()):
-        """
-        user => grade
-        time => quarter(4, 6, 10, 12)
-        """
-        # とりあえずサンプル値を返す
-        return {
-            'grade': self.get_grade(user, now),
-            'quarter': self.get_quarters(now)
-        }
-
-    def get_grade(self, user: User, now):
-        grade = now.year - int(user.number[1:5]) - 766
-        return grade - 1 if now.month in [1, 2, 3] else grade
-
-    def get_quarters(self, now):
-        month = now.month
-        quarters = []
-        if month > 10:   # 4 Quarter
-            quarters = ["前期", "第4学期"]
-        elif month > 6:  # 3 Quarter
-            quarters = ["前期", "第3学期"]
-        elif month > 4:  # 2 Quarter
-            quarters = ["後期", "第2学期"]
-        else:            # 1 Quarter
-            quarters = ["後期", "第1学期"]
-        return quarters
 
 
 class GradeViewSet(viewsets.ModelViewSet):
@@ -151,3 +105,55 @@ class ShareViewSet(viewsets.ModelViewSet):
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post')
+
+
+def get_subjects(user):
+    period = get_period(user=user)
+    quarter = Q(quarter=period["quarter"][0])
+    for i in range(1, len(period["quarter"])):
+        quarter = quarter | Q(quarter=period["quarter"][i])
+
+    proper_quarter = set([_["subject_id"] for _ in Quarter.objects.filter(
+        quarter
+    ).values()])
+
+    proper_grade = set([_["subject_id"] for _ in Grade.objects.filter(
+        grade=period["grade"]
+    ).values()])
+
+    quarter = Q(quarter=period["quarter"][0])
+    for i in range(1, len(period["quarter"])):
+        quarter = quarter | Q(quarter=period["quarter"][i])
+
+    return list(proper_grade & proper_quarter)
+
+
+def get_period(user: User, now=datetime.now()):
+    """
+    user => grade
+    time => quarter(4, 6, 10, 12)
+    """
+    # とりあえずサンプル値を返す
+    return {
+        'grade': get_grade(user, now),
+        'quarter': get_quarters(now)
+    }
+
+
+def get_grade(user: User, now):
+    grade = now.year - int(user.number[1:5]) - 766
+    return grade - 1 if now.month in [1, 2, 3] else grade
+
+
+def get_quarters(now):
+    month = now.month
+    quarters = []
+    if month > 10:   # 4 Quarter
+        quarters = ["前期", "第4学期"]
+    elif month > 6:  # 3 Quarter
+        quarters = ["前期", "第3学期"]
+    elif month > 4:  # 2 Quarter
+        quarters = ["後期", "第2学期"]
+    else:            # 1 Quarter
+        quarters = ["後期", "第1学期"]
+    return quarters
