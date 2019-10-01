@@ -43,4 +43,4 @@ jobs:
     - name: deploy
       run: |
         URL="http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/webhook"
-        curl -X POST ${URL} -d '{"key":"'"${secrets.KEY}"'"}'
+        curl -X POST ${URL} -d '{"key":"'"${{ secrets.KEY }}"'"}'
