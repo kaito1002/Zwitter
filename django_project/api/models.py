@@ -3,9 +3,40 @@ from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.utils.translation import gettext_lazy as _
+from rest_framework.authtoken.models import Token
 
 
-class User(models.Model):
+class UserManager(BaseUserManager):
+    def create_user(self, number, password, name="", email=None):
+        if email is None:
+            email = f"{number}@u-aizu.ac.jp"
+        user = User(
+            name=name,
+            number=number,
+            email=BaseUserManager.normalize_email(email),
+            coin=0,
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+
+        # Create Auth Token
+        Token.objects.create(user=user)
+        return user
+
+    def create_superuser(self, number, password, email=None):
+        u = self.create_user(number,
+                             password=password,
+                             email=email)
+        u.is_staff = True
+        u.is_superuser = True
+        u.save(using=self._db)
+        return u
+
+
+class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(
         max_length=15,
         validators=[MinLengthValidator(1)]
@@ -15,17 +46,34 @@ class User(models.Model):
         max_length=8,
         validators=[MinLengthValidator(8)]
     )
-    passwd = models.CharField(
-        max_length=100,
+    email = models.EmailField(
+        unique=True,
+        blank=False
+        )
+    password = models.CharField(
+        _('password'),
+        max_length=128,
         validators=[MinLengthValidator(5)]
+        )
+    is_staff = models.BooleanField(
+        default=False
+    )
+    is_superuser = models.BooleanField(
+        default=False
     )
     coin = models.IntegerField(default=0)
+
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'number'
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
 
-    def auth(self, passwd):
-        return check_password(passwd, self.passwd)
+    def auth(self, password):
+        return check_password(password, self.password)
 
     __str__ = __repr__
 
@@ -36,22 +84,39 @@ class Subject(models.Model):
         max_length=80,
         validators=[MinLengthValidator(1)]
     )
-    grade = models.CharField(
-        max_length=30,
-        validators=[MinLengthValidator(1)]
-    )
-    quarter = models.CharField(
-        max_length=30,
-        validators=[MinLengthValidator(1)]
-    )
-
-    def set_grades_from_text_list(self, origin):
-        _ = origin.replace("'", "").replace("[", "")
-        _ = _.replace("]", "").replace(" ", "")
-        self.grade = _
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
+
+    __str__ = __repr__
+
+
+class Grade(models.Model):
+    subject = models.ForeignKey(
+        Subject,
+        related_name='grades',
+        on_delete=models.CASCADE
+        )
+    grade = models.IntegerField()
+
+    def __repr__(self):
+        return "{}: {} => {}".format(self.pk, self.subject.name, self.grade)
+
+    __str__ = __repr__
+
+
+class Quarter(models.Model):
+    subject = models.ForeignKey(
+        Subject,
+        related_name='quarters',
+        on_delete=models.CASCADE
+        )
+    quarter = models.CharField(
+        max_length=255
+    )
+
+    def __repr__(self):
+        return "{}: {} => {}".format(self.pk, self.subject.name, self.quarter)
 
     __str__ = __repr__
 
