@@ -71,12 +71,32 @@ class ExamViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('subject', )
 
+    @action(methods=['GET'], detail=False, url_path='user_related')
+    def subject_list_user_related(self, request):
+        subjects = get_subjects(user=request.user)
+
+        exam = Q(subject_id=subjects[0])
+        for i in range(1, len(subjects)):
+            exam = exam | Q(subject_id=subjects[i])
+
+        return Response(Exam.objects.all().filter(exam).values())
+
 
 class ContentViewSet(viewsets.ModelViewSet):
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'poster', )
+
+    @action(methods=['GET'], detail=False, url_path='user_related')
+    def content_list_user_related(self, request):
+        subjects = get_subjects(user=request.user)
+
+        exam = Q(exam_id=subjects[0])
+        for i in range(1, len(subjects)):
+            exam = exam | Q(exam_id=subjects[i])
+
+        return Response(Content.objects.all().filter(exam).values())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -133,7 +153,6 @@ def get_period(user: User, now=datetime.now()):
     user => grade
     time => quarter(4, 6, 10, 12)
     """
-    # とりあえずサンプル値を返す
     return {
         'grade': get_grade(user, now),
         'quarter': get_quarters(now)
