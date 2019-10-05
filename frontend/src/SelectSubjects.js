@@ -15,6 +15,7 @@ class SelectSubjects extends React.Component {
   }
 
   decideSubjectsAndYear(pk, name) {
+    this.props.setSubjectPk(pk);
     let years = [];
 
     axios
