@@ -45,17 +45,14 @@ class Exam extends React.Component {
       <div className="Exam">
         <div className="ExamContents">
           <Router>
-            <Route exact path="/exam" render={() =>
-              <SelectSubjects
-                setSubjectName={this.setSubjectName}
-                setSubjectYear={this.setSubjectYear}
-                setSubjectPk={this.setSubjectPk} />
-            } />
-            <Route path={`/exam/${this.state.subjectsName}/${this.state.subjectYear}`} render={() =>
-              <SubjectPosts
-                subjectsName={this.state.subjectsName}
-                subjectsPk={this.state.subjectsPk} />}
-            />
+            <Route exact path="/exam" render={() => <SelectSubjects />} />
+            {/* setSubjectName={this.setSubjectName} */}
+            {/* setSubjectYear={this.setSubjectYear} */}
+            {/* setSubjectPk={this.setSubjectPk} /> */}
+            {/* <Route path={`/exam/`} render={() => <SubjectPosts />} /> */}
+            {/* subjectsName={this.state.subjectsName} */}
+            {/* subjectsPk={this.state.subjectsPk} */}
+            {/* /> */}
           </Router>
         </div>
         <div className="RightsideBar">

@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
 import Zwitter from './Zwitter.js';
 import Exam from './Exam.js';
+import Login from './Login.js';
 
 class App extends React.Component {
   render() {
@@ -22,10 +23,12 @@ class App extends React.Component {
               <li><Link to="/exam">
                 <FontAwesomeIcon icon={['fas', 'pencil-ruler']} size="5x" />
               </Link></li>
+              <li><Link to="/login">Login</Link></li>
             </ul>
           </div>
           <Route exact path="/" component={Zwitter} />
           <Route path="/exam" component={Exam} />
+          <Route path="/login" component={Login} />
         </Router>
       </div>
     );
@@ -34,10 +37,10 @@ class App extends React.Component {
 
 export default App;
 
-// Test Using Axios
+    // Test Using Axios
 
-// axios
-//   .get('api/users')
+    // axios
+    //   .get('api/users')
 //   .then(response => {
 //     console.log(response.data);
 //   })
