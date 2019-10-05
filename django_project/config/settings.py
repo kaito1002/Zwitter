@@ -33,7 +33,6 @@ ALLOWED_HOSTS = [
     'ec2-18-219-184-183.us-east-2.compute.amazonaws.com'
 ]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,10 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
     'spa',
     'api'
 ]
+
+AUTH_USER_MODEL = 'api.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,7 +141,16 @@ STATICFILES_DIRS = [
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'
-        ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    )
 }
+
+# とりあえずPRODUCTでのみ認証が必要な仕様にしておく
+if not DEBUG:
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
+        'rest_framework.permissions.IsAuthenticated',
+    )

@@ -16,11 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from spa import views
+from rest_framework.authtoken import views as auth_views
 from api.urls import router
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api-token-auth/', auth_views.obtain_auth_token),
     path('', views.index, name='index'),
-    path('<filename>', views.file, name='file')
+    path('<filename>', views.file, name='file'),
 ]

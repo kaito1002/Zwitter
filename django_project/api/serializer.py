@@ -1,33 +1,48 @@
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from .models import User, Subject, Exam, Content, Comment
 from .models import Post, Like, Share
+from .models import Grade, Quarter
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('pk', 'name', 'number', 'coin', 'passwd')
+        fields = ('pk', 'name', 'number', 'email', 'coin', 'password')
         extra_kwargs = {
             'coin': {'read_only': True},
-            'passwd': {'write_only': True}
+            'email': {'read_only': True},
+            'password': {'write_only': True}
             }
 
     def create(self, validated_data):
-        user = User(
+        return User.create_user(
             name=validated_data['name'],
             number=validated_data['number'],
             coin=0,
-            passwd=make_password(validated_data['passwd'])
+            password=validated_data['password']
         )
-        user.save()
-        return user
 
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ('pk', 'name', 'grade', 'quarter')
+        fields = ('pk', 'name', )
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+
+    class Meta:
+        model = Grade
+        fields = ('pk', 'subject', 'grade')
+
+
+class QuarterSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer()
+
+    class Meta:
+        model = Quarter
+        fields = ('pk', 'subject', 'quarter')
 
 
 class ExamSerializer(serializers.ModelSerializer):

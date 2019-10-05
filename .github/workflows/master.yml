@@ -35,13 +35,12 @@ jobs:
         docker-compose up -d
     - name: Run Connection Test
       run: |
-        # curl -f -I http://127.0.0.1:80
+        curl -f -I http://127.0.0.1:80
     - name: Kill Containers
       run: |
         docker-compose down
         sudo systemctl stop webhook.service
     - name: deploy
       run: |
-        URL="ec2-18-219-184-183.us-east-2.compute.amazonaws.com/webhook"
-        KEY='"'${{ secrets.KEY }}'"'
-        curl -X POST ${URL} -d '{"key":"'"${KEY}"'"}'
+        URL="http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/webhook"
+        curl -X POST ${URL} -d '{"key":"'"${{ secrets.KEY }}"'"}'
