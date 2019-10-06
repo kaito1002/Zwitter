@@ -40,15 +40,21 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
+        try:
+            subjects = get_subjects(user=request.user)
+        except Exception:  # not login
+            subjects = []
 
-        subject = Q(id=subjects[0])
-        for i in range(1, len(subjects)):
-            subject = subject | Q(id=subjects[i])
+        if len(subjects) > 0:
+            subject = Q(id=subjects[0])
+            for i in range(1, len(subjects)):
+                subject = subject | Q(id=subjects[i])
 
-        return Response(Subject.objects.filter(
-            subject
-        ).values())
+            return Response(Subject.objects.filter(
+                subject
+            ).values())
+        else:
+            return Response([])
 
 
 class GradeViewSet(viewsets.ModelViewSet):
