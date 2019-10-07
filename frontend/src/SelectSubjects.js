@@ -11,12 +11,7 @@ class SelectSubjects extends React.Component {
       subjects: [],
       token: undefined,
     }
-    this.moveToExamList = this.moveToExamList.bind(this);
     this.setExamLink = this.setExamLink.bind(this);
-  }
-
-  moveToExamList(subjectName) {
-
   }
 
   setExamLink(subjectName, subjectPk) {
@@ -65,7 +60,3 @@ class SelectSubjects extends React.Component {
 }
 
 export default withRouter(SelectSubjects);
-
-/* <p key={index} onClick={() => this.setExamLink(subject.name)}>
-            {subject.id}:{subject.name}
-          </p> */

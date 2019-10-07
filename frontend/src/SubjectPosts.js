@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 
+import { Link } from 'react-router-dom';
 
-class SubjectPosts extends React.Component {
+export class SubjectPosts extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,9 +14,7 @@ class SubjectPosts extends React.Component {
   componentDidMount() {
     console.log(this.props.subjectName)
     axios
-      // * 本番用
-      // * .get(`/api/exams/?subject=${this.props.subjectPk}`)
-      .get(`/api/exams/?subject=92`)
+      .get(`/api/exams/?subject=${this.props.subjectPk}`)
       .then(Response => {
         console.log(Response)
         console.log(Response.data.results)
@@ -26,24 +25,8 @@ class SubjectPosts extends React.Component {
       .catch(err => {
         console.log(err)
       })
-
-    // TODO 以下のコメントアウトしてあるコードでどのような動作をするか木村に聞く
-    // TODO 具体的にはSubjectsにuser_relatedが必要なのはわかるが、Examにはuser_relatedが必要か？と思ったから
-    /*
-    *axios
-    *  .get(`/api/exams/?subject=92`, {
-    *    headers: {
-    *      Authorization: `TOKEN ${this.state.token}`
-    *    }
-    *  })
-    *  .then(Response => {
-    *    console.log(Response)
-    *  })
-    *  .catch(err => {
-    *    console.log(err)
-    *  })
-    */
   }
+
   render() {
     return (
       <div className="SubjectPosts">
@@ -51,8 +34,10 @@ class SubjectPosts extends React.Component {
           {this.props.subjectPk}:{this.props.subjectName}
         </h1>
         {this.state.posts.map((post, index) =>
-          <p key={index}>
-            {post.subject.name}:{post.year}
+          <p key={index} onClick={() => this.props.setSelectSubjectYear(post.pk, post.year)}>
+            <Link to={`/exam/${this.props.subjectName}/${post.year}`}>
+              {post.subject.name}:{post.year}
+            </Link>
           </p>
         )}
       </div>
@@ -60,4 +45,30 @@ class SubjectPosts extends React.Component {
   }
 }
 
-export default SubjectPosts;
+export class SubjectPostsContents extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    }
+  }
+
+  componentDidMount() {
+    // console.log(this.props.subjectName)
+    axios
+      .get(`/api/contents/?exam=${this.props.examPk}&poster=`)
+      .then(Response => {
+        console.log(Response)
+        console.log(Response.data.results)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+  render() {
+    return (
+      <div className="SubjectPostsContents">
+        <h1>SubjectPostsContents!</h1>
+      </div>
+    )
+  }
+}

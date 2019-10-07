@@ -1,14 +1,13 @@
 import React from 'react';
 import './Exam.css';
 import SelectSubjects from './SelectSubjects.js'
-// import SubjectPosts from './SubjectPosts.js';
+import { SubjectPosts, SubjectPostsContents } from './SubjectPosts.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // import axios from 'axios';
 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import SubjectPosts from './SubjectPosts';
 
 class Exam extends React.Component {
   constructor(props) {
@@ -16,9 +15,13 @@ class Exam extends React.Component {
     this.state = {
       selectSubjectName: undefined,
       selectSubjectPk: undefined,
+      selectSubjectYear: undefined,
+      selectSubjectExamPk: undefined,
+
     }
     this.setSelectSubjectName = this.setSelectSubjectName.bind(this);
     this.setSelectSubjectPk = this.setSelectSubjectPk.bind(this);
+    this.setSelectSubjectYear = this.setSelectSubjectYear.bind(this);
   }
 
   setSelectSubjectName(subjectName) {
@@ -33,6 +36,13 @@ class Exam extends React.Component {
     })
   }
 
+  setSelectSubjectYear(examPk, subjectYear) {
+    this.setState({
+      selectSubjectYear: subjectYear,
+      selectSubjectExamPk: examPk,
+    })
+  }
+
   render() {
     return (
       <div className="Exam">
@@ -44,10 +54,16 @@ class Exam extends React.Component {
                 setSelectSubjectPk={this.setSelectSubjectPk}
               />}
             />
-            <Route path={`/exam/${this.state.selectSubjectName}`} render={() =>
+            <Route exact path={`/exam/${this.state.selectSubjectName}`} render={() =>
               <SubjectPosts
                 subjectName={this.state.selectSubjectName}
                 subjectPk={this.state.selectSubjectPk}
+                setSelectSubjectYear={this.setSelectSubjectYear}
+              />}
+            />
+            <Route exact path={`/exam/${this.state.selectSubjectName}/${this.state.selectSubjectYear}`} render={() =>
+              <SubjectPostsContents
+                examPk={this.state.selectSubjectExamPk}
               />}
             />
           </Router>
