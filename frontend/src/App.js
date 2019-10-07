@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import axios from 'axios';
+// import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

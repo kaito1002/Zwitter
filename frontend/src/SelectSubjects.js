@@ -2,61 +2,44 @@ import React from 'react';
 
 import axios from 'axios';
 
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 class SelectSubjects extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      // subjects: [],
-      // subjectYear: null,
+      subjects: [],
+      token: undefined,
     }
-    // this.decideSubjectsAndYear = this.decideSubjectsAndYear.bind(this);
+    this.moveToExamList = this.moveToExamList.bind(this);
+    this.setExamLink = this.setExamLink.bind(this);
   }
 
-  // decideSubjectsAndYear(pk, name) {
-  //   this.props.setSubjectPk(pk);
-  //   let years = [];
+  moveToExamList(subjectName) {
 
-  //   axios
-  //     .get(`/api/exams/?subject=${pk}`)
-  //     .then(response => {
-  //       for (let i = 0; i < response.data.results.length; i++) {
-  //         years.push(response.data.results[i].year);
-  //       }
-  //       let year = Math.max.apply(null, years);
-  //       this.props.setSubjectName(name);
-  //       this.props.setSubjectYear(year);
-  //       // ページ遷移
-  //       this.props.history.push(`/exam/${name}/${year}`)
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     })
+  }
 
-  // }
+  setExamLink(subjectName, subjectPk) {
+    this.props.setSelectSubjectName(subjectName);
+    this.props.setSelectSubjectPk(subjectPk)
+  }
 
   componentDidMount() {
     var storedToken = localStorage.getItem('storedToken');
     storedToken = JSON.parse(storedToken);
     if (storedToken) {
-      console.log(storedToken)
       axios
-        // .get('/api/subjects')
         .get('/api/subjects/user_related/', {
           headers: {
             Authorization: `TOKEN ${storedToken}`
           }
         })
         .then(subjectsResponse => {
-          // let subjects = [];
-          // for (let i = 0; i < subjectsResponse.data.results.length; i++) {
-          //   subjects.push(subjectsResponse.data.results[i])
-          // }
-          // this.setState({
-          //   subjects: subjects
-          // })
-          console.log(subjectsResponse.data)
+          // console.log(subjectsResponse)
+          this.setState({
+            token: storedToken,
+            subjects: subjectsResponse.data
+          })
         })
         .catch(err => {
           console.log(err);
@@ -69,17 +52,20 @@ class SelectSubjects extends React.Component {
   render() {
     return (
       <div className="SelectSubjects">
-        {/* {this.state.subjects.map((subject, index) => */}
-        {/* <p key={index} onClick={() => this.decideSubjectsAndYear(subject.pk, subject.name)}> */}
-        {/* <Link to={`/exam/${subject.name}/${subject.year}`} onClick={() => this.decideSubjectsAndYear(subject.name, subject.year)}> */}
-        {/* {subject.name} */}
-        {/* </Link> */}
-        {/* {subject.name} */}
-        {/* </p> */}
-        {/* )} */}
+        {this.state.subjects.map((subject, index) =>
+          <p key={index} onClick={() => this.setExamLink(subject.name, subject.id)}>
+            <Link to={`/exam/${subject.name}`}>
+              {subject.id}:{subject.name}
+            </Link>
+          </p>
+        )}
       </div>
     )
   }
 }
 
 export default withRouter(SelectSubjects);
+
+/* <p key={index} onClick={() => this.setExamLink(subject.name)}>
+            {subject.id}:{subject.name}
+          </p> */

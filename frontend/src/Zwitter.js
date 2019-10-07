@@ -3,7 +3,7 @@ import './Zwitter.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+// import { BrowserRouter as Router, Link } from 'react-router-dom';
 
 class Zwitter extends React.Component {
   render() {
