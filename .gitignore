@@ -1,4 +1,5 @@
 # add
+.idea
 *.DS_Store
 zwitter.pem
 subjects.csv
