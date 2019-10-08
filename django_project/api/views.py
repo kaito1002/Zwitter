@@ -14,8 +14,6 @@ from django.db.models import Q
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    authentication_classes = []
-    permission_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
