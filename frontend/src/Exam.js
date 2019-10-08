@@ -1,4 +1,5 @@
 import React from 'react';
+import './Exam.css';
 
 import axios from 'axios';
 import { HashRouter, Switch, withRouter, Route, Link } from 'react-router-dom';
@@ -28,7 +29,7 @@ class Exam extends React.Component {
     if (!storedToken) {
       this.props.history.push('/');
     } else {
-      console.log(this.props.history.location.pathname)
+      // console.log(this.props.history.location.pathname)
       if (this.props.history.location.pathname === "/Exam") {
         axios
           .get('/api/subjects/user_related/', {
@@ -36,10 +37,10 @@ class Exam extends React.Component {
               Authorization: `TOKEN ${storedToken}`
             }
           })
-          .then(subjectsResponse => {
-            // console.log(subjectsResponse)
+          .then(Response => {
+            // console.log(Response)
             this.setState({
-              subjects: subjectsResponse.data,
+              subjects: Response.data,
               nowLoading: true,
             })
           })
@@ -77,7 +78,9 @@ class Exam extends React.Component {
                 {/* <Route component={Exam} /> */}
               </Switch>
             </HashRouter>
-            <Link to="/Zwitter">Zwitter</Link>
+            <div className="LinkToZwitter">
+              <Link to="/Zwitter">Zwitter</Link>
+            </div>
           </span>
         ) : (
             <Spinner />
@@ -108,7 +111,10 @@ class ExamLists extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      exams: [],
+      contents: [],
       nowLoading: false,
+      nullExamsMessage: undefined,
     }
   }
 
@@ -126,11 +132,18 @@ class ExamLists extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response.data.results)
-          this.setState({
-            exams: Response.data.results,
-            nowLoading: true,
-          })
+          console.log(Response)
+          if (Response.data.results.length !== 0) {
+            this.setState({
+              exams: Response.data.results,
+            })
+          } else {
+            this.setState({
+              exams: [],
+              nullExamsMessage: 'まだ何も投稿がありません',
+              nowLoading: true,
+            })
+          }
         })
         .catch(err => {
           console.log(err);
@@ -145,10 +158,10 @@ class ExamLists extends React.Component {
         })
         .then(Response => {
           console.log(Response.data.results)
-          // this.setState({
-          //   exams: Response.data.results,
-          //   nowLoading: true,
-          // })
+          this.setState({
+            contents: Response.data.results,
+            nowLoading: true,
+          })
         })
         .catch(err => {
           console.log(err);
@@ -163,6 +176,16 @@ class ExamLists extends React.Component {
         {this.state.nowLoading ? (
           <span>
             <h1>{this.props.subject}</h1>
+            <h1>{this.state.nullExamsMessage}</h1>
+            {this.state.contents.map((content, index) =>
+              <div className={`Content${index}`} key={index}>
+                <p>{content.data}</p>
+                <p>投稿日時:{content.posted_at}</p>
+                <p>投稿者:{content.poster.name}</p>
+                <p>学籍番号:{content.poster.number}</p>
+              </div>
+            )}
+            <hr />
             {this.state.exams.map((exam, index) =>
               <p key={index}>
                 <Link to={`/${this.props.subject}/${exam.year}`}>
@@ -182,7 +205,7 @@ class ExamLists extends React.Component {
 
 function Spinner() {
   return (
-    <p>Now Loading...</p>
+    <div className="loader">Now Loading...</div>
   )
 }
 
