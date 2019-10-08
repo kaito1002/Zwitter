@@ -40,8 +40,6 @@ class SelectSubjects extends React.Component {
           console.log(err);
         })
     };
-
-
   }
 
   render() {

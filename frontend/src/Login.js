@@ -1,40 +1,25 @@
 import React from 'react';
-import './Login.css';
 
 import axios from 'axios';
-// import { BrouserRouter as Router, Route } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
+      userNumber: undefined,
       password: undefined,
+      validationMessage: undefined,
     }
-    this.changeUsername = this.changeUsername.bind(this);
+    this.changeUserNumber = this.changeUserNumber.bind(this);
     this.changePassword = this.changePassword.bind(this);
-    this.sendUserInformation = this.sendUserInformation.bind(this);
-    this.updateLocalStorage = this.updateLocalStorage.bind(this)
+    this.loginAdministration = this.loginAdministration.bind(this);
+    this.updateLocalStorage = this.updateLocalStorage.bind(this);
   }
 
-  sendUserInformation() {
-    axios
-      .post('/api-token-auth/', {
-        username: this.state.username,
-        password: this.state.password
-      })
-      .then(response => {
-        console.log(response.data.token);
-        this.updateLocalStorage(response.data.token, 'storedToken')
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  }
-
-  changeUsername(e) {
+  changeUserNumber(e) {
     this.setState({
-      username: e.target.value
+      userNumber: e.target.value
     })
   }
 
@@ -44,6 +29,27 @@ class Login extends React.Component {
     })
   }
 
+  loginAdministration() {
+    // console.log(this.state.userNumber);
+    // console.log(this.state.password);
+    axios
+      .post('/api-token-auth/', {
+        username: this.state.userNumber,
+        password: this.state.password
+      })
+      .then(response => {
+        console.log(response.data.token);
+        this.updateLocalStorage(response.data.token, 'storedToken');
+        this.props.history.push('/Zwitter');
+      })
+      .catch(err => {
+        this.setState({
+          validationMessage: "学籍番号、またはパスワードが不正です"
+        })
+        console.log(err);
+      })
+  }
+
   updateLocalStorage(data, name) {
     localStorage.setItem(name, JSON.stringify(data));
   }
@@ -51,28 +57,25 @@ class Login extends React.Component {
   render() {
     return (
       <div className="Login">
-        <h1>Login Page</h1>
-        <p>学籍番号</p>
-        <input type="text" name="username" value={this.username}
-          onChange={(e) => this.changeUsername(e)}></input>
-        <p>パスワード</p>
-        <input type="password" name="password" value={this.state.password}
-          onChange={(e) => this.changePassword(e)}></input>
-        <input type="submit" name="submit" onClick={() => this.sendUserInformation()}>
-        </input>
+        <h1>Login</h1>
+        <p>User Number</p>
+        <input type="text"
+          onChange={(e) => this.changeUserNumber(e)} />
+        <p>Password</p>
+        <input type="password"
+          onChange={(e) => this.changePassword(e)} />
+        <p>
+          <button type="submit"
+            onClick={() => this.loginAdministration()}>
+            Submit
+          </button>
+        </p>
+        <h1>
+          {this.state.validationMessage}
+        </h1>
       </div>
-    )
-  }
-
-  componentDidMount() {
-    var storedToken = localStorage.getItem('storedToken');
-    storedToken = JSON.parse(storedToken);
-    if (storedToken) {
-      this.setState({
-        token: storedToken
-      });
-    };
+    );
   }
 }
 
-export default Login;
+export default withRouter(Login);

@@ -1,23 +1,24 @@
 import React from 'react';
-import './Zwitter.css';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-// import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 class Zwitter extends React.Component {
+  componentDidMount() {
+    var storedToken = localStorage.getItem('storedToken');
+    storedToken = JSON.parse(storedToken);
+    if (!storedToken) {
+      this.props.history.push('/');
+    };
+  }
+
   render() {
     return (
       <div className="Zwitter">
-        <div className="ZwitterContents">
-          <h1>This is Zwitter.</h1>
-        </div>
-        <div className="RightsideBar">
-          <FontAwesomeIcon icon={['fas', 'cog']} size="5x" className="configIcon" />
-        </div>
+        <h1>This is Zwitter Home</h1>
+        <Link to="/Exam">Exam</Link>
       </div>
     )
   }
 }
 
-export default Zwitter;
+export default withRouter(Zwitter);
