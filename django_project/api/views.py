@@ -11,6 +11,7 @@ from .serializer import GradeSerializer, QuarterSerializer
 from rest_framework.decorators import action
 from datetime import datetime
 from django.db.models import Q
+from functools import reduce
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -25,23 +26,12 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        if len(subjects) > 0:  # 正常
-            target = Q(id=subjects[0])
-            for i in range(1, len(subjects)):
-                target = target | Q(id=subjects[i])
-
-            res = Subject.objects.filter(
-                target
-            ).values()
-        else:  # 該当科目なし
-            res = []
-        return Response(res)
+        return Response(Subject.objects.filter(
+            reduce(lambda s, t: s | Q(id=t), get_subjects(user=request.user), Q())
+        ).values())
 
     @action(methods=['GET'], detail=True, url_path='years')
     def latest_year(self, request, pk):
-        subjects = get_subjects(user=request.user)
         exams = Exam.objects.all().filter(subject_id=pk).values()
 
         years = []
@@ -85,13 +75,9 @@ class ExamViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def exam_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        exam = Q(subject_id=subjects[0])
-        for i in range(1, len(subjects)):
-            exam = exam | Q(subject_id=subjects[i])
-
-        return Response(Exam.objects.all().filter(exam).values())
+        return Response(Exam.objects.all().filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values())
 
 
 class ContentViewSet(viewsets.ModelViewSet):
@@ -102,13 +88,9 @@ class ContentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def content_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        exam = Q(exam_id=subjects[0])
-        for i in range(1, len(subjects)):
-            exam = exam | Q(exam_id=subjects[i])
-
-        return Response(Content.objects.all().filter(exam).values())
+        return Response(Content.objects.all().filter(
+            reduce(lambda s, t: s | Q(exam_id=t), get_subjects(user=request.user), Q())
+        ).values())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -139,14 +121,10 @@ class ShareViewSet(viewsets.ModelViewSet):
     filterset_fields = ('post')
 
 
-def get_subjects(user):
+def get_subjects(user) -> list:
     period = get_period(user=user)
-    quarter = Q(quarter=period["quarter"][0])
-    for i in range(1, len(period["quarter"])):
-        quarter = quarter | Q(quarter=period["quarter"][i])
-
     proper_quarter = set([_["subject_id"] for _ in Quarter.objects.filter(
-        quarter
+        reduce(lambda s, t: s | Q(quarter=t), period['quarter'], Q())
     ).values()])
 
     proper_grade = set([_["subject_id"] for _ in Grade.objects.filter(
