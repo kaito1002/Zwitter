@@ -8,12 +8,9 @@ from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
 from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from .serializer import GradeSerializer, QuarterSerializer
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from datetime import datetime
 from django.db.models import Q
-# from rest_framework.authentication import TokenAuthentication
-# from rest_framework.permissions import IsAuthenticated
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -21,16 +18,6 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    @action(methods=['POST'], detail=True, url_path='login')
-    def login(self, request, pk=None):
-        # return request
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        success_login = False
-        if user is not None and user.auth(request.POST['password']):
-            success_login = True
-        return Response({'success': success_login})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
@@ -40,21 +27,37 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        try:
-            subjects = get_subjects(user=request.user)
-        except Exception:  # not login
-            subjects = []
+        subjects = get_subjects(user=request.user)
 
-        if len(subjects) > 0:
-            subject = Q(id=subjects[0])
+        if len(subjects) > 0:  # 正常
+            target = Q(id=subjects[0])
             for i in range(1, len(subjects)):
-                subject = subject | Q(id=subjects[i])
+                target = target | Q(id=subjects[i])
 
-            return Response(Subject.objects.filter(
-                subject
-            ).values())
+            res = Subject.objects.filter(
+                target
+            ).values()
+        else:  # 該当科目なし
+            res = []
+        return Response(res)
+
+    @action(methods=['GET'], detail=True, url_path='years')
+    def latest_year(self, request, pk):
+        subjects = get_subjects(user=request.user)
+        exams = Exam.objects.all().filter(subject_id=pk).values()
+
+        years = []
+        for exam in exams:
+            if exam['year'] not in years:
+                years.append(exam['year'])
+
+        years.sort(reverse=True)
+        if len(years) == 0:
+            latest = None
         else:
-            return Response([])
+            latest = years[0]
+
+        return Response({'years': years, 'latest': latest})
 
 
 class GradeViewSet(viewsets.ModelViewSet):
@@ -78,7 +81,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     filterset_fields = ('subject', )
 
     @action(methods=['GET'], detail=False, url_path='user_related')
-    def subject_list_user_related(self, request):
+    def exam_list_user_related(self, request):
         subjects = get_subjects(user=request.user)
 
         exam = Q(subject_id=subjects[0])
@@ -147,10 +150,6 @@ def get_subjects(user):
         grade=period["grade"]
     ).values()])
 
-    quarter = Q(quarter=period["quarter"][0])
-    for i in range(1, len(period["quarter"])):
-        quarter = quarter | Q(quarter=period["quarter"][i])
-
     return list(proper_grade & proper_quarter)
 
 
@@ -159,26 +158,25 @@ def get_period(user: User, now=datetime.now()):
     user => grade
     time => quarter(4, 6, 10, 12)
     """
+    try:
+        grade = user.grade
+    except AttributeError:  # Not logined
+        grade = 1
     return {
-        'grade': get_grade(user, now),
+        'grade': grade,
         'quarter': get_quarters(now)
     }
-
-
-def get_grade(user: User, now):
-    grade = now.year - int(user.number[1:5]) - 766
-    return grade - 1 if now.month in [1, 2, 3] else grade
 
 
 def get_quarters(now):
     month = now.month
     quarters = []
     if month > 10:   # 4 Quarter
-        quarters = ["前期", "第4学期"]
+        quarters = ["後期", "4学期"]
     elif month > 6:  # 3 Quarter
-        quarters = ["前期", "第3学期"]
+        quarters = ["後期", "3学期"]
     elif month > 4:  # 2 Quarter
-        quarters = ["後期", "第2学期"]
+        quarters = ["前期", "2学期"]
     else:            # 1 Quarter
-        quarters = ["後期", "第1学期"]
+        quarters = ["期", "1学期"]
     return quarters

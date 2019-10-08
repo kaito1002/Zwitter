@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
+from datetime import datetime
 
 
 class UserManager(BaseUserManager):
@@ -74,6 +75,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def auth(self, password):
         return check_password(password, self.password)
+
+    @property
+    def grade(self):
+        now = datetime.now()
+        grade = now.year - int(self.number[1:5]) - 766
+        return grade - 1 if now.month in [1, 2, 3] else grade
 
     __str__ = __repr__
 
