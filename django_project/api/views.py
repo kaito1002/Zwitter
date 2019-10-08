@@ -59,6 +59,11 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
         return Response({'years': years, 'latest': latest})
 
+    @action(methods=['GET'], detail=False, url_path='search')
+    def search(self, request):
+        subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
+        return Response(subjects.values())
+
 
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()

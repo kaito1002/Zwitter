@@ -38,6 +38,7 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/subjects/ | 科目一覧を取得 |
 | GET | /api/subjects/user_related/ | 認証ユーザーに関連する科目一覧を取得 |
 | GET | /api/subjects/<subject_id>/years/ | データが存在する年度を取得 |
+| GET | /api/subjects/search/?keyword=<検索ワード> | 科目の検索API |
 | POST | /api/comments/ | コメントを投稿 |
 | GET | /api/comments/?exam=<exam_id>/ | Examに紐付いたコメント一覧を取得 |
 | GET | /api/comments/?bef_comment=<comment_id>/ | コメントに対する返信一覧を取得 |
