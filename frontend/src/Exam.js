@@ -2,7 +2,7 @@ import React from 'react';
 import './Exam.css';
 
 import axios from 'axios';
-import { HashRouter, Switch, withRouter, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, withRouter, Route, Link } from 'react-router-dom';
 
 class Exam extends React.Component {
   constructor(props) {
@@ -62,24 +62,32 @@ class Exam extends React.Component {
     return (
       <div className="Exam">
         {this.state.nowLoading ? (
-          <span>
-            <HashRouter basename="/Exam">
-              <Switch>
-                <Route exact path="/" render={() =>
-                  <SubjectsLists
-                    subjects={this.state.subjects}
-                    setSelectSubject={this.setSelectSubject} />
-                } />
-                <Route exact path={`/${this.state.selectSubjectName}`} render={() =>
-                  <ExamLists
-                    subject={this.state.selectSubjectName}
-                    pk={this.state.selectSubjectPk} />
-                } />
-                {/* <Route component={Exam} /> */}
-              </Switch>
-            </HashRouter>
-            <div className="LinkToZwitter">
-              <Link to="/Zwitter">Zwitter</Link>
+          <span className="ExamContents">
+            <div className="LeftSideMenu">
+              <div className="LinkToZwitter">
+                <Link to="/Zwitter">
+                  Zwitter
+                </Link>
+              </div>
+            </div>
+            <div className="MainContents">
+              <Router basename="/Exam">
+                <Switch>
+                  <Route exact path="/" render={() =>
+                    <SubjectsLists
+                      subjects={this.state.subjects}
+                      setSelectSubject={this.setSelectSubject} />
+                  } />
+                  <Route exact path={`/${this.state.selectSubjectName}`} render={() =>
+                    <ExamLists
+                      subject={this.state.selectSubjectName}
+                      pk={this.state.selectSubjectPk} />
+                  } />
+                </Switch>
+              </Router>
+            </div>
+            <div className="RightSideMenu">
+              <p>RightSideMenu</p>
             </div>
           </span>
         ) : (
@@ -132,7 +140,7 @@ class ExamLists extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response)
+          // console.log(Response)
           if (Response.data.results.length !== 0) {
             this.setState({
               exams: Response.data.results,
@@ -157,11 +165,28 @@ class ExamLists extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response.data.results)
+          // console.log(Response.data.results)
           this.setState({
             contents: Response.data.results,
             nowLoading: true,
           })
+        })
+        .catch(err => {
+          console.log(err);
+        })
+
+      axios
+        .get(`/api/exams/user_related/`, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        })
+        .then(Response => {
+          console.log(Response.data)
+          // this.setState({
+          //   contents: Response.data.results,
+          //   nowLoading: true,
+          // })
         })
         .catch(err => {
           console.log(err);

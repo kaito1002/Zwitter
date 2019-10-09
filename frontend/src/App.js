@@ -4,7 +4,7 @@ import './App.css';
 // import axios from 'axios';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { HashRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import AppIndex from './AppIndex.js';
 import Login from './Login.js';
@@ -15,7 +15,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <HashRouter>
+        <Router>
           <Switch>
             <Route exact path="/" component={AppIndex} />
             <Route path="/Login" component={Login} />
@@ -23,7 +23,7 @@ class App extends React.Component {
             <Route path="/Exam" component={Exam} />
             {/* <Route component={Zwitter} /> */}
           </Switch>
-        </HashRouter>
+        </Router>
       </div>
     );
   }
