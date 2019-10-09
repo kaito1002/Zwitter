@@ -38,6 +38,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
                 subjects[exam['subject_id']]['years'].append(exam['year'])
                 if subjects[exam['subject_id']]['latest'] < exam['year']:
                     subjects[exam['subject_id']]['latest'] = exam['year']
+
             else:
                 # 新規
                 subjects[exam['subject_id']] = {
@@ -46,7 +47,11 @@ class SubjectViewSet(viewsets.ModelViewSet):
                     'latest': exam['year'],
                     'years': [exam['year'], ]
                 }
-        subjects[exam['subject_id']]['years'].sort(reverse=True)
+
+        # sort
+        for key in subjects.keys():
+            subjects[key]['years'].sort(reverse=True)
+
         res = {
             'subjects': list(subjects.values()),
         }
