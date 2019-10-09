@@ -55,7 +55,6 @@ class SubjectViewSet(viewsets.ModelViewSet):
         res = {
             'subjects': list(subjects.values()),
         }
-        print(res)
         return Response(res)
 
     @action(methods=['GET'], detail=False, url_path='user_related')
