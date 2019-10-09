@@ -24,6 +24,35 @@ class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
 
+    @action(methods=['GET'], detail=False, url_path='user_related_exists')
+    def subject_exists_user_related(self, request):
+        exams = Exam.objects.all().filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values()
+
+        subjects = {}
+
+        for exam in exams:
+            if exam['subject_id'] in subjects.keys():
+                # 既存
+                subjects[exam['subject_id']]['years'].append(exam['year'])
+                if subjects[exam['subject_id']]['latest'] < exam['year']:
+                    subjects[exam['subject_id']]['latest'] = exam['year']
+            else:
+                # 新規
+                subjects[exam['subject_id']] = {
+                    'id': exam['subject_id'],
+                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
+                    'latest': exam['year'],
+                    'years': [exam['year'], ]
+                }
+        subjects[exam['subject_id']]['years'].sort(reverse=True)
+        res = {
+            'subjects': list(subjects.values()),
+        }
+        print(res)
+        return Response(res)
+
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
         return Response(Subject.objects.filter(
