@@ -153,11 +153,12 @@ REST_FRAMEWORK = {
         ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
 }
 
-# とりあえずPRODUCTでのみ認証が必要な仕様にしておく
-if not DEBUG:
-    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
-        'rest_framework.permissions.IsAuthenticated',
-    )
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = []
+
