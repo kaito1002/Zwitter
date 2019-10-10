@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
@@ -59,7 +60,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',  # for react dev server
+)
 
 ROOT_URLCONF = 'config.urls'
 
@@ -146,11 +153,12 @@ REST_FRAMEWORK = {
         ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
 }
 
-# とりあえずPRODUCTでのみ認証が必要な仕様にしておく
-if not DEBUG:
-    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = (
-        'rest_framework.permissions.IsAuthenticated',
-    )
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_PERMISSION_CLASSES'] = []
+

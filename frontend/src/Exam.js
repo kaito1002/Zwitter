@@ -2,119 +2,103 @@ import React from 'react';
 import './Exam.css';
 
 import axios from 'axios';
-
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { HashRouter, Switch, withRouter, Route, Link } from 'react-router-dom';
 
 class Exam extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      subjectsName: null,
-      subjectYear: null,
+      nowLoading: false,
+      selectSubjectName: undefined,
+      selectSubjectPk: undefined,
+      validationReload: true,
     }
-    this.setSubjectName = this.setSubjectName.bind(this);
-    this.setSubjectYear = this.setSubjectYear.bind(this);
+    this.setSelectSubject = this.setSelectSubject.bind(this);
   }
 
-  setSubjectName(name) {
+  setSelectSubject(subjectName, subjectPk) {
     this.setState({
-      subjectsName: name
+      selectSubjectName: subjectName,
+      selectSubjectPk: subjectPk,
     })
   }
 
-  setSubjectYear(year) {
-    this.setState({
-      subjectYear: year
-    })
+  componentDidMount() {
+    var storedToken = localStorage.getItem('storedToken');
+    storedToken = JSON.parse(storedToken);
+    if (!storedToken) {
+      this.props.history.push('/');
+    } else {
+      // console.log(this.props.history.location.pathname)
+      if (this.props.history.location.pathname === "/Exam") {
+        axios
+          .get('/api/subjects/user_related/', {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          })
+          .then(Response => {
+            // console.log(Response)
+            this.setState({
+              subjects: Response.data,
+              nowLoading: true,
+            })
+          })
+          .catch(err => {
+            console.log(err);
+          })
+      }
+    };
+  }
+
+  UNSAFE_componentWillMount() {
+    // console.log(this.props.history.location)
+    if (this.props.history.location.pathname !== "/Exam") {
+      this.props.history.push(`/Exam`);
+    }
   }
 
   render() {
     return (
       <div className="Exam">
-        <div className="ExamContents">
-          <Router>
-            <Route exact path="/exam" render={() => <SelectSubjects setSubjectName={this.setSubjectName} setSubjectYear={this.setSubjectYear} />} />
-            <Route path={`/exam/${this.state.subjectsName}/${this.state.subjectYear}`} render={() => <SubjectPosts subjectsName={this.state.subjectsName} />} />
-          </Router>
-        </div>
-        <div className="RightsideBar">
-          Config
-        </div>
+        {this.state.nowLoading ? (
+          <span>
+            <HashRouter basename="/Exam">
+              <Switch>
+                <Route exact path="/" render={() =>
+                  <SubjectsLists
+                    subjects={this.state.subjects}
+                    setSelectSubject={this.setSelectSubject} />
+                } />
+                <Route exact path={`/${this.state.selectSubjectName}`} render={() =>
+                  <ExamLists
+                    subject={this.state.selectSubjectName}
+                    pk={this.state.selectSubjectPk} />
+                } />
+                {/* <Route component={Exam} /> */}
+              </Switch>
+            </HashRouter>
+            <div className="LinkToZwitter">
+              <Link to="/Zwitter">Zwitter</Link>
+            </div>
+          </span>
+        ) : (
+            <Spinner />
+          )
+        }
       </div>
     )
   }
 }
 
-export default Exam;
-
-class SelectSubjects extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      subjects: [],
-      subjectYear: null,
-    }
-    this.decideSubjectsAndYear = this.decideSubjectsAndYear.bind(this);
-  }
-
-  decideSubjectsAndYear(name, year) {
-    this.props.setSubjectName(name);
-    this.props.setSubjectYear(year);
-  }
-
-  componentDidMount() {
-    axios
-      .get('/api/subjects')
-      .then(subjectsResponse => {
-        let subjects = [];
-        for (let i = 0; i < subjectsResponse.data.results.length; i++) {
-          subjects.push(subjectsResponse.data.results[i])
-
-          // 最新の年情報をうまいこと会得する
-          axios
-            .get('/api/exams')
-            .then(examResponse => {
-              let years = [];
-              for (let j = 0; j < examResponse.data.results.length; j++) {
-                if (examResponse.data.results[j].subject.name === subjectsResponse.data.results[i].name) {
-                  years.push(examResponse.data.results[i].year)
-                }
-              }
-              let year = Math.max.apply(null, years);
-              // console.log(subjectsResponse.data.results[i].name + " " + year)
-              if (year !== Infinity) {
-                this.props.setSubjectYear(year);
-                this.setState({
-                  subjectYear: year
-                })
-                subjects[i]["year"] = year;
-              } else {
-                console.log("ERROR!")
-              }
-
-            })
-            .catch(err => {
-              console.log(err)
-            })
-
-        }
-        this.setState({
-          subjects: subjects
-        })
-        console.log(subjects)
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  }
-
+class SubjectsLists extends React.Component {
   render() {
     return (
-      <div className="SelectSubjects">
-        {this.state.subjects.map((subject, index) =>
-          <p key={index}>
-            <Link to={`/exam/${subject.name}/${subject.year}`} onClick={() => this.decideSubjectsAndYear(subject.name, subject.year)}>
-              {subject.name}
+      <div className="SubjectLists">
+        {this.props.subjects.map((subject, index) =>
+          <p key={index} onClick={() => this.props.setSelectSubject(subject.name, subject.id)}>
+            <Link to={`/${subject.name}`}>
+              {subject.id}:{subject.name}
             </Link>
           </p>
         )}
@@ -123,12 +107,106 @@ class SelectSubjects extends React.Component {
   }
 }
 
-class SubjectPosts extends React.Component {
+class ExamLists extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      exams: [],
+      contents: [],
+      nowLoading: false,
+      nullExamsMessage: undefined,
+    }
+  }
+
+  componentDidMount() {
+    var storedToken = localStorage.getItem('storedToken');
+    storedToken = JSON.parse(storedToken);
+    if (!storedToken) {
+      this.props.history.push('/');
+    } else {
+      // 年度情報を読み込みたい
+      axios
+        .get(`/api/exams/?subject=${this.props.pk}`, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        })
+        .then(Response => {
+          console.log(Response)
+          if (Response.data.results.length !== 0) {
+            this.setState({
+              exams: Response.data.results,
+            })
+          } else {
+            this.setState({
+              exams: [],
+              nullExamsMessage: 'まだ何も投稿がありません',
+              nowLoading: true,
+            })
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        })
+
+      // コンテンツを読み込みたい
+      axios
+        .get(`/api/contents/?exam=11&poster=`, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        })
+        .then(Response => {
+          console.log(Response.data.results)
+          this.setState({
+            contents: Response.data.results,
+            nowLoading: true,
+          })
+        })
+        .catch(err => {
+          console.log(err);
+        })
+
+    }
+  };
+
   render() {
     return (
-      <div className="SubjectPosts">
-        <h1>{this.props.subjectsName}</h1>
+      <div className="ExamLists">
+        {this.state.nowLoading ? (
+          <span>
+            <h1>{this.props.subject}</h1>
+            <h1>{this.state.nullExamsMessage}</h1>
+            {this.state.contents.map((content, index) =>
+              <div className={`Content${index}`} key={index}>
+                <p>{content.data}</p>
+                <p>投稿日時:{content.posted_at}</p>
+                <p>投稿者:{content.poster.name}</p>
+                <p>学籍番号:{content.poster.number}</p>
+              </div>
+            )}
+            <hr />
+            {this.state.exams.map((exam, index) =>
+              <p key={index}>
+                <Link to={`/${this.props.subject}/${exam.year}`}>
+                  {exam.year}
+                </Link>
+              </p>
+            )}
+          </span>
+        ) : (
+            <Spinner />
+          )
+        }
       </div>
     )
   }
 }
+
+function Spinner() {
+  return (
+    <div className="loader">Now Loading...</div>
+  )
+}
+
+export default withRouter(Exam);

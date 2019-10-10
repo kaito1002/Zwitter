@@ -8,29 +8,15 @@ from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
 from .serializer import PostSerializer, LikeSerializer, ShareSerializer
 from .serializer import GradeSerializer, QuarterSerializer
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from datetime import datetime
 from django.db.models import Q
-# from rest_framework.authentication import TokenAuthentication
-# from rest_framework.permissions import IsAuthenticated
+from functools import reduce
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    authentication_classes = []
-    permission_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    @action(methods=['POST'], detail=True, url_path='login')
-    def login(self, request, pk=None):
-        # return request
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
-        success_login = False
-        if user is not None and user.auth(request.POST['password']):
-            success_login = True
-        return Response({'success': success_login})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
@@ -38,17 +24,66 @@ class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
 
+    @action(methods=['GET'], detail=False, url_path='user_related_exists')
+    def subject_exists_user_related(self, request):
+        exams = Exam.objects.all().filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values()
+
+        subjects = {}
+
+        for exam in exams:
+            if exam['subject_id'] in subjects.keys():
+                # 既存
+                subjects[exam['subject_id']]['years'].append(exam['year'])
+                if subjects[exam['subject_id']]['latest'] < exam['year']:
+                    subjects[exam['subject_id']]['latest'] = exam['year']
+
+            else:
+                # 新規
+                subjects[exam['subject_id']] = {
+                    'id': exam['subject_id'],
+                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
+                    'latest': exam['year'],
+                    'years': [exam['year'], ]
+                }
+
+        # sort
+        for key in subjects.keys():
+            subjects[key]['years'].sort(reverse=True)
+
+        res = {
+            'subjects': list(subjects.values()),
+        }
+        return Response(res)
+
     @action(methods=['GET'], detail=False, url_path='user_related')
     def subject_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        subject = Q(id=subjects[0])
-        for i in range(1, len(subjects)):
-            subject = subject | Q(id=subjects[i])
-
         return Response(Subject.objects.filter(
-            subject
+            reduce(lambda s, t: s | Q(id=t), get_subjects(user=request.user), Q())
         ).values())
+
+    @action(methods=['GET'], detail=True, url_path='years')
+    def latest_year(self, request, pk):
+        exams = Exam.objects.all().filter(subject_id=pk).values()
+
+        years = []
+        for exam in exams:
+            if exam['year'] not in years:
+                years.append(exam['year'])
+
+        years.sort(reverse=True)
+        if len(years) == 0:
+            latest = None
+        else:
+            latest = years[0]
+
+        return Response({'years': years, 'latest': latest})
+
+    @action(methods=['GET'], detail=False, url_path='search')
+    def search(self, request):
+        subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
+        return Response(subjects.values())
 
 
 class GradeViewSet(viewsets.ModelViewSet):
@@ -72,14 +107,10 @@ class ExamViewSet(viewsets.ModelViewSet):
     filterset_fields = ('subject', )
 
     @action(methods=['GET'], detail=False, url_path='user_related')
-    def subject_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        exam = Q(subject_id=subjects[0])
-        for i in range(1, len(subjects)):
-            exam = exam | Q(subject_id=subjects[i])
-
-        return Response(Exam.objects.all().filter(exam).values())
+    def exam_list_user_related(self, request):
+        return Response(Exam.objects.all().filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values())
 
 
 class ContentViewSet(viewsets.ModelViewSet):
@@ -90,13 +121,9 @@ class ContentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def content_list_user_related(self, request):
-        subjects = get_subjects(user=request.user)
-
-        exam = Q(exam_id=subjects[0])
-        for i in range(1, len(subjects)):
-            exam = exam | Q(exam_id=subjects[i])
-
-        return Response(Content.objects.all().filter(exam).values())
+        return Response(Content.objects.all().filter(
+            reduce(lambda s, t: s | Q(exam_id=t), get_subjects(user=request.user), Q())
+        ).values())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -127,23 +154,15 @@ class ShareViewSet(viewsets.ModelViewSet):
     filterset_fields = ('post')
 
 
-def get_subjects(user):
+def get_subjects(user) -> list:
     period = get_period(user=user)
-    quarter = Q(quarter=period["quarter"][0])
-    for i in range(1, len(period["quarter"])):
-        quarter = quarter | Q(quarter=period["quarter"][i])
-
     proper_quarter = set([_["subject_id"] for _ in Quarter.objects.filter(
-        quarter
+        reduce(lambda s, t: s | Q(quarter=t), period['quarter'], Q())
     ).values()])
 
     proper_grade = set([_["subject_id"] for _ in Grade.objects.filter(
         grade=period["grade"]
     ).values()])
-
-    quarter = Q(quarter=period["quarter"][0])
-    for i in range(1, len(period["quarter"])):
-        quarter = quarter | Q(quarter=period["quarter"][i])
 
     return list(proper_grade & proper_quarter)
 
@@ -153,26 +172,25 @@ def get_period(user: User, now=datetime.now()):
     user => grade
     time => quarter(4, 6, 10, 12)
     """
+    try:
+        grade = user.grade
+    except AttributeError:  # Not logined
+        grade = 1
     return {
-        'grade': get_grade(user, now),
+        'grade': grade,
         'quarter': get_quarters(now)
     }
-
-
-def get_grade(user: User, now):
-    grade = now.year - int(user.number[1:5]) - 766
-    return grade - 1 if now.month in [1, 2, 3] else grade
 
 
 def get_quarters(now):
     month = now.month
     quarters = []
     if month > 10:   # 4 Quarter
-        quarters = ["前期", "第4学期"]
+        quarters = ["後期", "4学期"]
     elif month > 6:  # 3 Quarter
-        quarters = ["前期", "第3学期"]
+        quarters = ["後期", "3学期"]
     elif month > 4:  # 2 Quarter
-        quarters = ["後期", "第2学期"]
+        quarters = ["前期", "2学期"]
     else:            # 1 Quarter
-        quarters = ["後期", "第1学期"]
+        quarters = ["期", "1学期"]
     return quarters
