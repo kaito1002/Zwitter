@@ -1,15 +1,15 @@
-import React from 'react';
-import './App.css';
+import React from "react";
+import "./App.css";
 
 // import axios from 'axios';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import AppIndex from './AppIndex.js';
-import Login from './Login.js';
-import Zwitter from './Zwitter.js';
-import Exam from './Exam.js';
+import AppIndex from "./AppIndex.js";
+import Login from "./Login.js";
+import Zwitter from "./Zwitter.js";
+import Exam from "./Exam.js";
 
 class App extends React.Component {
   render() {
@@ -21,7 +21,7 @@ class App extends React.Component {
             <Route path="/Login" component={Login} />
             <Route path="/Zwitter" component={Zwitter} />
             <Route path="/Exam" component={Exam} />
-            {/* <Route component={Zwitter} /> */}
+            <Route component={Zwitter} />
           </Switch>
         </Router>
       </div>

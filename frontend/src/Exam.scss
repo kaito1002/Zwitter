@@ -1,19 +1,19 @@
-:root{
+:root {
   --MainColor: #00d9d2;
   --SubColor: #e0a353;
 }
 
 /* 全体的なレイアウト関連 */
-.Exam{
+.Exam {
   width: calc(100vw - 5px);
 }
 
-.ExamContents{
-  display:flex;
+.ExamContents {
+  display: flex;
 }
 
 /* 左サイドバー */
-.LeftSideMenu{
+.LeftSideMenu {
   background-color: var(--MainColor);
   box-sizing: border-box;
   padding: 0px 10px;
@@ -21,7 +21,7 @@
   width: 10vw;
 }
 
-.LinkToZwitter a{
+.LinkToZwitter a {
   border: solid 1px #555;
   border-radius: 15px;
   font-size: 1rem;
@@ -31,17 +31,17 @@
   text-decoration: none;
 }
 
-.LinkToZwitter :visited{
+.LinkToZwitter :visited {
   color: #555;
 }
 
 /* 真ん中のコンテンツ */
-.MainContents{
+.MainContents {
   width: 80vw;
 }
 
 /* 右サイドバー */
-.RightSideMenu{
+.RightSideMenu {
   background-color: var(--MainColor);
   box-sizing: border-box;
   padding: 0px 10px;
@@ -49,32 +49,37 @@
 }
 
 /* SubjectLists */
-.SubjectLists p{
-  margin: 30px 0px 30px 30px;
-  padding: 0;
-  width: 90%;
+.SubjectLists {
+  p {
+    margin: 30px 0px 30px 30px;
+    padding: 0;
+    width: 90%;
+  }
+
+  a {
+    background-color: var(--SubColor);
+    border: solid 1px var(--SubColor);
+    border-radius: 5px;
+    box-sizing: border-box;
+    color: #fff;
+    display: inline-block;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.5s;
+    width: 100%;
+  }
+
+  a:hover {
+    background-color: var(--MainColor);
+    border: solid 1px var(--MainColor);
+  }
 }
 
-.SubjectLists a{
-  background-color: var(--SubColor);
-  border: solid 1px var(--SubColor);
-  border-radius: 5px;
+.Content {
+  border: solid 1px #555;
   box-sizing: border-box;
-  color: #fff;
-  display: inline-block;
+  margin: 10px;
   padding: 10px;
-  text-decoration: none;
-  transition: .5s;
-  width: 100%;
-}
-
-.SubjectLists a:hover{
-  background-color: var(--MainColor);
-  border: solid 1px var(--MainColor);
-}
-
-.SubjectLists a:visited{
-  color: #fff;
 }
 
 /* ローディングのアニメーション */
@@ -88,6 +93,7 @@
   width: 1em;
   height: 4em;
 }
+
 .loader {
   color: #373737;
   text-indent: -9999em;
@@ -101,39 +107,48 @@
   -webkit-animation-delay: -0.16s;
   animation-delay: -0.16s;
 }
+
 .loader:before,
 .loader:after {
   position: absolute;
   top: 0;
-  content: '';
+  content: "";
 }
+
 .loader:before {
   left: -1.5em;
   -webkit-animation-delay: -0.32s;
   animation-delay: -0.32s;
 }
+
 .loader:after {
   left: 1.5em;
 }
+
 @-webkit-keyframes load1 {
+
   0%,
   80%,
   100% {
     box-shadow: 0 0;
     height: 4em;
   }
+
   40% {
     box-shadow: 0 -2em;
     height: 5em;
   }
 }
+
 @keyframes load1 {
+
   0%,
   80%,
   100% {
     box-shadow: 0 0;
     height: 4em;
   }
+
   40% {
     box-shadow: 0 -2em;
     height: 5em;
