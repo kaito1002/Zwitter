@@ -53,8 +53,8 @@ class Exam extends React.Component {
         }
       })
       .then(Response => {
-        console.log(Response.data);
-        console.log(this.state.subjects);
+        // console.log(Response.data);
+        // console.log(this.state.subjects);
         this.setState({
           subjects: Response.data,
           nowLoading: true
@@ -63,7 +63,7 @@ class Exam extends React.Component {
       .catch(err => {
         console.log(err);
       });
-    console.log("redirect");
+    // console.log("redirect");
   }
 
   componentDidMount() {
@@ -81,7 +81,7 @@ class Exam extends React.Component {
             }
           })
           .then(Response => {
-            console.log(Response);
+            // console.log(Response);
             this.setState({
               subjects: Response.data.subjects,
               nowLoading: true
@@ -146,8 +146,8 @@ class Exam extends React.Component {
             </div>
           </span>
         ) : (
-          <Spinner />
-        )}
+            <Spinner />
+          )}
       </div>
     );
   }
@@ -164,14 +164,13 @@ class SubjectsLists extends React.Component {
               onChange={e => this.props.setSearchWord(e.target.value)}
             ></input>
             <button onClick={() => this.props.setSearchResult()}>検索</button>
-            {/* <Redirect to="/Zwitter" /> */}
           </p>
         </div>
         {this.props.subjects.map((subject, index) => (
           <p key={index} onClick={() => this.props.setSelectSubject(subject)}>
             <Link to={`/${subject.name}/${subject.latest}`}>
               {subject.latest === undefined
-                ? `${subject.id}:${subject.name} <投稿が存在しません>`
+                ? `${subject.id}:${subject.name} 投稿が存在しません`
                 : `${subject.id}:${subject.name}`}
             </Link>
           </p>
@@ -188,8 +187,58 @@ class ExamLists extends React.Component {
       exams: [],
       contents: [],
       nowLoading: false,
-      nullExamsMessage: undefined
+      nullExamsMessage: undefined,
+      commentText: undefined,
+      latestPk: undefined,
     };
+    this.changeCommentText = this.changeCommentText.bind(this);
+    this.sendComment = this.sendComment.bind(this);
+  }
+
+  changeCommentText(commentText) {
+    this.setState({
+      commentText: commentText
+    });
+  }
+
+  sendComment() {
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+    var now = new Date();
+    var nowTime = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + 'T' +
+      now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + 'Z';
+    var nowUser;
+    // 2019-09-11T03:53:10Z
+    axios
+      .get("/api/users/10/", {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`
+        }
+      })
+      .then(Response => {
+        // console.log(this.state.exams[0])
+        // console.log(nowTime)
+        // console.log(Response.data)
+        axios
+          .post("/api/comments", {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            },
+            exam: this.state.exams[0],
+            sender: Response.data,
+            bef_comment: null,
+          })
+          .then(Response => {
+            console.log("OK!");
+            console.log(Response)
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   componentDidMount() {
@@ -206,14 +255,18 @@ class ExamLists extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response.data.results);
+          // console.log(Response.data.results);
           this.setState({
             exams: Response.data.results
           });
+
           var latest = Response.data.results.filter(result => {
             return result.year === this.props.latestYear;
           });
-          console.log(latest);
+          this.setState({
+            latestPk: latest,
+          })
+          // console.log(latest);
           // コンテンツを読み込みたい
           axios
             .get(`/api/contents/?exam=${latest[0].pk}`, {
@@ -231,6 +284,20 @@ class ExamLists extends React.Component {
             .catch(err => {
               console.log(err);
             });
+
+          // コメントを読み込みたい
+          // axios
+          //   .get(`/api/comments/?exam=${latest[0].pk}`, {
+          //     headers: {
+          //       Authorization: `TOKEN ${storedToken}`
+          //     }
+          //   })
+          //   .then(Response => {
+          //     console.log(Response);
+          //   })
+          //   .catch(err => {
+          //     console.log(err);
+          //   });
         })
         .catch(err => {
           console.log(err);
@@ -259,10 +326,19 @@ class ExamLists extends React.Component {
                 <Link to={`/${this.props.subject}/${year}`}>{year}</Link>
               </p>
             ))}
+            <div className="CommentForm">
+              <input
+                type="text"
+                onChange={e => this.changeCommentText(e.target.value)}
+              />
+              <button type="submit" onClick={() => this.sendComment()}>
+                コメントを投稿
+              </button>
+            </div>
           </span>
         ) : (
-          <Spinner />
-        )}
+            <Spinner />
+          )}
       </div>
     );
   }
