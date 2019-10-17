@@ -1,5 +1,7 @@
 import React from "react";
 import "./Exam.scss";
+import { Spinner } from './AppIndex.js'
+import AppIndex from './AppIndex.js'
 
 import axios from "axios";
 import {
@@ -157,6 +159,7 @@ class Exam extends React.Component {
                       <ContentsPost />
                     }
                   />
+                  <Route Component={AppIndex} />
                 </Switch>
               </Router>
             </div>
@@ -185,7 +188,7 @@ class SubjectsLists extends React.Component {
             <button onClick={() => this.props.setSearchResult()}>検索</button>
           </p>
         </div>
-        <Link to={`Post`}>コンテンツを投稿する</Link>
+        <Link to={`/Post`}>コンテンツを投稿する</Link>
         {this.props.subjects.map((subject, index) => (
           <p key={index} onClick={() => this.props.setSelectSubject(subject)}>
             <Link to={`/${subject.name}/${subject.latest}`}>
@@ -516,10 +519,6 @@ class ContentsPost extends React.Component {
       </div>
     )
   }
-}
-
-function Spinner() {
-  return <div className="loader">Now Loading...</div>;
 }
 
 export default withRouter(Exam);

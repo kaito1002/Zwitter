@@ -1,0 +1,56 @@
+@import "./Loading.scss";
+@import "./Sidebar.scss";
+
+:root {
+  --MainColor: #00d9d2;
+  --SubColor: #e0a353;
+}
+
+.ZwitterContents{
+    display: flex;
+}
+
+.MainContents{
+    width: 80vw;
+
+    .ZweetContent{
+    p{
+        border: solid 5px #ddd;
+        border-radius: 5px 5px;
+        box-sizing: border-box;
+        display: block;
+        margin: 10px;
+        padding: 10px;
+    }
+
+    // #ZweetUserImage{
+    //   background-color: var(--SubColor);
+    //   border: solid 1px #555;
+    //   border-radius: 50% 50%;
+    //   box-sizing: border-box;
+    //   display: block;
+    //   height: 50px;
+    //   margin: 10px;
+    //   padding: 0px;
+    //   width: 50px;
+    // }
+
+    #ZweetUserName{
+      background-color: var(--MainColor);
+      border: solid 1px var(--MainColor);
+      display: block;
+      margin: 10px;
+    }
+
+    #ZweetContents{
+    }
+
+    #ZweetWrapper:hover{
+      background-color: #eee;
+    }
+
+    #ReplyWrapper{
+      margin: 20px 10px 20px 50px;
+    }
+  }
+}
