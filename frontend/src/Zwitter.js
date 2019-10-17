@@ -5,6 +5,7 @@ import {
   Route,
   withRouter,
   Link,
+  Redirect,
 } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -21,10 +22,24 @@ class Zwitter extends React.Component {
       nowLoadiong: true,
       zweetList: undefined,
       replyList: undefined,
+      zweet: undefined,
       zweetText: undefined,
+      zweetPk: undefined,
+      modalIsOpen: false,
+      replyPk: undefined,
+      replyText: undefined,
     };
     this.changeZweetText = this.changeZweetText.bind(this);
     this.sendZweet = this.sendZweet.bind(this);
+    this.setZweetDetail = this.setZweetDetail.bind(this);
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.changeReplyText = this.changeReplyText.bind(this);
+    this.sendReply = this.sendReply.bind(this);
+
+    this.TimeLine = this.TimeLine.bind(this);
+    this.ZweetDetail = this.ZweetDetail.bind(this);
+    this.ReplyModal = this.ReplyModal.bind(this);
   }
 
   changeZweetText(zweetText) {
@@ -52,6 +67,156 @@ class Zwitter extends React.Component {
       })
   }
 
+  setZweetDetail(pk) {
+    var zweet = this.state.zweetList.find((result) => {
+      return result.pk === pk;
+    })
+    var replyList = this.state.zweetList.filter((result) => {
+      return result.bef_post === pk;
+    })
+    this.setState({
+      zweet: zweet,
+      replyList: replyList,
+      zweetPk: pk,
+    })
+  }
+
+  openModal(pk) {
+    this.setState({
+      replyPk: pk,
+      modalIsOpen: true,
+    })
+  }
+
+  closeModal() {
+    this.setState({
+      replyPk: undefined,
+      modalIsOpen: false,
+    })
+  }
+
+  changeReplyText(replyText) {
+    this.setState({
+      replyText: replyText,
+    })
+  }
+
+  sendReply() {
+    console.log(this.state.replyText)
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+    axios
+      .post('api/posts', {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`
+        },
+        bef_post: this.state.replyPk,
+        content: this.state.replyText,
+      })
+      .then(Response => {
+        console.log(Response)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
+  }
+
+  TimeLine() {
+    return (
+      <span>
+        <div className="ZweetForm">
+          <textarea
+            defaultValue="いまなにしてる？"
+            onChange={(e) => this.changeZweetText(e.target.value)}></textarea>
+          <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
+        </div>
+        {this.state.zweetList.map((zweet, index) => {
+          return (
+            zweet.bef_post === null ?
+              <span key={index}>
+                <p className="ZweetContent" onClick={() => this.setZweetDetail(zweet.pk)}>
+                  <Link to={`/${zweet.pk}`}
+                    id="ZweetWrapper">
+                    <span id="UserName">{zweet.user.name}</span>
+                    <span id="Content">{zweet.content}</span>
+                  </Link>
+                </p>
+                <button onClick={() => this.openModal(zweet.pk)}>リプライ！</button>
+                {this.ReplyModal(zweet)}
+              </span>
+              :
+              <span key={index}></span>
+          )
+        })}
+      </span>
+    )
+  }
+
+  ZweetDetail() {
+    return (
+      <div className="ZweetDetail">
+        {this.nowLoadiong ?
+          <Spinner />
+          :
+          <span>
+            <span>
+              <p className="ZweetContent">
+                <span id="UserName">{this.state.zweet.user.name}</span>
+                <span id="Content">{this.state.zweet.content}</span>
+              </p>
+              <button onClick={() => this.openModal(this.state.zweet.pk)}>リプライ！</button>
+              {this.ReplyModal(this.state.zweet)}
+            </span>
+            {this.state.replys === [] ?
+              <span></span>
+              :
+              <span>
+                {this.state.replyList.map((reply, index) => {
+                  return (
+                    <span key={index}>
+                      <p className="ZweetContent" onClick={() => this.setZweetDetail(reply.pk)} >
+                        {this.state.moveSelectZweet ?
+                          <Redirect push to={`/${this.state.zweetPk}`} />
+                          :
+                          <Link to={`/${reply.pk}`}>
+                            <span id="UserName">{reply.user.name}</span>
+                            <span id="Content">{reply.content}</span>
+                          </Link>
+                        }
+                      </p>
+                      <button onClick={() => this.openModal(reply.pk)}>リプライ！</button>
+                      {this.ReplyModal(reply)}
+                    </span>
+                  )
+                })}
+              </span>
+            }
+          </span>
+        }
+      </div>
+    )
+  }
+
+  ReplyModal(zweet) {
+    return (
+      zweet.pk === this.state.replyPk ?
+        <Modal
+          isOpen={this.state.modalIsOpen}
+          onRequestClose={this.closeModal}
+        >
+          <p className="ZweetContent">
+            <span id="UserName">{zweet.user.name}</span>
+            <span id="Content">{zweet.content}</span>
+          </p>
+          <textarea defaultValue="いまなにしてる？" onChange={(e) => this.changeReplyText(e.target.value)}></textarea>
+          <button type="submit" onClick={() => this.sendReply()}>リプライ！</button>
+        </Modal>
+        :
+        null
+    )
+  }
+
   componentDidMount() {
     var storedToken = localStorage.getItem('storedToken');
     storedToken = JSON.parse(storedToken);
@@ -66,15 +231,9 @@ class Zwitter extends React.Component {
         })
         .then(Response => {
           // console.log(Response.data.results);
-          var zweets = Response.data.results.filter(result => {
-            return result.bef_post === null;
-          })
-          var replys = Response.data.results.filter(result => {
-            return result.bef_post !== null;
-          })
+          var zweets = Response.data.results;
           this.setState({
             zweetList: zweets,
-            replyList: replys,
             nowLoadiong: false,
           })
         })
@@ -101,142 +260,36 @@ class Zwitter extends React.Component {
                     exact
                     path="/"
                     render={() => (
-                      <span>
-                        <div className="ZweetForm">
-                          <textarea
-                            defaultValue="いまなにしてる？"
-                            onChange={(e) => this.changeZweetText(e.target.value)}></textarea>
-                          <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
-                        </div>
-                        {this.state.zweetList.map((zweet, index) => {
-                          var replys = this.state.replyList.filter(result => {
-                            return result.bef_post === zweet.pk
-                          })
-                          return (
-                            <span key={index}>
-                              <ZweetContent
-                                zweet={zweet}
-                                replys={replys}
-                              />
-                            </span>
-                          )
-                        })}
-                      </span>
+                      this.TimeLine()
                     )}
                   />
                   <Route
                     exact
-                    path="/hogehoge"
+                    path={`/${this.state.zweetPk}`}
                     render={() => (
-                      <ZweetDetail />
-                    )}
+                      this.ZweetDetail()
+                    )
+                    }
                   />
                   <Route Component={AppIndex} />
                 </Switch>
               </Router>
+              {/* <Modal
+                isOpen={this.state.modalIsOpen}
+                onRequestClose={this.closeModal}
+              >
+                <p className="ZweetContent">
+                  <span id="UserName">{this.state.zweet.user.name}</span>
+                  <span id="Content">{this.state.zweet.content}</span>
+                </p>
+                <textarea defaultValue="いまなにしてる？"></textarea>
+                <button type="submit">ズイート！</button>
+              </Modal> */}
             </div>
             <div className="RightSideMenu">
               hogehoge
             </div>
           </span>
-        }
-      </div>
-    )
-  }
-}
-
-class ZweetContent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modalIsOpen: false,
-      showZweetReply: false,
-    };
-    this.openModal = this.openModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.showZweetDetail = this.showZweetDetail.bind(this);
-  }
-
-  openModal() {
-    this.setState({
-      modalIsOpen: true,
-    })
-  }
-
-  closeModal() {
-    this.setState({
-      modalIsOpen: false,
-    })
-  }
-
-  showZweetDetail() {
-    this.setState({
-      showZweetReply: !this.state.showZweetReply,
-    })
-  }
-
-  render() {
-    return (
-      <div className="ZweetContent">
-        <div>
-          <p id="ZweetWrapper" onClick={() => this.showZweetDetail()}>
-            {/* <span id="ZweetUserImage">image</span> */}
-            <span id="ZweetUserName">{this.props.zweet.user.name}</span>
-            <span id="ZweetContents">{this.props.zweet.content}</span>
-          </p>
-          {this.state.showZweetReply ?
-            this.props.replys.map((reply, index) => {
-              return (
-                <p id="ReplyWrapper" key={index}>
-                  {/* <span id="ZweetUserImage">image</span> */}
-                  <span id="ZweetUserName">{reply.user.name}</span>
-                  <span id="ZweetContents">{reply.content}</span>
-                </p>
-              )
-            })
-            :
-            <span></span>
-          }
-          <button onClick={() => this.openModal()}>リプライ({this.props.replys.length})</button>
-        </div>
-        <Modal
-          isOpen={this.state.modalIsOpen}
-          onRequestClose={this.closeModal}
-        >
-          <p>
-            <span id="ZweetUserImage">image</span>
-            <span id="ZweetUserName">{this.props.zweet.user.name}</span>
-            <span id="ZweetContents">{this.props.zweet.content}</span>
-          </p>
-          <textarea defaultValue="いまなにしてる？"></textarea>
-          <button type="submit">ズイート！</button>
-        </Modal>
-      </div>
-    )
-  }
-}
-
-class ZweetDetail extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      nowLoadiong: true,
-    };
-  }
-
-  componentDidMount() {
-    this.setState({
-      nowLoadiong: false,
-    })
-  }
-
-  render() {
-    return (
-      <div className="ZweetDetail">
-        {this.nowLoadiong ?
-          <Spinner />
-          :
-          <h1>This is ZweetDetail</h1>
         }
       </div>
     )
