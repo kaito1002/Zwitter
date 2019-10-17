@@ -1,9 +1,6 @@
 import React from "react";
 import "./App.css";
 
-// import axios from 'axios';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import AppIndex from "./AppIndex.js";
@@ -21,7 +18,7 @@ class App extends React.Component {
             <Route path="/Login" component={Login} />
             <Route path="/Zwitter" component={Zwitter} />
             <Route path="/Exam" component={Exam} />
-            <Route component={Zwitter} />
+            <Route component={AppIndex} />
           </Switch>
         </Router>
       </div>
