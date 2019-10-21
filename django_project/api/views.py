@@ -85,6 +85,41 @@ class SubjectViewSet(viewsets.ModelViewSet):
         subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
         return Response(subjects.values())
 
+    @action(methods=['GET'], detail=False, url_path='search_user_related')
+    def search(self, request):
+        exams = Exam.objects.all().filter(
+            subject__name__contains=request.GET['keyword']
+        ).filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values()
+
+        subjects = {}
+
+        for exam in exams:
+            if exam['subject_id'] in subjects.keys():
+                # 既存
+                subjects[exam['subject_id']]['years'].append(exam['year'])
+                if subjects[exam['subject_id']]['latest'] < exam['year']:
+                    subjects[exam['subject_id']]['latest'] = exam['year']
+
+            else:
+                # 新規
+                subjects[exam['subject_id']] = {
+                    'id': exam['subject_id'],
+                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
+                    'latest': exam['year'],
+                    'years': [exam['year'], ]
+                }
+
+        # sort
+        for key in subjects.keys():
+            subjects[key]['years'].sort(reverse=True)
+
+        res = {
+            'subjects': list(subjects.values()),
+        }
+        return Response(subjects.values())
+
 
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
