@@ -125,6 +125,70 @@ class ContentViewSet(viewsets.ModelViewSet):
             reduce(lambda s, t: s | Q(exam_id=t), get_subjects(user=request.user), Q())
         ).values())
 
+    def create(self, request):
+        user = request.user
+        subject_pk = request.POST['subject']
+        year = request.POST['year']
+        _type = request.POST['type']
+        data = request.POST['data']
+
+        exam = Exam.objects.get_or_create(
+            subject=subject_pk,
+            year=year
+        )[0]
+        Content.objects.create(
+            exam=exam,
+            type=_type,
+            data=data,
+            poster=user,
+        )
+        return Response({'success': True})
+
+    def partial_update(self, request, pk):
+        content = Content.objects.get(pk=pk)
+        params = {
+            'subject': content.exam.subject.pk,
+            'year': content.exam.year,
+            'type': content.type,
+            'data': content.data,
+        }
+
+        if content.poster == request.user:
+            for key in params.keys():
+                if key in request.data.keys():
+                    # 更新
+                    params[key] = request.data[key]
+
+            exam = Exam.objects.get_or_create(
+                subject=params['subject'],
+                year=params['year'],
+            )[0]
+            content.exam = exam
+            content.type = params['type']
+            content.data = params['data']
+            content.save()
+            return Response({'success': True})
+        else:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+
+    def update(self, request, pk):
+        content = Content.objects.get(pk=pk)
+        if request.user != content.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        exam = Exam.objects.get_or_create(
+            subject=request.data['subject'],
+            year=request.data['year'],
+        )[0]
+        content.exam = exam
+        content.type = request.data['type']
+        content.data = request.data['data']
+        content.save()
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        Content.objects.get(pk=pk).delete()
+        return Response({'success': True})
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
