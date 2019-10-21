@@ -206,16 +206,21 @@ class CommentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(e)
             bef_comment = -1
+
+        bef_comment = bef_comment if bef_comment == -1 else None
         Comment.objects.create(
             exam=exam,
-            bef_comment=bef_comment,  # nullなら-1投げる
+            bef_comment=bef_comment,
             data=request.POST['data'],
             sender=request.user
         )
         return Response({'success': True})
 
     def destroy(self, request, pk):
-        Comment.objects.get(pk=pk).delete()
+        comment = Comment.objects.get(pk=pk)
+        if comment.sender != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        comment.delete()
         return Response({'success': True})
 
 
@@ -224,6 +229,28 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('user', 'bef_post')
+
+    def create(self, request):
+        try:
+            bef_post = request.POST['bef_post']
+        except Exception as e:
+            print(e)
+            bef_post = -1
+
+        bef_post = bef_post if bef_post == -1 else None
+        Post.objects.create(
+            bef_post=bef_post,
+            content=request.POST['content'],
+            user=request.user
+        )
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post.user != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        post.delete()
+        return Response({'success': True})
 
 
 class LikeViewSet(viewsets.ModelViewSet):
@@ -280,3 +307,14 @@ def get_quarters(now):
     else:            # 1 Quarter
         quarters = ["期", "1学期"]
     return quarters
+
+
+def base_destroy(request, Model, pk):
+    item = Model.objects.get(pk=pk)
+    try:
+        item.delete()
+        success = True
+    except Exception as e:
+        print(e)
+        success = False
+    return Response({'success': success})
