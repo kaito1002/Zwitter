@@ -405,7 +405,7 @@ class ContentsPost extends React.Component {
       });
     } else {
       this.setState({
-        selectSubject: selectSubject,
+        selectSubject: parseInt(selectSubject, 10),
         validSubject: true,
       });
     }
@@ -414,7 +414,7 @@ class ContentsPost extends React.Component {
   changeSubjectYear(subjectYear) {
     if (subjectYear >= this.state.nowYear - 10 && subjectYear <= this.state.nowYear) {
       this.setState({
-        subjectYear: subjectYear,
+        subjectYear: parseInt(subjectYear, 10),
         validYear: true,
       });
     } else {
@@ -426,12 +426,34 @@ class ContentsPost extends React.Component {
 
   changeContentType(contentType) {
     this.setState({
-      contentType: contentType,
+      contentType: parseInt(contentType, 10),
     })
   }
 
   postContent() {
     //TODO:axiosを使って/api/contentsにpostする
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+    // Subject(pk), year, type, data
+    axios
+      .post('/api/contents/', {
+        subject: this.state.selectSubject,
+        year: this.state.subjectYear,
+        type: this.state.contentType,
+        data: "ほげほげテスト用のdataですほげほげ",
+      },
+        {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+      .then((Response) => {
+        console.log(Response);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
   }
 
   componentDidMount() {
@@ -452,7 +474,7 @@ class ContentsPost extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response.data.results)
+          // console.log(Response.data.results)
           this.setState({
             subjectsLists: Response.data.results,
             nowLoading: false,
@@ -476,7 +498,7 @@ class ContentsPost extends React.Component {
               <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
                 <option value="---">---</option>
                 {this.state.subjectsLists.map((subject, index) =>
-                  <option value={subject.name} key={index}>{subject.name}</option>
+                  <option value={subject.pk} key={index}>{subject.name}</option>
                 )}
               </select>
               {this.state.validSubject ?
