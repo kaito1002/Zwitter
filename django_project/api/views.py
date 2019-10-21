@@ -13,7 +13,6 @@ from datetime import datetime
 from django.db.models import Q
 from functools import reduce
 
-# hpge
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
