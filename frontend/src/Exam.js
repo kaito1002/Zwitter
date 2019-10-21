@@ -384,43 +384,31 @@ class ContentsPost extends React.Component {
     this.state = {
       nowLoading: true,
       subjectsLists: undefined,
-      candidateSubjectsList: [],
-      inputSubjectText: undefined,
+      selectSubject: undefined,
+      validSubject: true,
       nowYear: undefined,
       validYear: true,
       contentType: undefined,
     };
     this.subjectText = React.createRef();
-    this.changeSubjectText = this.changeSubjectText.bind(this);
-    this.selectCandidateSubject = this.selectCandidateSubject.bind(this);
+    this.changeSubject = this.changeSubject.bind(this);
     this.changeSubjectYear = this.changeSubjectYear.bind(this);
     this.changeContentType = this.changeContentType.bind(this);
     this.postContent = this.postContent.bind(this);
   }
 
-  changeSubjectText(subjectText) {
-    if (subjectText === "" || subjectText === " ") {
+  changeSubject(selectSubject) {
+    if (selectSubject === "---") {
       this.setState({
-        candidateSubjectsList: []
-      })
+        selectSubject: undefined,
+        validSubject: false,
+      });
     } else {
-      var regexp = new RegExp('(.*?)' + subjectText + '(.*?)', 'g');
-      var candidateSubjectsList = this.state.subjectsLists.filter((subject) => subject.name.match(regexp))
-      console.log(candidateSubjectsList)
-
       this.setState({
-        inputSubjectText: subjectText,
-        candidateSubjectsList: candidateSubjectsList
-      })
+        selectSubject: selectSubject,
+        validSubject: true,
+      });
     }
-  }
-
-  selectCandidateSubject(selectSubjectName) {
-    this.setState({
-      inputSubjectText: selectSubjectName,
-      candidateSubjectsList: []
-    })
-    this.subjectText.current.value = selectSubjectName;
   }
 
   changeSubjectYear(subjectYear) {
@@ -484,12 +472,18 @@ class ContentsPost extends React.Component {
           <span>
             <h1>ContentsPost</h1>
             <p>
-              教科名
-              <input type="text" ref={this.subjectText} onChange={(e) => this.changeSubjectText(e.target.value)} />
+              教科
+              <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
+                <option value="---">---</option>
+                {this.state.subjectsLists.map((subject, index) =>
+                  <option value={subject.name} key={index}>{subject.name}</option>
+                )}
+              </select>
+              {this.state.validSubject ?
+                <span></span>
+                :
+                <span>教科を選択してください</span>}
             </p>
-            {this.state.candidateSubjectsList.map((subject, index) =>
-              <p key={index} onClick={() => this.selectCandidateSubject(subject.name)}>{subject.name}</p>
-            )}
             <p>年度
               <input type="number" onChange={(e) => this.changeSubjectYear(e.target.value)} />
               {this.state.validYear ?
