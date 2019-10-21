@@ -196,6 +196,28 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'sender', 'bef_comment')
 
+    def create(self, request):
+        exam = Exam.objects.get_or_create(
+            subject=request.POST['subject'],
+            year=request.POST['year']
+        )[0]
+        try:
+            bef_comment = request.POST['bef_comment']
+        except Exception as e:
+            print(e)
+            bef_comment = -1
+        Comment.objects.create(
+            exam=exam,
+            bef_comment=bef_comment,  # nullなら-1投げる
+            data=request.POST['data'],
+            sender=request.user
+        )
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        Comment.objects.get(pk=pk).delete()
+        return Response({'success': True})
+
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
