@@ -1,26 +1,51 @@
 import React from 'react';
+import './Loading.scss'
 
-import { Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
 class AppIndex extends React.Component {
-    componentDidMount() {
-        var storedToken = localStorage.getItem('storedToken');
-        storedToken = JSON.parse(storedToken);
-        if (storedToken) {
-            this.props.history.push('/Zwitter');
-        }
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      nowLoading: true,
+    };
+  }
 
-    render() {
-        return (
-            <div className="AppIndex">
-                <h1>App Index</h1>
-                <Link to="/Login">
-                    <p>Login page</p>
-                </Link>
-            </div>
-        );
+  componentDidMount() {
+    var storedToken = localStorage.getItem('storedToken');
+    storedToken = JSON.parse(storedToken);
+    if (storedToken) {
+      this.props.history.push('/Zwitter');
+      this.setState({
+        nowLoading: false,
+      })
+    } else {
+      this.setState({
+        nowLoading: false,
+      })
     }
+  }
+
+  render() {
+    return (
+      <div className="AppIndex">
+        {this.state.nowLoading ?
+          <Spinner />
+          :
+          <span>
+            <h1>App Index</h1>
+            <Link to="/Login">
+              Login page
+            </Link>
+          </span>
+        }
+      </div>
+    );
+  }
 }
 
-export default AppIndex;
+export function Spinner() {
+  return <div className="loader">Now Loading...</div>;
+}
+
+export default withRouter(AppIndex);

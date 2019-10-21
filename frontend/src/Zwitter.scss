@@ -1,0 +1,40 @@
+@import "./Loading.scss";
+@import "./Sidebar.scss";
+
+:root {
+  --MainColor: #00d9d2;
+  --SubColor: #e0a353;
+}
+
+.ZwitterContents {
+  display: flex;
+}
+
+.MainContents {
+  width: 80vw;
+
+  a,
+  a:visited {
+    color: #555;
+    text-decoration: none;
+  }
+
+  .ZweetContent {
+    border: solid 3px #eee;
+    border-radius: 5px;
+    box-sizing: border-box;
+
+    #UserName {
+      display: block;
+    }
+
+    #Content {
+      display: block;
+    }
+  }
+
+  .ZweetContent:hover {
+    background-color: #eee;
+  }
+
+}
