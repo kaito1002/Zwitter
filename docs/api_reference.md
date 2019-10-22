@@ -50,6 +50,8 @@ Authorization: TOKEN <authorization token>'
 | エンドポイント | パラメータ |
 |:---|:---|
 | /api/contents/ | subject: int, year: int, type: int, data: str |
+| /api/comments/ | subject: int, bef_comment: int(null=>-1), data: str |
+| /api/contents/ | bef_post: int(null->-1), content: str |
 
 ## Zwitter(SNS)
 
