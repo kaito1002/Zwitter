@@ -11,6 +11,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import Querystring from 'query-string';
 
 class Exam extends React.Component {
   constructor(props) {
@@ -405,7 +406,7 @@ class ContentsPost extends React.Component {
       });
     } else {
       this.setState({
-        selectSubject: selectSubject,
+        selectSubject: parseInt(selectSubject, 10),
         validSubject: true,
       });
     }
@@ -414,7 +415,7 @@ class ContentsPost extends React.Component {
   changeSubjectYear(subjectYear) {
     if (subjectYear >= this.state.nowYear - 10 && subjectYear <= this.state.nowYear) {
       this.setState({
-        subjectYear: subjectYear,
+        subjectYear: parseInt(subjectYear, 10),
         validYear: true,
       });
     } else {
@@ -426,36 +427,39 @@ class ContentsPost extends React.Component {
 
   changeContentType(contentType) {
     this.setState({
-      contentType: contentType,
+      contentType: parseInt(contentType, 10),
     })
   }
 
   postContent() {
-    //TODO:axiosを使って/api/contentsにpostする
+    const params = Querystring.stringify({
+      "subject": this.state.selectSubject,
+      "year": this.state.subjectYear,
+      "type": this.state.contentType,
+      "data": "ほげほげテスト用のdataですほげほげ",
+    }, { arrayFormat: 'bracket' });
+    // console.log(params);
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
-
-      axios
-        .post(`/api/contents/`, {
-          headers: {
-            Authorization: `TOKEN ${storedToken}`,
-            'Content-Type': 'multipart/form-data',
-          },
-          subject: 50,
-          year: 2018,
-          type: 0,
-          data: "hello",
-        })
-        .then(Response => {
-          console.log(Response.data.results)
-          this.setState({
-            subjectsLists: Response.data.results,
-            nowLoading: false,
-          })
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    // Subject(pk), year, type, data
+    // var params = new URLSearchParams();
+    // params.append('subject', this.state.selectSubject);
+    // params.append('year', this.state.subjectYear);
+    // params.append('type', this.state.contentType);
+    // params.append('data', "ほげほげテスト用のdataですほげほげ");
+    axios
+      .post(`/api/contents/`, params, {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`,
+        },
+      })
+      .then((Response) => {
+        console.log(Response);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+>>>>>>> origin/feature/axios_post_test
   }
 
   componentDidMount() {
@@ -476,7 +480,7 @@ class ContentsPost extends React.Component {
           }
         })
         .then(Response => {
-          console.log(Response.data.results)
+          // console.log(Response.data.results)
           this.setState({
             subjectsLists: Response.data.results,
             nowLoading: false,
@@ -500,7 +504,7 @@ class ContentsPost extends React.Component {
               <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
                 <option value="---">---</option>
                 {this.state.subjectsLists.map((subject, index) =>
-                  <option value={subject.name} key={index}>{subject.name}</option>
+                  <option value={subject.pk} key={index}>{subject.name}</option>
                 )}
               </select>
               {this.state.validSubject ?
