@@ -24,6 +24,25 @@ class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
 
+    @action(methods=['GET'], detail=False, url_path='filter')
+    def filter_grades_and_quarters(self, request):
+        grades = [1, 2, 3, 4]
+        quarters = ['前期', '後期']
+        quarters.extend([f"{_}学期" for _ in [1, 2, 3, 4]])
+        quarters.extend([f"{_}学期集中" for _ in [1, 2, 3, 4]])
+
+        if 'grades' in request.GET.keys():
+            grades = request.GET.get('grades')[1:-1].replace(' ', '').split(',')
+        if 'quarters' in request.GET.keys():
+            quarters = request.GET.get('quarters')[1:-1].replace("'", '').replace(' ', '').split(',')
+
+        subjects = Subject.objects.filter(
+            reduce(lambda s, t: s | t, [Q(grades__grade=_) for _ in grades])
+            & reduce(lambda s, t: s | t, [Q(quarters__quarter=_) for _ in quarters])
+        ).distinct()
+
+        return Response({'subjects': list(subjects.values())})
+
     @action(methods=['GET'], detail=False, url_path='user_related_exists')
     def subject_exists_user_related(self, request):
         exams = Exam.objects.all().filter(
