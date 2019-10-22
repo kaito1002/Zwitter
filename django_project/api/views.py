@@ -162,13 +162,13 @@ class ContentViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         user = request.user
-        subject_pk = request.POST['subject']
-        year = request.POST['year']
-        _type = request.POST['type']
-        data = request.POST['data']
+        subject_pk = int(request.POST.get('subject'))
+        year = int(request.POST.get('year'))
+        _type = int(request.POST.get('type'))
+        data = request.POST.get('data')
 
         exam = Exam.objects.get_or_create(
-            subject=subject_pk,
+            subject=Subject.objects.get(pk=subject_pk),
             year=year
         )[0]
         Content.objects.create(
@@ -221,7 +221,10 @@ class ContentViewSet(viewsets.ModelViewSet):
         return Response({'success': True})
 
     def destroy(self, request, pk):
-        Content.objects.get(pk=pk).delete()
+        content = Content.objects.get(pk=pk)
+        if content.poster != request.user:
+            return Response({'success': False})
+        content.delete()
         return Response({'success': True})
 
 
@@ -233,11 +236,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         exam = Exam.objects.get_or_create(
-            subject=request.POST['subject'],
-            year=request.POST['year']
+            subject=Subject.objects.get(pk=int(request.POST.get('subject'))),
+            year=request.POST.get('year')
         )[0]
         try:
-            bef_comment = request.POST['bef_comment']
+            bef_comment = request.POST.get('bef_comment')
         except Exception as e:
             print(e)
             bef_comment = -1
@@ -246,7 +249,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         Comment.objects.create(
             exam=exam,
             bef_comment=bef_comment,
-            data=request.POST['data'],
+            data=request.POST.get('data'),
             sender=request.user
         )
         return Response({'success': True})
@@ -267,7 +270,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
-            bef_post = request.POST['bef_post']
+            bef_post = request.POST.get('bef_post')
         except Exception as e:
             print(e)
             bef_post = -1
@@ -275,7 +278,7 @@ class PostViewSet(viewsets.ModelViewSet):
         bef_post = bef_post if bef_post == -1 else None
         Post.objects.create(
             bef_post=bef_post,
-            content=request.POST['content'],
+            content=Content.objects.get(pk=int(request.POST.get('content'))),
             user=request.user
         )
         return Response({'success': True})
