@@ -11,6 +11,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import Querystring from 'query-string';
 
 class Exam extends React.Component {
   constructor(props) {
@@ -431,23 +432,27 @@ class ContentsPost extends React.Component {
   }
 
   postContent() {
-    //TODO:axiosを使って/api/contentsにpostする
+    const params = Querystring.stringify({
+      "subject": this.state.selectSubject,
+      "year": this.state.subjectYear,
+      "type": this.state.contentType,
+      "data": "ほげほげテスト用のdataですほげほげ",
+    }, { arrayFormat: 'bracket' });
+    // console.log(params);
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     // Subject(pk), year, type, data
+    // var params = new URLSearchParams();
+    // params.append('subject', this.state.selectSubject);
+    // params.append('year', this.state.subjectYear);
+    // params.append('type', this.state.contentType);
+    // params.append('data', "ほげほげテスト用のdataですほげほげ");
     axios
-      .post('/api/contents/', {
-        subject: this.state.selectSubject,
-        year: this.state.subjectYear,
-        type: this.state.contentType,
-        data: "ほげほげテスト用のdataですほげほげ",
-      },
-        {
-          headers: {
-            Authorization: `TOKEN ${storedToken}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+      .post(`/api/contents/`, params, {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`,
+        },
+      })
       .then((Response) => {
         console.log(Response);
       })
