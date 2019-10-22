@@ -432,6 +432,30 @@ class ContentsPost extends React.Component {
 
   postContent() {
     //TODO:axiosを使って/api/contentsにpostする
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+
+      axios
+        .post(`/api/contents/`, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          subject: 50,
+          year: 2018,
+          type: 0,
+          data: "hello",
+        })
+        .then(Response => {
+          console.log(Response.data.results)
+          this.setState({
+            subjectsLists: Response.data.results,
+            nowLoading: false,
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
   }
 
   componentDidMount() {
