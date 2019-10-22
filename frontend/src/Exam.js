@@ -459,7 +459,6 @@ class ContentsPost extends React.Component {
       .catch((err) => {
         console.log(err);
       })
->>>>>>> origin/feature/axios_post_test
   }
 
   componentDidMount() {
