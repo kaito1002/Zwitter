@@ -161,15 +161,14 @@ class ContentViewSet(viewsets.ModelViewSet):
         ).values())
 
     def create(self, request):
-        print(request.POST)
         user = request.user
-        subject_pk = request.POST.get('subject')
-        year = request.POST.get('year')
-        _type = request.POST.get('type')
+        subject_pk = int(request.POST.get('subject'))
+        year = int(request.POST.get('year'))
+        _type = int(request.POST.get('type'))
         data = request.POST.get('data')
 
         exam = Exam.objects.get_or_create(
-            subject=subject_pk,
+            subject=Subject.objects.get(pk=subject_pk),
             year=year
         )[0]
         Content.objects.create(
@@ -222,7 +221,10 @@ class ContentViewSet(viewsets.ModelViewSet):
         return Response({'success': True})
 
     def destroy(self, request, pk):
-        Content.objects.get(pk=pk).delete()
+        content = Content.objects.get(pk=pk)
+        if content.poster != request.user:
+            return Response({'success': False})
+        content.delete()
         return Response({'success': True})
 
 
@@ -234,7 +236,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         exam = Exam.objects.get_or_create(
-            subject=request.POST.get('subject'),
+            subject=Subject.objects.get(pk=int(request.POST.get('subject'))),
             year=request.POST.get('year')
         )[0]
         try:
@@ -276,7 +278,7 @@ class PostViewSet(viewsets.ModelViewSet):
         bef_post = bef_post if bef_post == -1 else None
         Post.objects.create(
             bef_post=bef_post,
-            content=request.POST.get('content'),
+            content=Content.objects.get(pk=int(request.POST.get('content'))),
             user=request.user
         )
         return Response({'success': True})
