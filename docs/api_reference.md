@@ -52,6 +52,7 @@ Authorization: TOKEN <authorization token>'
 | /api/contents/ | subject: int, year: int, type: int, data: str |
 | /api/comments/ | subject: int, bef_comment: int(null=>-1), data: str |
 | /api/contents/ | bef_post: int(null->-1), content: str |
+| /api/subjects/filter/ | grades: qs(array), quarters: qs(array) |
 
 ## Zwitter(SNS)
 
