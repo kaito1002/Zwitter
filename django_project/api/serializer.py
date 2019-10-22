@@ -86,13 +86,13 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ('pk', 'user', 'post')
+        fields = ('pk', 'user', 'post', )
 
 
 class ShareSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    post = PostSerializer()
+    # user = UserSerializer()
+    # post = PostSerializer()
 
     class Meta:
         model = Share
-        fields = ('pk', 'user', 'post')
+        fields = ('pk', 'user', 'post', )

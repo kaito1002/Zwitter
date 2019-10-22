@@ -295,14 +295,14 @@ class LikeViewSet(viewsets.ModelViewSet):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post')
+    filterset_fields = ('post', )
 
 
 class ShareViewSet(viewsets.ModelViewSet):
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post')
+    filterset_fields = ('post', )
 
 
 def get_subjects(user) -> list:
