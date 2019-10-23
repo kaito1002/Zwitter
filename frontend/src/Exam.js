@@ -275,9 +275,9 @@ class ExamLists extends React.Component {
           }
         })
         .then(Response => {
-          // console.log(Response.data.results);
+          // console.log(Response.data);
           this.setState({
-            exams: Response.data.results
+            exams: Response.data
           });
 
           if (this.props.years === undefined || this.props.latestYear === undefined) {
@@ -286,7 +286,7 @@ class ExamLists extends React.Component {
               nowLoading: false,
             })
           } else {
-            var latest = Response.data.results.filter(result => {
+            var latest = Response.data.filter(result => {
               return result.year === this.props.latestYear;
             });
             this.setState({
@@ -301,9 +301,9 @@ class ExamLists extends React.Component {
                 }
               })
               .then(examResponse => {
-                // console.log(examResponse.data.results)
+                console.log(examResponse.data)
                 this.setState({
-                  contents: examResponse.data.results,
+                  contents: examResponse.data,
                   nowLoading: false
                 });
               })
@@ -479,9 +479,9 @@ class ContentsPost extends React.Component {
           }
         })
         .then(Response => {
-          // console.log(Response.data.results)
+          // console.log(Response.data)
           this.setState({
-            subjectsLists: Response.data.results,
+            subjectsLists: Response.data,
             nowLoading: false,
           })
         })
