@@ -7,7 +7,7 @@ from .models import Grade, Quarter
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('pk', 'name', 'number', 'email', 'coin', 'password')
+        fields = ('pk', 'name', 'number', 'image_path', 'email', 'coin', 'password')
         extra_kwargs = {
             'coin': {'read_only': True},
             'email': {'read_only': True},

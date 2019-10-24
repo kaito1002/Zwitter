@@ -7,6 +7,10 @@ services:
     restart: always
     expose:
       - 8080
+    volumes:
+      - "./django_project/media:/django_app/media"
+    environment:
+      - ZWITTER_MYSQL_PASS
 
   nginx:
     build: ./nginx
@@ -14,3 +18,5 @@ services:
     restart: always
     ports:
       - "80:80"
+    volumes:
+      - "./django_project/media:/media"

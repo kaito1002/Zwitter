@@ -12,11 +12,45 @@ from rest_framework.decorators import action
 from datetime import datetime
 from django.db.models import Q
 from functools import reduce
+from config.settings import MEDIA_ROOT, MEDIA_URL
+from time import time
+import os
+from django.shortcuts import render
+
+
+def test_upload(request):
+    return render(request, 'upload.html', {})
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(methods=['POST'], detail=False, url_path='img')
+    def image_upload(self, request):
+        file = request.FILES['file']
+        while True:
+            filename = determine_file_name(file)
+            path = os.path.join(MEDIA_ROOT, filename)
+            if not os.path.exists(path):
+                break
+        with open(path, 'wb') as f:
+            for chunk in file.chunks():
+                f.write(chunk)
+
+        success = False
+        if os.path.exists(path):
+            success = True
+
+        image_path = None
+        if not request.user.is_anonymous:
+            image_path = MEDIA_URL + filename
+            request.user.image_path = image_path
+            request.user.save()
+        else:
+            success = False
+
+        return Response({'success': success, 'path': image_path})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
@@ -375,3 +409,9 @@ def base_destroy(request, Model, pk):
         print(e)
         success = False
     return Response({'success': success})
+
+
+def determine_file_name(file):
+    file_type = file.name.split('.')[-1]
+    now = int(time() * 10 ** 6)
+    return f"{now}.{file_type}"

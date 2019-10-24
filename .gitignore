@@ -7,6 +7,7 @@ migrations
 main.py
 build
 nginx/static
+django_project/media
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
