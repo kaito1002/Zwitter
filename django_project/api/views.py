@@ -12,11 +12,40 @@ from rest_framework.decorators import action
 from datetime import datetime
 from django.db.models import Q
 from functools import reduce
+from config.settings import MEDIA_ROOT, MEDIA_URL
+import os
+from django.shortcuts import render
+
+
+def test_upload(request):
+    return render(request, 'upload.html', {})
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(methods=['POST'], detail=False, url_path='img')
+    def image_upload(self, request):
+        file = request.FILES['file']
+        path = os.path.join(MEDIA_ROOT, file.name)
+        with open(path, 'wb') as f:
+            for chunk in file.chunks():
+                f.write(chunk)
+
+        success = False
+        if os.path.exists(path):
+            success = True
+
+        image_path = None
+        if not request.user.is_anonymous:
+            image_path = MEDIA_URL + file.name
+            request.user.image_path = image_path
+            request.user.save()
+        else:
+            success = False
+
+        return Response({'success': success, 'path': image_path})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):

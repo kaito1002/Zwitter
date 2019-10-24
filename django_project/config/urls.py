@@ -16,13 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from spa import views
+from api.views import test_upload
 from rest_framework.authtoken import views as auth_views
 from api.urls import router
+from django.conf.urls.static import static
+from . import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-token-auth/', auth_views.obtain_auth_token),
     path('', views.index, name='index'),
+    path('test_upload', test_upload, name='upload'),
     path('<filename>', views.file, name='file'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

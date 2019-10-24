@@ -56,6 +56,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=128,
         validators=[MinLengthValidator(5)]
         )
+    image_path = models.CharField(
+        max_length=1024,
+        null=True,
+        blank=True,
+    )
     is_staff = models.BooleanField(
         default=False
     )
