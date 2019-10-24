@@ -92,6 +92,14 @@ class Subject(models.Model):
         validators=[MinLengthValidator(1)]
     )
 
+    @property
+    def related_grades(self):
+        return [_.grade for _ in Grade.objects.filter(subject=self).all()]
+
+    @property
+    def related_quarters(self):
+        return [_.quarter for _ in Quarter.objects.filter(subject=self).all()]
+
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
 
@@ -257,6 +265,7 @@ class Like(models.Model):
         on_delete=models.CASCADE,
         blank=False
     )
+    liked_at = models.DateTimeField(default=timezone.now)
 
     def __repr__(self):
         return "{}: {} likes ({} says {})".format(
@@ -281,6 +290,7 @@ class Share(models.Model):
         on_delete=models.CASCADE,
         blank=False
     )
+    shared_at = models.DateTimeField(default=timezone.now)
 
     def __repr__(self):
         return "{}: {} shares ({} says {})".format(

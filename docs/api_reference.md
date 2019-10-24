@@ -40,9 +40,19 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/subjects/user_related_exists/ | 認証ユーザーに関連しデータの存在する科目一覧を取得 |
 | GET | /api/subjects/<subject_id>/years/ | データが存在する年度を取得 |
 | GET | /api/subjects/search/?keyword=<検索ワード> | 科目の検索API |
+| GET | /api/subjects/search_user_related/?keyword=<検索ワード> | ユーザー関連の科目の検索API |
 | POST | /api/comments/ | コメントを投稿 |
 | GET | /api/comments/?exam=<exam_id>/ | Examに紐付いたコメント一覧を取得 |
 | GET | /api/comments/?bef_comment=<comment_id>/ | コメントに対する返信一覧を取得 |
+
+### パラメータ
+
+| エンドポイント | パラメータ |
+|:---|:---|
+| /api/contents/ | subject: int, year: int, type: int, data: str |
+| /api/comments/ | subject: int, bef_comment: int(null=>-1), data: str |
+| /api/contents/ | bef_post: int(null->-1), content: str |
+| /api/subjects/filter/ | grades: qs(array), quarters: qs(array) |
 
 ## Zwitter(SNS)
 

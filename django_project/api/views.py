@@ -24,6 +24,25 @@ class SubjectViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSerializer
     filter_backends = [DjangoFilterBackend]
 
+    @action(methods=['GET'], detail=False, url_path='filter')
+    def filter_grades_and_quarters(self, request):
+        grades = [1, 2, 3, 4]
+        quarters = ['前期', '後期']
+        quarters.extend([f"{_}学期" for _ in [1, 2, 3, 4]])
+        quarters.extend([f"{_}学期集中" for _ in [1, 2, 3, 4]])
+
+        if 'grades' in request.GET.keys():
+            grades = request.GET.get('grades')[1:-1].replace(' ', '').split(',')
+        if 'quarters' in request.GET.keys():
+            quarters = request.GET.get('quarters')[1:-1].replace("'", '').replace(' ', '').split(',')
+
+        subjects = Subject.objects.filter(
+            reduce(lambda s, t: s | t, [Q(grades__grade=_) for _ in grades])
+            & reduce(lambda s, t: s | t, [Q(quarters__quarter=_) for _ in quarters])
+        ).distinct()
+
+        return Response({'subjects': list(subjects.values())})
+
     @action(methods=['GET'], detail=False, url_path='user_related_exists')
     def subject_exists_user_related(self, request):
         exams = Exam.objects.all().filter(
@@ -85,6 +104,41 @@ class SubjectViewSet(viewsets.ModelViewSet):
         subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
         return Response(subjects.values())
 
+    @action(methods=['GET'], detail=False, url_path='search_user_related')
+    def search(self, request):
+        exams = Exam.objects.all().filter(
+            subject__name__contains=request.GET['keyword']
+        ).filter(
+            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
+        ).values()
+
+        subjects = {}
+
+        for exam in exams:
+            if exam['subject_id'] in subjects.keys():
+                # 既存
+                subjects[exam['subject_id']]['years'].append(exam['year'])
+                if subjects[exam['subject_id']]['latest'] < exam['year']:
+                    subjects[exam['subject_id']]['latest'] = exam['year']
+
+            else:
+                # 新規
+                subjects[exam['subject_id']] = {
+                    'id': exam['subject_id'],
+                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
+                    'latest': exam['year'],
+                    'years': [exam['year'], ]
+                }
+
+        # sort
+        for key in subjects.keys():
+            subjects[key]['years'].sort(reverse=True)
+
+        res = {
+            'subjects': list(subjects.values()),
+        }
+        return Response(subjects.values())
+
 
 class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
@@ -125,12 +179,106 @@ class ContentViewSet(viewsets.ModelViewSet):
             reduce(lambda s, t: s | Q(exam_id=t), get_subjects(user=request.user), Q())
         ).values())
 
+    def create(self, request):
+        user = request.user
+        subject_pk = int(request.POST.get('subject'))
+        year = int(request.POST.get('year'))
+        _type = int(request.POST.get('type'))
+        data = request.POST.get('data')
+
+        exam = Exam.objects.get_or_create(
+            subject=Subject.objects.get(pk=subject_pk),
+            year=year
+        )[0]
+        Content.objects.create(
+            exam=exam,
+            type=_type,
+            data=data,
+            poster=user,
+        )
+        return Response({'success': True})
+
+    def partial_update(self, request, pk):
+        content = Content.objects.get(pk=pk)
+        params = {
+            'subject': content.exam.subject.pk,
+            'year': content.exam.year,
+            'type': content.type,
+            'data': content.data,
+        }
+
+        if content.poster == request.user:
+            for key in params.keys():
+                if key in request.data.keys():
+                    # 更新
+                    params[key] = request.data[key]
+
+            exam = Exam.objects.get_or_create(
+                subject=params['subject'],
+                year=params['year'],
+            )[0]
+            content.exam = exam
+            content.type = params['type']
+            content.data = params['data']
+            content.save()
+            return Response({'success': True})
+        else:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+
+    def update(self, request, pk):
+        content = Content.objects.get(pk=pk)
+        if request.user != content.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        exam = Exam.objects.get_or_create(
+            subject=request.data['subject'],
+            year=request.data['year'],
+        )[0]
+        content.exam = exam
+        content.type = request.data['type']
+        content.data = request.data['data']
+        content.save()
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        content = Content.objects.get(pk=pk)
+        if content.poster != request.user:
+            return Response({'success': False})
+        content.delete()
+        return Response({'success': True})
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'sender', 'bef_comment')
+
+    def create(self, request):
+        exam = Exam.objects.get_or_create(
+            subject=Subject.objects.get(pk=int(request.POST.get('subject'))),
+            year=request.POST.get('year')
+        )[0]
+        try:
+            bef_comment = request.POST.get('bef_comment')
+        except Exception as e:
+            print(e)
+            bef_comment = -1
+
+        bef_comment = bef_comment if bef_comment == -1 else None
+        Comment.objects.create(
+            exam=exam,
+            bef_comment=bef_comment,
+            data=request.POST.get('data'),
+            sender=request.user
+        )
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        comment = Comment.objects.get(pk=pk)
+        if comment.sender != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        comment.delete()
+        return Response({'success': True})
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -139,19 +287,41 @@ class PostViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('user', 'bef_post')
 
+    def create(self, request):
+        try:
+            bef_post = request.POST.get('bef_post')
+        except Exception as e:
+            print(e)
+            bef_post = -1
+
+        bef_post = bef_post if bef_post == -1 else None
+        Post.objects.create(
+            bef_post=bef_post,
+            content=Content.objects.get(pk=int(request.POST.get('content'))),
+            user=request.user
+        )
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post.user != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        post.delete()
+        return Response({'success': True})
+
 
 class LikeViewSet(viewsets.ModelViewSet):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post')
+    filterset_fields = ('post', )
 
 
 class ShareViewSet(viewsets.ModelViewSet):
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post')
+    filterset_fields = ('post', )
 
 
 def get_subjects(user) -> list:
@@ -194,3 +364,14 @@ def get_quarters(now):
     else:            # 1 Quarter
         quarters = ["期", "1学期"]
     return quarters
+
+
+def base_destroy(request, Model, pk):
+    item = Model.objects.get(pk=pk)
+    try:
+        item.delete()
+        success = True
+    except Exception as e:
+        print(e)
+        success = False
+    return Response({'success': success})

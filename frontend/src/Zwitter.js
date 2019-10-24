@@ -230,8 +230,8 @@ class Zwitter extends React.Component {
           }
         })
         .then(Response => {
-          // console.log(Response.data.results);
-          var zweets = Response.data.results;
+          // console.log(Response.data);
+          var zweets = Response.data;
           this.setState({
             zweetList: zweets,
             nowLoadiong: false,
