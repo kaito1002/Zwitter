@@ -97,7 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Zwitter',
         'USER': 'koshikawa',
-        'PASSWORD': 'wakashiko',
+        'PASSWORD': os.getenv("ZWITTER_MYSQL_PASS"),
         'HOST': '18.219.184.183',
         'PORT': '3306',
     }

@@ -29,6 +29,8 @@ jobs:
         npm run build
         cd ..
     - name: Set up Containers
+      env: |
+        ZWITTER_MYSQL_PASS: ${{ secrets.ZWITTER_MYSQL_PASS }}
       run: |
         cat docker_external.txt >> docker-compose.yml
         docker-compose build
