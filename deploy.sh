@@ -6,7 +6,6 @@ sudo docker-compose down
 
 if [ ${OS} = "Linux" ]; then
   cd ${PROJECT}
-  source ~/.bashrc
   git fetch && git merge origin/master
   sed -i -e "s/DEBUG = True/DEBUG = False/g" django_project/config/settings.py
   sed -i -e "s/#//g" docker-compose.yml && \rm docker-compose.yml-e
