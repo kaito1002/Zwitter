@@ -203,6 +203,12 @@ class File(models.Model):
         blank=True,
         null=True,
     )
+    type = models.CharField(
+        max_length=10,
+        validators=[MinLengthValidator(1)],
+        blank=True,
+        null=True,
+    )
     content = models.ForeignKey(
         Content,
         related_name='files',

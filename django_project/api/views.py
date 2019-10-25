@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Subject, Exam, Content, Comment
-from .models import Post, Like, Share
+from .models import Post, Like, Share, File
 from .models import Grade, Quarter
 from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
@@ -230,13 +230,33 @@ class ContentViewSet(viewsets.ModelViewSet):
             subject=Subject.objects.get(pk=subject_pk),
             year=year
         )[0]
-        Content.objects.create(
+        content = Content.objects.create(
             exam=exam,
             type=_type,
             data=data,
             poster=user,
         )
-        return Response({'success': True})
+
+        files = request.FILES.getlist('file')
+        success = True
+
+        for file in files:
+            while True:
+                filename = determine_file_name(file)
+                path = os.path.join(MEDIA_ROOT, filename)
+                if not os.path.exists(path):
+                    break
+            with open(path, 'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+            if os.path.exists(path):  # success
+                File.objects.create(
+                    type=path.split('.')[-1],
+                    file_path=path,
+                    content=content
+                )
+                success = success and True
+        return Response({'success': success})
 
     def partial_update(self, request, pk):
         content = Content.objects.get(pk=pk)
