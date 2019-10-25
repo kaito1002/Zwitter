@@ -196,6 +196,25 @@ class Content(models.Model):
     __str__ = __repr__
 
 
+class File(models.Model):
+    file_path = models.CharField(
+        max_length=140,
+        validators=[MinLengthValidator(1)],
+        blank=True,
+        null=True,
+    )
+    content = models.ForeignKey(
+        Content,
+        related_name='files',
+        on_delete=models.CASCADE,
+    )
+
+    def __repr__(self):
+        return "{}: {}, {}".format(self.pk, self.content.exam, self.file_path)
+
+    __str__ = __repr__
+
+
 class Comment(models.Model):
     exam = models.ForeignKey(
         Exam,

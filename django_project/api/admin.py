@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Subject, Exam, Content, Comment
+from .models import User, Subject, Exam, Content, Comment, File
 from .models import Post, Like, Share
 from .models import Grade, Quarter
 
@@ -31,6 +31,11 @@ class ExamAdmin(admin.ModelAdmin):
 
 @admin.register(Content)
 class ContentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(File)
+class FileAdmin(admin.ModelAdmin):
     pass
 
 
