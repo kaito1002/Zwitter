@@ -294,19 +294,16 @@ class CommentViewSet(viewsets.ModelViewSet):
     filterset_fields = ('exam', 'sender', 'bef_comment')
 
     def create(self, request):
-        exam = Exam.objects.get_or_create(
-            subject=Subject.objects.get(pk=int(request.POST.get('subject'))),
-            year=request.POST.get('year')
-        )[0]
+        print(request.POST)
         try:
             bef_comment = request.POST.get('bef_comment')
         except Exception as e:
             print(e)
             bef_comment = -1
 
-        bef_comment = bef_comment if bef_comment == -1 else None
+        bef_comment = bef_comment if bef_comment == -1 or bef_comment == '' else None
         Comment.objects.create(
-            exam=exam,
+            exam=Exam.objects.get(pk=int(request.POST.get('exam'))),
             bef_comment=bef_comment,
             data=request.POST.get('data'),
             sender=request.user
