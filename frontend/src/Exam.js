@@ -56,7 +56,7 @@ class Exam extends React.Component {
         }
       })
       .then(Response => {
-        // console.log(Response.data);
+        console.log(Response.data);
         // console.log(this.state.subjects);
         this.setState({
           subjects: Response.data,
@@ -158,6 +158,15 @@ class Exam extends React.Component {
                     path={`/Post`}
                     render={() =>
                       <ContentsPost />
+                    }
+                  />
+                  <Route
+                    exact
+                    path={`/${this.state.selectSubjectName}/Post`}
+                    render={() =>
+                      <ContentsPost
+                        subject={this.state.selectSubjectName}
+                        subjectPk={this.state.selectSubjectPk} />
                     }
                   />
                   <Route Component={AppIndex} />
@@ -338,41 +347,46 @@ class ExamLists extends React.Component {
         {this.state.nowLoading ?
           <Spinner />
           :
-          this.state.existContents ?
-            < span >
-              <h1>{this.props.subject}</h1>
-              {this.state.contents.map((content, index) => (
-                <div className={`Content ${index}`} key={index}>
-                  <p>{content.data}</p>
-                  <p>投稿日時:{content.posted_at}</p>
-                  <p>投稿者:{content.poster.name}</p>
-                  <p>学籍番号:{content.poster.number}</p>
-                </div>
-              ))}
-              <hr />
-              {this.props.years.map((year, index) => (
-                <p key={index}>
-                  <Link to={`/${this.props.subject}/${year}`}>{year}</Link>
-                </p>
-              ))}
-              <div className="CommentForm">
-                <input
-                  type="text"
-                  onChange={e => this.changeCommentText(e.target.value)}
-                />
-                <button type="submit" onClick={() => this.sendComment()}>
-                  コメントを投稿
+          <span>
+            <h1>{this.props.subject}</h1>
+            {this.state.existContents ?
+              <span>
+                {this.state.contents.map((content, index) => (
+                  <div className={`Content ${index}`} key={index}>
+                    <p>{content.data}</p>
+                    <p>投稿日時:{content.posted_at}</p>
+                    <p>投稿者:{content.poster.name}</p>
+                    <p>学籍番号:{content.poster.number}</p>
+                  </div>
+                ))}
+                <hr />
+                {this.props.years.map((year, index) => (
+                  <p key={index}>
+                    <Link to={`/${this.props.subject}/${year}`}>{year}</Link>
+                  </p>
+                ))}
+                <div className="CommentForm">
+                  <input
+                    type="text"
+                    onChange={e => this.changeCommentText(e.target.value)}
+                  />
+                  <button type="submit" onClick={() => this.sendComment()}>
+                    コメントを投稿
               </button>
-              </div>
-            </span>
-            :
-            < span >
-              <h1>{this.props.subject}</h1>
-              <h1>投稿が存在しません</h1>
-              <hr />
-              <div className="CommentForm">
-              </div>
-            </span>
+                </div>
+              </span>
+              :
+              <span>
+                <h1>投稿が存在しません</h1>
+                <hr />
+                <div className="CommentForm">
+                </div>
+              </span>
+            }
+            <Link to={`/${this.props.subject}/Post`}>
+              <button>コンテンツを投稿！</button>
+            </Link>
+          </span>
         }
       </div>
     );
@@ -472,22 +486,29 @@ class ContentsPost extends React.Component {
     if (!storedToken) {
       this.props.history.push("/");
     } else {
-      axios
-        .get(`/api/subjects`, {
-          headers: {
-            Authorization: `TOKEN ${storedToken}`
-          }
+      if (this.props.subject) {
+        this.setState({
+          selectSubject: this.props.subjectPk,
+          nowLoading: false,
         })
-        .then(Response => {
-          // console.log(Response.data)
-          this.setState({
-            subjectsLists: Response.data,
-            nowLoading: false,
+      } else {
+        axios
+          .get(`/api/subjects`, {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
           })
-        })
-        .catch(err => {
-          console.log(err)
-        })
+          .then(Response => {
+            // console.log(Response.data)
+            this.setState({
+              subjectsLists: Response.data,
+              nowLoading: false,
+            })
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
     }
   }
   render() {
@@ -498,40 +519,47 @@ class ContentsPost extends React.Component {
           :
           <span>
             <h1>ContentsPost</h1>
-            <p>
-              教科
-              <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
-                <option value="---">---</option>
-                {this.state.subjectsLists.map((subject, index) =>
-                  <option value={subject.pk} key={index}>{subject.name}</option>
-                )}
-              </select>
-              {this.state.validSubject ?
-                <span></span>
+            <div className="Subject">
+              教科:
+              {this.props.subject ?
+                <span>{this.props.subject}</span>
                 :
-                <span>教科を選択してください</span>}
-            </p>
-            <p>年度
+                <span>
+                  <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
+                    <option value="---">---</option>
+                    {this.state.subjectsLists.map((subject, index) =>
+                      <option value={subject.pk} key={index}>{subject.name}</option>
+                    )}
+                  </select>
+                  {this.state.validSubject ?
+                    <span></span>
+                    :
+                    <span>教科を選択してください</span>
+                  }
+                </span>
+              }
+            </div>
+            <div className="Year">年度:
               <input type="number" onChange={(e) => this.changeSubjectYear(e.target.value)} />
               {this.state.validYear ?
                 <span></span>
                 :
                 <span>{this.state.nowYear - 10}～{this.state.nowYear}年度の問題のみ投稿可能です！</span>
               }
-            </p>
-            <p>
-              種類
+            </div>
+            <div className="Type">
+              種類:
               <select value={this.contentType} onChange={(e) => this.changeContentType(e.target.value)}>
                 <option value="-1">---</option>
                 <option value="0">問題</option>
                 <option value="1">回答</option>
                 <option value="2">その他</option>
               </select>
-            </p>
-            <p>
-              内容
+            </div>
+            <div className="Content">
+              内容:
               <textarea />
-            </p>
+            </div>
             <p>
               <button type="submit" onClick={() => this.postContent()}>投稿！</button>
             </p>

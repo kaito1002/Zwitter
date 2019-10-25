@@ -49,6 +49,10 @@
     background-color: var(--MainColor);
     border: solid 1px var(--MainColor);
   }
+
+  a:visited {
+    color: #fff;
+  }
 }
 
 .Content {
