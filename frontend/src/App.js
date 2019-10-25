@@ -7,6 +7,7 @@ import AppIndex from "./AppIndex.js";
 import Login from "./Login.js";
 import CreateAccount from './CreateAccount.js';
 import Zwitter from "./Zwitter.js";
+import Config from "./Config.js"
 import Exam from "./Exam.js";
 
 class App extends React.Component {
@@ -19,6 +20,7 @@ class App extends React.Component {
             <Route path="/Login" component={Login} />
             <Route path="/CreateAccount" component={CreateAccount} />
             <Route path="/Zwitter" component={Zwitter} />
+            <Route path="/Config" component={Config} />
             <Route path="/Exam" component={Exam} />
             <Route component={AppIndex} />
           </Switch>
