@@ -62,7 +62,7 @@ class Exam extends React.Component {
         }
       })
       .then(Response => {
-        console.log(Response.data);
+        // console.log(Response.data);
         // console.log(this.state.subjects);
         this.setState({
           subjects: Response.data,
@@ -245,6 +245,7 @@ class ExamLists extends React.Component {
       commentText: undefined,
       latestPk: undefined,
       existContents: true,
+      comments: [],
     };
     this.changeCommentText = this.changeCommentText.bind(this);
     this.sendComment = this.sendComment.bind(this);
@@ -259,19 +260,23 @@ class ExamLists extends React.Component {
   sendComment() {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
+
+    var exam = this.state.exams.filter((result) => {
+      return result.year === this.props.year
+    })
     const params = Querystring.stringify({
-      "exam": this.state.exams[0],
+      "exam": exam[0],
       "data": this.state.commentText,
       "bef_comment": null,
     }, { arrayFormat: 'bracket' });
+
     axios
-      .post("/api/comments", params, {
+      .post("/api/comments/", params, {
         headers: {
           Authorization: `TOKEN ${storedToken}`
         },
       })
       .then(Response => {
-        console.log("OK!");
         console.log(Response)
       })
       .catch(err => {
@@ -286,7 +291,7 @@ class ExamLists extends React.Component {
       this.props.history.push("/");
     } else {
       // 年度情報を読み込みたい
-      console.log(this.props);
+      // console.log(this.props);
       axios
         .get(`/api/exams/?subject=${this.props.subject.id}`, {
           headers: {
@@ -311,7 +316,7 @@ class ExamLists extends React.Component {
             this.setState({
               latestPk: latest,
             })
-            console.log(latest);
+            // console.log(latest);
             // コンテンツを読み込みたい
             axios
               .get(`/api/contents/?exam=${latest[0].pk}`, {
@@ -338,7 +343,9 @@ class ExamLists extends React.Component {
                 }
               })
               .then(Response => {
-                // console.log(Response);
+                this.setState({
+                  comments: Response.data,
+                })
               })
               .catch(err => {
                 console.log(err);
@@ -375,6 +382,11 @@ class ExamLists extends React.Component {
                     <Link to={`/${this.props.subject.name}/${year}`}>{year}</Link>
                   </p>
                 ))}
+                <div className="CommentList">
+                  {this.state.comments.map((comment, index) =>
+                    <p key={index}>{comment.data}</p>
+                  )}
+                </div>
                 <div className="CommentForm">
                   <input
                     type="text"
@@ -382,7 +394,7 @@ class ExamLists extends React.Component {
                   />
                   <button type="submit" onClick={() => this.sendComment()}>
                     コメントを投稿
-              </button>
+                  </button>
                 </div>
               </span>
               :
@@ -498,7 +510,7 @@ class ContentsPost extends React.Component {
       "type": this.state.contentType,
       "data": "ほげほげテスト用のdataですほげほげ",
     }, { arrayFormat: 'bracket' });
-    // console.log(params);
+
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     axios
@@ -530,7 +542,7 @@ class ContentsPost extends React.Component {
     if (!storedToken) {
       this.props.history.push("/");
     } else {
-      console.log(this.props)
+      // console.log(this.props)
       if (this.props.subject) {
         this.setState({
           selectSubject: this.props.subject.id,

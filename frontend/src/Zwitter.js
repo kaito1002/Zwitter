@@ -285,7 +285,7 @@ class Zwitter extends React.Component {
               </Router>
             </div>
             <div className="RightSideMenu">
-              <p><img className="UserImage" src={`${this.state.imagePath}`} /></p>
+              <p><img className="UserImage" src={`${this.state.imagePath}`} alt="UserImage" /></p>
               <p>
                 <Link to="/Config">
                   Setting
