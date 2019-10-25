@@ -18,26 +18,32 @@ class Exam extends React.Component {
     super(props);
     this.state = {
       nowLoading: false,
-      selectSubjectName: undefined,
-      selectSubjectPk: undefined,
-      selectSubjectYears: undefined,
-      selectSubjectLatestYear: undefined,
+      selectSubject: {
+        years: [],
+        name: undefined,
+      },
       searchWord: undefined,
       validationReload: true
     };
     this.setSelectSubject = this.setSelectSubject.bind(this);
     this.setSearchWord = this.setSearchWord.bind(this);
     this.setSearchResult = this.setSearchResult.bind(this);
+    this.setNowYear = this.setNowYear.bind(this);
   }
 
   setSelectSubject(subject) {
     // console.log(subject);
     this.setState({
-      selectSubjectName: subject.name,
-      selectSubjectPk: subject.id,
-      selectSubjectYears: subject.years,
-      selectSubjectLatestYear: subject.latest
+      selectSubject: subject,
     });
+
+    // if (subject.latest === null) {
+    //   this.setState({
+    //     selectSubject: {
+    //       latest: undefined,
+    //     }
+    //   })
+    // }
   }
 
   setSearchWord(searchWord) {
@@ -50,7 +56,7 @@ class Exam extends React.Component {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     axios
-      .get(`/api/subjects/search/?keyword=${this.state.searchWord}`, {
+      .get(`/api/subjects/search_v2/?keyword=${this.state.searchWord}`, {
         headers: {
           Authorization: `TOKEN ${storedToken}`
         }
@@ -60,13 +66,20 @@ class Exam extends React.Component {
         // console.log(this.state.subjects);
         this.setState({
           subjects: Response.data,
-          nowLoading: true
         });
       })
       .catch(err => {
         console.log(err);
       });
     // console.log("redirect");
+  }
+
+  setNowYear(nowYear) {
+    this.setState({
+      selectSubject: {
+        latest: nowYear
+      }
+    })
   }
 
   componentDidMount() {
@@ -84,7 +97,7 @@ class Exam extends React.Component {
             }
           })
           .then(Response => {
-            // console.log(Response);
+            // console.log(Response.data);
             this.setState({
               subjects: Response.data.subjects,
               nowLoading: true
@@ -131,25 +144,35 @@ class Exam extends React.Component {
                   />
                   <Route
                     exact
-                    path={`/${this.state.selectSubjectName}/${this.state.selectSubjectLatestYear}`}
+                    path={`/${this.state.selectSubject.name}/${this.state.selectSubject.latest}`}
                     render={() => (
                       <ExamLists
-                        subject={this.state.selectSubjectName}
-                        pk={this.state.selectSubjectPk}
-                        years={this.state.selectSubjectYears}
-                        latestYear={this.state.selectSubjectLatestYear}
+                        subject={this.state.selectSubject}
+                        year={this.state.selectSubject.latest}
+                        setNowYear={this.setNowYear}
                       />
                     )}
                   />
+                  {this.state.selectSubject.years.map((year, index) =>
+                    <Route
+                      key={index}
+                      exact
+                      path={`/${this.state.selectSubject.name}/${year}`}
+                      render={() => (
+                        <ExamLists
+                          subject={this.state.selectSubject}
+                          year={year}
+                          setNowYear={this.setNowYear}
+                        />
+                      )}
+                    />
+                  )}
                   <Route
                     exact
-                    path={`/${this.state.selectSubjectName}/undifined`}
+                    path={`/${this.state.selectSubject.name}/undefined`}
                     render={() => (
                       <ExamLists
-                        subject={this.state.selectSubjectName}
-                        pk={this.state.selectSubjectPk}
-                        years={this.state.selectSubjectYears}
-                        latestYear={this.state.selectSubjectLatestYear}
+                        subject={this.state.selectSubject}
                       />
                     )}
                   />
@@ -162,11 +185,10 @@ class Exam extends React.Component {
                   />
                   <Route
                     exact
-                    path={`/${this.state.selectSubjectName}/Post`}
+                    path={`/${this.state.selectSubject.name}/Post`}
                     render={() =>
                       <ContentsPost
-                        subject={this.state.selectSubjectName}
-                        subjectPk={this.state.selectSubjectPk} />
+                        subject={this.state.selectSubject} />
                     }
                   />
                   <Route Component={AppIndex} />
@@ -201,11 +223,11 @@ class SubjectsLists extends React.Component {
         <Link to={`/Post`}>コンテンツを投稿する</Link>
         {this.props.subjects.map((subject, index) => (
           <p key={index} onClick={() => this.props.setSelectSubject(subject)}>
-            <Link to={`/${subject.name}/${subject.latest}`}>
-              {subject.latest === undefined
-                ? `${subject.id}:${subject.name} 投稿が存在しません`
-                : `${subject.id}:${subject.name}`}
-            </Link>
+            {subject.latest === null ?
+              <Link to={`/${subject.name}/undefined`}>{subject.id}:{subject.name} - 投稿が存在しません</Link>
+              :
+              <Link to={`/${subject.name}/${subject.latest}`}>{subject.id}:{subject.name}</Link>
+            }
           </p>
         ))}
       </div>
@@ -237,33 +259,20 @@ class ExamLists extends React.Component {
   sendComment() {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
-
+    const params = Querystring.stringify({
+      "exam": this.state.exams[0],
+      "data": this.state.commentText,
+      "bef_comment": null,
+    }, { arrayFormat: 'bracket' });
     axios
-      .get("/api/users/10/", {
+      .post("/api/comments", params, {
         headers: {
           Authorization: `TOKEN ${storedToken}`
-        }
+        },
       })
       .then(Response => {
-        // console.log(this.state.exams[0])
-        // console.log(nowTime)
-        // console.log(Response.data)
-        axios
-          .post("/api/comments", {
-            headers: {
-              Authorization: `TOKEN ${storedToken}`
-            },
-            exam: this.state.exams[0],
-            sender: Response.data,
-            bef_comment: null,
-          })
-          .then(Response => {
-            console.log("OK!");
-            console.log(Response)
-          })
-          .catch(err => {
-            console.log(err);
-          });
+        console.log("OK!");
+        console.log(Response)
       })
       .catch(err => {
         console.log(err);
@@ -277,8 +286,9 @@ class ExamLists extends React.Component {
       this.props.history.push("/");
     } else {
       // 年度情報を読み込みたい
+      console.log(this.props);
       axios
-        .get(`/api/exams/?subject=${this.props.pk}`, {
+        .get(`/api/exams/?subject=${this.props.subject.id}`, {
           headers: {
             Authorization: `TOKEN ${storedToken}`
           }
@@ -289,19 +299,19 @@ class ExamLists extends React.Component {
             exams: Response.data
           });
 
-          if (this.props.years === undefined || this.props.latestYear === undefined) {
+          if (this.props.subject.latest === null) {
             this.setState({
               existContents: false,
               nowLoading: false,
             })
           } else {
             var latest = Response.data.filter(result => {
-              return result.year === this.props.latestYear;
+              return result.year === this.props.year;
             });
             this.setState({
               latestPk: latest,
             })
-            // console.log(latest);
+            console.log(latest);
             // コンテンツを読み込みたい
             axios
               .get(`/api/contents/?exam=${latest[0].pk}`, {
@@ -310,7 +320,7 @@ class ExamLists extends React.Component {
                 }
               })
               .then(examResponse => {
-                console.log(examResponse.data)
+                // console.log(examResponse.data)
                 this.setState({
                   contents: examResponse.data,
                   nowLoading: false
@@ -321,18 +331,18 @@ class ExamLists extends React.Component {
               });
 
             // コメントを読み込みたい
-            // axios
-            //   .get(`/api/comments/?exam=${latest[0].pk}`, {
-            //     headers: {
-            //       Authorization: `TOKEN ${storedToken}`
-            //     }
-            //   })
-            //   .then(Response => {
-            //     console.log(Response);
-            //   })
-            //   .catch(err => {
-            //     console.log(err);
-            //   });
+            axios
+              .get(`/api/comments/?exam=${latest[0].pk}`, {
+                headers: {
+                  Authorization: `TOKEN ${storedToken}`
+                }
+              })
+              .then(Response => {
+                // console.log(Response);
+              })
+              .catch(err => {
+                console.log(err);
+              });
           }
         })
         .catch(err => {
@@ -348,7 +358,7 @@ class ExamLists extends React.Component {
           <Spinner />
           :
           <span>
-            <h1>{this.props.subject}</h1>
+            <h1>{this.props.subject.name}</h1>
             {this.state.existContents ?
               <span>
                 {this.state.contents.map((content, index) => (
@@ -360,9 +370,9 @@ class ExamLists extends React.Component {
                   </div>
                 ))}
                 <hr />
-                {this.props.years.map((year, index) => (
+                {this.props.subject.years.map((year, index) => (
                   <p key={index}>
-                    <Link to={`/${this.props.subject}/${year}`}>{year}</Link>
+                    <Link to={`/${this.props.subject.name}/${year}`}>{year}</Link>
                   </p>
                 ))}
                 <div className="CommentForm">
@@ -383,7 +393,7 @@ class ExamLists extends React.Component {
                 </div>
               </span>
             }
-            <Link to={`/${this.props.subject}/Post`}>
+            <Link to={`/${this.props.subject.name}/Post`}>
               <button>コンテンツを投稿！</button>
             </Link>
           </span>
@@ -404,6 +414,7 @@ class ContentsPost extends React.Component {
       nowYear: undefined,
       validYear: true,
       contentType: undefined,
+      validContent: false,
     };
     this.subjectText = React.createRef();
     this.changeSubject = this.changeSubject.bind(this);
@@ -417,32 +428,67 @@ class ContentsPost extends React.Component {
       this.setState({
         selectSubject: undefined,
         validSubject: false,
+        validContent: false,
       });
     } else {
-      this.setState({
-        selectSubject: parseInt(selectSubject, 10),
-        validSubject: true,
-      });
+      if (this.state.subjectYear !== undefined && this.state.validYear === true && this.state.contentType !== -1) {
+        this.setState({
+          selectSubject: parseInt(selectSubject, 10),
+          validSubject: true,
+          validContent: true,
+        })
+      } else {
+        this.setState({
+          selectSubject: parseInt(selectSubject, 10),
+          validSubject: true,
+          validContent: false,
+        });
+      }
     }
   }
 
   changeSubjectYear(subjectYear) {
     if (subjectYear >= this.state.nowYear - 10 && subjectYear <= this.state.nowYear) {
-      this.setState({
-        subjectYear: parseInt(subjectYear, 10),
-        validYear: true,
-      });
+      if (this.state.selectSubject !== undefined &&
+        this.state.validSubject === true &&
+        this.state.contentType !== -1 &&
+        this.state.contentType !== undefined) {
+        this.setState({
+          subjectYear: parseInt(subjectYear, 10),
+          validYear: true,
+          validContent: true,
+        });
+      } else {
+        this.setState({
+          subjectYear: parseInt(subjectYear, 10),
+          validYear: true,
+          validContent: false,
+        });
+      }
     } else {
       this.setState({
         validYear: false,
+        validContent: false,
       })
     }
   }
 
   changeContentType(contentType) {
-    this.setState({
-      contentType: parseInt(contentType, 10),
-    })
+    if (contentType !== -1 &&
+      this.state.subjectYear !== undefined &&
+      this.state.validYear === true &&
+      this.state.selectSubject !== undefined &&
+      this.state.validSubject === true) {
+      this.setState({
+        contentType: parseInt(contentType, 10),
+        validContent: true,
+      })
+    } else {
+      this.setState({
+        contentType: parseInt(contentType, 10),
+        validContent: false,
+      })
+    }
   }
 
   postContent() {
@@ -455,12 +501,6 @@ class ContentsPost extends React.Component {
     // console.log(params);
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
-    // Subject(pk), year, type, data
-    // var params = new URLSearchParams();
-    // params.append('subject', this.state.selectSubject);
-    // params.append('year', this.state.subjectYear);
-    // params.append('type', this.state.contentType);
-    // params.append('data', "ほげほげテスト用のdataですほげほげ");
     axios
       .post(`/api/contents/`, params, {
         headers: {
@@ -473,6 +513,10 @@ class ContentsPost extends React.Component {
       .catch((err) => {
         console.log(err);
       })
+
+    this.setState({
+      validContent: true,
+    })
   }
 
   componentDidMount() {
@@ -486,9 +530,10 @@ class ContentsPost extends React.Component {
     if (!storedToken) {
       this.props.history.push("/");
     } else {
+      console.log(this.props)
       if (this.props.subject) {
         this.setState({
-          selectSubject: this.props.subjectPk,
+          selectSubject: this.props.subject.id,
           nowLoading: false,
         })
       } else {
@@ -522,7 +567,7 @@ class ContentsPost extends React.Component {
             <div className="Subject">
               教科:
               {this.props.subject ?
-                <span>{this.props.subject}</span>
+                <span>{this.props.subject.name}</span>
                 :
                 <span>
                   <select name="subjectText" onChange={(e) => this.changeSubject(e.target.value)}>
@@ -561,7 +606,20 @@ class ContentsPost extends React.Component {
               <textarea />
             </div>
             <p>
-              <button type="submit" onClick={() => this.postContent()}>投稿！</button>
+              {this.state.validContent ?
+                <button type="submit" onClick={() => this.postContent()}>
+                  <Link to="/">
+                    投稿！
+                  </Link>
+                </button>
+                :
+                <button type="submit" style={{
+                  backgroundColor: "#bbb",
+                  color: "#fff",
+                }}>
+                  投稿！
+                </button>
+              }
             </p>
           </span>
         }
