@@ -237,26 +237,8 @@ class ContentViewSet(viewsets.ModelViewSet):
             poster=user,
         )
 
-        files = request.FILES.getlist('file')
-        success = True
-
-        for file in files:
-            while True:
-                filename = determine_file_name(file)
-                path = os.path.join(MEDIA_ROOT, filename)
-                if not os.path.exists(path):
-                    break
-            with open(path, 'wb') as f:
-                for chunk in file.chunks():
-                    f.write(chunk)
-            if os.path.exists(path):  # success
-                File.objects.create(
-                    type=path.split('.')[-1],
-                    file_path=path,
-                    content=content
-                )
-                success = success and True
-        return Response({'success': success})
+        res = self.upload_files(request, content)
+        return Response({'success': res})
 
     def partial_update(self, request, pk):
         content = Content.objects.get(pk=pk)
@@ -305,6 +287,28 @@ class ContentViewSet(viewsets.ModelViewSet):
             return Response({'success': False})
         content.delete()
         return Response({'success': True})
+
+    def upload_files(self, request, content):
+        files = request.FILES.getlist('file')
+        success = True
+
+        for file in files:
+            while True:
+                filename = determine_file_name(file)
+                path = os.path.join(MEDIA_ROOT, filename)
+                if not os.path.exists(path):
+                    break
+            with open(path, 'wb') as f:
+                for chunk in file.chunks():
+                    f.write(chunk)
+            if os.path.exists(path):  # success
+                File.objects.create(
+                    type=path.split('.')[-1],
+                    file_path=path,
+                    content=content
+                )
+                success = success and True
+        return success
 
 
 class CommentViewSet(viewsets.ModelViewSet):
