@@ -5,7 +5,6 @@ import {
   Route,
   withRouter,
   Link,
-  Redirect,
 } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -176,14 +175,10 @@ class Zwitter extends React.Component {
                   return (
                     <span key={index}>
                       <p className="ZweetContent" onClick={() => this.setZweetDetail(reply.pk)} >
-                        {this.state.moveSelectZweet ?
-                          <Redirect push to={`/${this.state.zweetPk}`} />
-                          :
-                          <Link to={`/${reply.pk}`}>
-                            <span id="UserName">{reply.user.name}</span>
-                            <span id="Content">{reply.content}</span>
-                          </Link>
-                        }
+                        <Link to={`/${reply.pk}`}>
+                          <span id="UserName">{reply.user.name}</span>
+                          <span id="Content">{reply.content}</span>
+                        </Link>
                       </p>
                       <button onClick={() => this.openModal(reply.pk)}>リプライ！</button>
                       {this.ReplyModal(reply)}
@@ -223,6 +218,17 @@ class Zwitter extends React.Component {
     if (!storedToken) {
       this.props.history.push('/');
     } else {
+      axios
+        .get('/api/users', {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        }).then(Response => {
+          console.log(Response);
+        }).catch(err => {
+          console.log(err);
+        })
+
       axios
         .get('api/posts', {
           headers: {
@@ -274,20 +280,14 @@ class Zwitter extends React.Component {
                   <Route Component={AppIndex} />
                 </Switch>
               </Router>
-              {/* <Modal
-                isOpen={this.state.modalIsOpen}
-                onRequestClose={this.closeModal}
-              >
-                <p className="ZweetContent">
-                  <span id="UserName">{this.state.zweet.user.name}</span>
-                  <span id="Content">{this.state.zweet.content}</span>
-                </p>
-                <textarea defaultValue="いまなにしてる？"></textarea>
-                <button type="submit">ズイート！</button>
-              </Modal> */}
             </div>
             <div className="RightSideMenu">
-              hogehoge
+              <p>User Image</p>
+              <p>
+                <Link to="/Config">
+                  Setting
+                </Link>
+              </p>
             </div>
           </span>
         }
