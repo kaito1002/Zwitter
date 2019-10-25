@@ -34,9 +34,16 @@ class AppIndex extends React.Component {
           :
           <span>
             <h1>App Index</h1>
-            <Link to="/Login">
-              Login page
+            <p>
+              <Link to="/Login">
+                Login page
             </Link>
+            </p>
+            <p>
+              <Link to="/CreateAccount">
+                Create Account
+            </Link>
+            </p>
           </span>
         }
       </div>
