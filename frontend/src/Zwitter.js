@@ -27,6 +27,7 @@ class Zwitter extends React.Component {
       modalIsOpen: false,
       replyPk: undefined,
       replyText: undefined,
+      imagePath: undefined,
     };
     this.changeZweetText = this.changeZweetText.bind(this);
     this.sendZweet = this.sendZweet.bind(this);
@@ -219,12 +220,14 @@ class Zwitter extends React.Component {
       this.props.history.push('/');
     } else {
       axios
-        .get('/api/users', {
+        .get('/api/users/me', {
           headers: {
             Authorization: `TOKEN ${storedToken}`
           }
         }).then(Response => {
-          console.log(Response);
+          this.setState({
+            imagePath: Response.data.image_path,
+          })
         }).catch(err => {
           console.log(err);
         })
@@ -282,7 +285,7 @@ class Zwitter extends React.Component {
               </Router>
             </div>
             <div className="RightSideMenu">
-              <p>User Image</p>
+              <p><img className="UserImage" src={`${this.state.imagePath}`} /></p>
               <p>
                 <Link to="/Config">
                   Setting
