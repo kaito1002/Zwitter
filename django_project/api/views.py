@@ -26,6 +26,17 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(methods=['GET'], detail=False, url_path='me')
+    def profile(self, request):
+        return Response({
+            "pk": request.user.pk,
+            "name": request.user.name,
+            "number": request.user.number,
+            "image_path": request.user.image_path,
+            "email": request.user.email,
+            "coin": request.user.coin,
+        })
+
     @action(methods=['POST'], detail=False, url_path='img')
     def image_upload(self, request):
         file = request.FILES['file']

@@ -23,6 +23,7 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/users/ | ユーザー一覧の取得 |
 | POST | /api/users/ | 新規ユーザーの追加 |
 | GET | /api/users/<user_id>/ | ユーザー情報の取得 |
+| GET | /api/users/me | ログインユーザー情報の取得 |
 | PUT | /api/users/<user_id>/ | ユーザー情報の更新 |
 | DELETE | /api/users/<user_id>/ | ユーザーの削除 |
 
