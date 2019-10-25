@@ -138,12 +138,10 @@ class SubjectViewSet(viewsets.ModelViewSet):
         subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
         return Response(subjects.values())
 
-    @action(methods=['GET'], detail=False, url_path='search_user_related')
-    def search(self, request):
+    @action(methods=['GET'], detail=False, url_path='search_v2')
+    def search_v2(self, request):
         exams = Exam.objects.all().filter(
             subject__name__contains=request.GET['keyword']
-        ).filter(
-            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
         ).values()
 
         subjects = {}
