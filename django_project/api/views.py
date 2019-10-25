@@ -331,10 +331,10 @@ class PostViewSet(viewsets.ModelViewSet):
             print(e)
             bef_post = -1
 
-        bef_post = bef_post if bef_post == -1 else None
+        bef_post = bef_post if bef_post == -1 or bef_post == '' else None
         Post.objects.create(
             bef_post=bef_post,
-            content=Content.objects.get(pk=int(request.POST.get('content'))),
+            content=request.POST.get('content'),
             user=request.user
         )
         return Response({'success': True})
