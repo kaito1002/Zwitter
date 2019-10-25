@@ -140,36 +140,33 @@ class SubjectViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, url_path='search_v2')
     def search_v2(self, request):
-        exams = Exam.objects.all().filter(
-            subject__name__contains=request.GET['keyword']
-        ).values()
+        subjects = Subject.objects.all().filter(
+            name__contains=request.GET['keyword']
+        )
 
-        subjects = {}
+        results = []
 
-        for exam in exams:
-            if exam['subject_id'] in subjects.keys():
-                # 既存
-                subjects[exam['subject_id']]['years'].append(exam['year'])
-                if subjects[exam['subject_id']]['latest'] < exam['year']:
-                    subjects[exam['subject_id']]['latest'] = exam['year']
+        for subject in subjects:
+            data = {
+                'id': subject.id,
+                'name': subject.name,
+                'latest': None,
+                'years': []
+            }
 
-            else:
-                # 新規
-                subjects[exam['subject_id']] = {
-                    'id': exam['subject_id'],
-                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
-                    'latest': exam['year'],
-                    'years': [exam['year'], ]
-                }
+            for exam in subject.exams.all():
+                # latest 更新
+                if data['latest'] is None:
+                    data['latest'] = exam.year
+                elif data['latest'] < exam.year:
+                    data['latest'] = exam.year
 
-        # sort
-        for key in subjects.keys():
-            subjects[key]['years'].sort(reverse=True)
+                # years更新
+                data['years'].append(exam.year)
 
-        res = {
-            'subjects': list(subjects.values()),
-        }
-        return Response(subjects.values())
+            data['years'].sort(reverse=True)
+            results.append(data)
+        return Response(results)
 
 
 class GradeViewSet(viewsets.ModelViewSet):
