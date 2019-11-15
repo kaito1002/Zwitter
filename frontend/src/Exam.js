@@ -215,8 +215,7 @@ class SubjectsLists extends React.Component {
           <p>
             <input
               type="text"
-              onChange={e => this.props.setSearchWord(e.target.value)}
-            ></input>
+              onChange={e => this.props.setSearchWord(e.target.value)} />
             <button onClick={() => this.props.setSearchResult()}>検索</button>
           </p>
         </div>
@@ -258,30 +257,33 @@ class ExamLists extends React.Component {
   }
 
   sendComment() {
-    var storedToken = localStorage.getItem("storedToken");
-    storedToken = JSON.parse(storedToken);
+    if(this.state.commentText !== ""){
+      var storedToken = localStorage.getItem("storedToken");
+      storedToken = JSON.parse(storedToken);
 
-    var exam = this.state.exams.filter((result) => {
-      return result.year === this.props.year
-    })
-    const params = Querystring.stringify({
-      "exam": exam[0],
-      "data": this.state.commentText,
-      "bef_comment": null,
-    }, { arrayFormat: 'bracket' });
-
-    axios
-      .post("/api/comments/", params, {
-        headers: {
-          Authorization: `TOKEN ${storedToken}`
-        },
-      })
-      .then(Response => {
-        console.log(Response)
-      })
-      .catch(err => {
-        console.log(err);
+      var exam = this.state.exams.find((result) => {
+        return result.year === this.props.year
       });
+      console.log(exam.subject.pk);
+      const params = Querystring.stringify({
+        "exam": parseInt(exam.pk, 10),
+        "data": this.state.commentText,
+        "bef_comment": -1,
+      }, { arrayFormat: 'bracket'});
+
+      axios
+        .post("/api/comments/", params, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          },
+        })
+        .then(Response => {
+          console.log(Response)
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
   }
 
   componentDidMount() {
@@ -310,7 +312,7 @@ class ExamLists extends React.Component {
               nowLoading: false,
             })
           } else {
-            var latest = Response.data.filter(result => {
+            var latest = Response.data.find(result => {
               return result.year === this.props.year;
             });
             this.setState({
@@ -319,7 +321,7 @@ class ExamLists extends React.Component {
             // console.log(latest);
             // コンテンツを読み込みたい
             axios
-              .get(`/api/contents/?exam=${latest[0].pk}`, {
+              .get(`/api/contents/?exam=${latest.pk}`, {
                 headers: {
                   Authorization: `TOKEN ${storedToken}`
                 }
@@ -337,7 +339,7 @@ class ExamLists extends React.Component {
 
             // コメントを読み込みたい
             axios
-              .get(`/api/comments/?exam=${latest[0].pk}`, {
+              .get(`/api/comments/?exam=${latest.pk}`, {
                 headers: {
                   Authorization: `TOKEN ${storedToken}`
                 }
@@ -384,7 +386,9 @@ class ExamLists extends React.Component {
                 ))}
                 <div className="CommentList">
                   {this.state.comments.map((comment, index) =>
-                    <p key={index}>{comment.data}</p>
+                    <p key={index}>
+                      {comment.sender.name}:{comment.data}
+                    </p>
                   )}
                 </div>
                 <div className="CommentForm">
@@ -427,12 +431,14 @@ class ContentsPost extends React.Component {
       validYear: true,
       contentType: undefined,
       validContent: false,
+      contentText: undefined,
     };
     this.subjectText = React.createRef();
     this.changeSubject = this.changeSubject.bind(this);
     this.changeSubjectYear = this.changeSubjectYear.bind(this);
     this.changeContentType = this.changeContentType.bind(this);
     this.postContent = this.postContent.bind(this);
+    this.changeContentText = this.changeContentText.bind(this);
   }
 
   changeSubject(selectSubject) {
@@ -508,7 +514,7 @@ class ContentsPost extends React.Component {
       "subject": this.state.selectSubject,
       "year": this.state.subjectYear,
       "type": this.state.contentType,
-      "data": "ほげほげテスト用のdataですほげほげ",
+      "data": this.state.contentText,
     }, { arrayFormat: 'bracket' });
 
     var storedToken = localStorage.getItem("storedToken");
@@ -531,12 +537,17 @@ class ContentsPost extends React.Component {
     })
   }
 
+  changeContentText(contentText){
+    this.setState({
+      contentText: contentText,
+    });
+  }
+
   componentDidMount() {
     var date = new Date();
     this.setState({
       nowYear: date.getFullYear(),
-    })
-
+    });
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     if (!storedToken) {
@@ -615,7 +626,7 @@ class ContentsPost extends React.Component {
             </div>
             <div className="Content">
               内容:
-              <textarea />
+              <textarea value={this.state.contentText} onChange={(e) => this.changeContentText(e.target.value)}/>
             </div>
             <p>
               {this.state.validContent ?
