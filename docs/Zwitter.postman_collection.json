@@ -15,7 +15,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": ""
+							"raw": "http://127.0.0.1:8000/api/users/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
 						}
 					},
 					"response": []
@@ -212,17 +225,12 @@
 								},
 								{
 									"key": "bef_comment",
-									"value": "-1",
+									"value": "1",
 									"type": "text"
 								},
 								{
 									"key": "data",
 									"value": "Test Comment",
-									"type": "text"
-								},
-								{
-									"key": "sender",
-									"value": "1",
 									"type": "text"
 								}
 							]
@@ -255,32 +263,14 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "exam",
-									"value": "1",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "bef_comment",
-									"value": "-1",
-									"type": "text",
-									"disabled": true
-								},
-								{
 									"key": "data",
 									"value": "Test Comment Updated",
 									"type": "text"
-								},
-								{
-									"key": "sender",
-									"value": "1",
-									"type": "text",
-									"disabled": true
 								}
 							]
 						},
 						"url": {
-							"raw": "http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/api/comments/5/",
+							"raw": "http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/api/comments/16/",
 							"protocol": "http",
 							"host": [
 								"ec2-18-219-184-183",
@@ -292,7 +282,7 @@
 							"path": [
 								"api",
 								"comments",
-								"5",
+								"16",
 								""
 							]
 						}
@@ -330,7 +320,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/comments/",
+							"raw": "http://127.0.0.1:8000/api/comments/16/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -342,6 +332,7 @@
 							"path": [
 								"api",
 								"comments",
+								"16",
 								""
 							]
 						}
@@ -439,7 +430,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/comments?exam=1",
+							"raw": "http://127.0.0.1:8000/api/comments?bef_comment=1",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -454,7 +445,7 @@
 							],
 							"query": [
 								{
-									"key": "exam",
+									"key": "bef_comment",
 									"value": "1"
 								}
 							]
@@ -478,32 +469,7 @@
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "exam",
-									"value": "1",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "bef_comment",
-									"value": "-1",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "data",
-									"value": "Test Comment",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "sender",
-									"value": "1",
-									"type": "text",
-									"disabled": true
-								}
-							]
+							"formdata": []
 						},
 						"url": {
 							"raw": "http://127.0.0.1:8000/api/posts/",
@@ -701,7 +667,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/posts/5/",
+							"raw": "http://127.0.0.1:8000/api/posts/17/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -713,7 +679,7 @@
 							"path": [
 								"api",
 								"posts",
-								"5",
+								"17",
 								""
 							]
 						}
@@ -730,7 +696,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/posts/5/",
+							"raw": "http://127.0.0.1:8000/api/posts/17/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -742,7 +708,7 @@
 							"path": [
 								"api",
 								"posts",
-								"5",
+								"17",
 								""
 							]
 						}
@@ -832,7 +798,7 @@
 							"formdata": [
 								{
 									"key": "post",
-									"value": "1",
+									"value": "3",
 									"type": "text"
 								}
 							]
