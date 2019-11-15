@@ -278,6 +278,9 @@ class Post(models.Model):
 
 
 class Like(models.Model):
+    class Meta:
+        unique_together = (('user', 'post'), )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -303,6 +306,9 @@ class Like(models.Model):
 
 
 class Share(models.Model):
+    class Meta:
+        unique_together = (('user', 'post'), )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

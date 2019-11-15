@@ -353,12 +353,60 @@ class LikeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post', )
 
+    def create(self, request):
+        try:
+            post = request.POST.get('post')
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postがきてないよ'})
+
+        try:
+            Like.objects.create(
+                post_id=int(post),
+                user=request.user
+            )
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postが見つからないかすでにしてるよ'})
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        post = Like.objects.get(pk=pk)
+        if post.user != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        post.delete()
+        return Response({'success': True})
+
 
 class ShareViewSet(viewsets.ModelViewSet):
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post', )
+
+    def create(self, request):
+        try:
+            post = request.POST.get('post')
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postがきてないよ'})
+
+        try:
+            Share.objects.create(
+                post_id=int(post),
+                user=request.user
+            )
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postが見つからないかすでにしてるよ'})
+        return Response({'success': True})
+
+    def destroy(self, request, pk):
+        post = Share.objects.get(pk=pk)
+        if post.user != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        post.delete()
+        return Response({'success': True})
 
 
 def get_subjects(user) -> list:
