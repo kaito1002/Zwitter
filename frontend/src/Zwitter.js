@@ -6,7 +6,8 @@ import {
   withRouter,
   Link,
 } from 'react-router-dom';
-// import Querystring from 'query-string';
+import Querystring from 'query-string';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { Spinner } from './AppIndex.js';
@@ -23,24 +24,28 @@ class Zwitter extends React.Component {
       zweetList: undefined,
       replyList: undefined,
       zweet: undefined,
-      zweetText: undefined,
-      zweetPk: undefined,
+      zweetText: "",
+      zweetPk: 0,
       modalIsOpen: false,
-      replyPk: undefined,
-      replyText: undefined,
-      imagePath: undefined,
+      replyPk: 0,
+      replyText: "",
+      imagePath: "",
+      likeCount: {},
+      replyCount: {},
     };
     this.changeZweetText = this.changeZweetText.bind(this);
     this.sendZweet = this.sendZweet.bind(this);
-    this.setZweetDetail = this.setZweetDetail.bind(this);
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.changeReplyText = this.changeReplyText.bind(this);
     this.sendReply = this.sendReply.bind(this);
+    this.backToZweetTop = this.backToZweetTop.bind(this);
 
     this.TimeLine = this.TimeLine.bind(this);
     this.ZweetDetail = this.ZweetDetail.bind(this);
     this.ReplyModal = this.ReplyModal.bind(this);
+    this.ShowZweet = this.ShowZweet.bind(this);
+    this.ButtonList = this.ButtonList.bind(this);
   }
 
   changeZweetText(zweetText) {
@@ -52,34 +57,23 @@ class Zwitter extends React.Component {
   sendZweet() {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
+    const params = Querystring.stringify({
+      "bef_post": -1,
+      "content": this.state.zweetText,
+    }, { arrayFormat: 'bracket' });
     axios
-      .post('api/posts', {
+      .post('/api/posts/', params, {
         headers: {
           Authorization: `TOKEN ${storedToken}`
-        },
-        bef_post: null,
-        content: this.state.zweetText,
+        }
       })
       .then(Response => {
         console.log(Response)
+        this.backToZweetTop();
       })
       .catch(err => {
         console.log(err)
       })
-  }
-
-  setZweetDetail(pk) {
-    var zweet = this.state.zweetList.find((result) => {
-      return result.pk === pk;
-    })
-    var replyList = this.state.zweetList.filter((result) => {
-      return result.bef_post === pk;
-    })
-    this.setState({
-      zweet: zweet,
-      replyList: replyList,
-      zweetPk: pk,
-    })
   }
 
   openModal(pk) {
@@ -102,27 +96,29 @@ class Zwitter extends React.Component {
     })
   }
 
-  sendReply() {
-    console.log(this.state.replyText)
+  sendReply(zweet) {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
-    // const params = Querystring.stringfy({
-    // });
+    const params = Querystring.stringify({
+      "bef_post": zweet.pk,
+      "content": this.state.replyText,
+    }, { arrayFormat: 'bracket' });
     axios
-      .post('api/posts', {
+      .post('/api/posts/', params, {
         headers: {
           Authorization: `TOKEN ${storedToken}`
         },
-        bef_post: this.state.replyPk,
-        content: this.state.replyText,
       })
       .then(Response => {
-        console.log(Response)
+        this.backToZweetTop();
       })
       .catch(err => {
         console.log(err)
       })
+  }
 
+  backToZweetTop(){
+    this.props.history.push("/Zwitter");
   }
 
   TimeLine() {
@@ -131,68 +127,82 @@ class Zwitter extends React.Component {
         <div className="ZweetForm">
           <textarea
             defaultValue="いまなにしてる？"
-            onChange={(e) => this.changeZweetText(e.target.value)}></textarea>
+            onChange={(e) => this.changeZweetText(e.target.value)} />
           <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
         </div>
         {this.state.zweetList.map((zweet, index) => {
           return (
             zweet.bef_post === null ?
               <span key={index}>
-                <p className="ZweetContent" onClick={() => this.setZweetDetail(zweet.pk)}>
-                  <Link to={`/${zweet.pk}`}
-                    id="ZweetWrapper">
-                    <span id="UserName">{zweet.user.name}</span>
-                    <span id="Content">{zweet.content}</span>
-                  </Link>
-                </p>
-                <button onClick={() => this.openModal(zweet.pk)}>リプライ！</button>
-                {this.ReplyModal(zweet)}
+                {this.ShowZweet(zweet)}
+                {this.ButtonList(zweet)}
               </span>
               :
-              <span key={index}></span>
+              <span key={index}/>
           )
         })}
       </span>
     )
   }
 
-  ZweetDetail() {
+  ButtonList(zweet){
+    return(
+      <div className="ButtonList">
+        <p>
+          <button className="ReplyButton Button" onClick={() => this.openModal(zweet.pk)}>
+            <FontAwesomeIcon icon={['far', 'comment-dots']} />
+            {isNaN(this.state.replyCount[zweet.pk]) ?
+              0
+              :
+              this.state.replyCount[zweet.pk]
+            }
+          </button>
+          <button className="LikeButton Button">
+            <FontAwesomeIcon icon={['far', 'heart']} />
+            {isNaN(this.state.likeCount[zweet.pk]) ?
+              0
+              :
+              this.state.likeCount[zweet.pk]
+            }
+          </button>
+          <button className="ShareButton Button">
+            <FontAwesomeIcon icon={['fas', 'retweet']} />
+          </button>
+        </p>
+        {this.ReplyModal(zweet)}
+        <hr />
+      </div>
+    )
+  }
+
+  ZweetDetail(pk) {
+    let zweet = this.state.zweetList.find((result) => {
+      return result.pk === pk;
+    });
+    let replys = this.state.zweetList.filter((result) => {
+      return result.bef_post === pk;
+    });
     return (
       <div className="ZweetDetail">
-        {this.nowLoadiong ?
-          <Spinner />
+        <span>
+          {this.ShowZweet(zweet)}
+          {this.ButtonList(zweet)}
+        </span>
+        {replys === [] ?
+          <span/>
           :
           <span>
-            <span>
-              <p className="ZweetContent">
-                <span id="UserName">{this.state.zweet.user.name}</span>
-                <span id="Content">{this.state.zweet.content}</span>
-              </p>
-              <button onClick={() => this.openModal(this.state.zweet.pk)}>リプライ！</button>
-              {this.ReplyModal(this.state.zweet)}
-            </span>
-            {this.state.replys === [] ?
-              <span></span>
-              :
-              <span>
-                {this.state.replyList.map((reply, index) => {
-                  return (
-                    <span key={index}>
-                      <p className="ZweetContent" onClick={() => this.setZweetDetail(reply.pk)} >
-                        <Link to={`/${reply.pk}`}>
-                          <span id="UserName">{reply.user.name}</span>
-                          <span id="Content">{reply.content}</span>
-                        </Link>
-                      </p>
-                      <button onClick={() => this.openModal(reply.pk)}>リプライ！</button>
-                      {this.ReplyModal(reply)}
-                    </span>
-                  )
-                })}
-              </span>
-            }
+            {replys.map((reply, index) => {
+              return (
+                <span key={index}>
+                  {this.ShowZweet(reply)}
+                  {this.ButtonList(reply)}
+                </span>
+              )
+            })}
           </span>
         }
+        <button onClick={() => this.backToZweetTop()}>トップに戻る</button>
       </div>
     )
   }
@@ -204,15 +214,31 @@ class Zwitter extends React.Component {
           isOpen={this.state.modalIsOpen}
           onRequestClose={this.closeModal}
         >
-          <p className="ZweetContent">
-            <span id="UserName">{zweet.user.name}</span>
-            <span id="Content">{zweet.content}</span>
-          </p>
+          {this.ShowZweet(zweet, true)}
           <textarea defaultValue="いまなにしてる？" onChange={(e) => this.changeReplyText(e.target.value)}></textarea>
-          <button type="submit" onClick={() => this.sendReply()}>リプライ！</button>
+          <button type="submit" onClick={() => this.sendReply(zweet)}>リプライ！</button>
         </Modal>
         :
         null
+    )
+  }
+
+  ShowZweet(zweet, useToModal=false){
+    return(
+      useToModal ?
+        <p className="ZweetContent">
+          <span className="UserImage"><img src={`${zweet.user.image_path}`} alt={`${zweet.user.name}のユーザー画像`}/></span>
+          <span className="UserName">{zweet.user.name}</span>
+          <span className="ContentText">{zweet.content}</span>
+        </p>
+        :
+        <p className="ZweetContent">
+          <Link to={`/${zweet.pk}`}>
+            <span className="UserImage"><img src={`${zweet.user.image_path}`} alt={`${zweet.user.name}のユーザー画像`}/></span>
+            <span className="UserName">{zweet.user.name}</span>
+            <span className="ContentText">{zweet.content}</span>
+          </Link>
+        </p>
     )
   }
 
@@ -222,36 +248,82 @@ class Zwitter extends React.Component {
     if (!storedToken) {
       this.props.history.push('/');
     } else {
-      axios
-        .get('/api/users/me', {
-          headers: {
-            Authorization: `TOKEN ${storedToken}`
-          }
-        }).then(Response => {
+      if (this.props.history.location.pathname === '/Zwitter') {
+        axios
+          .get('/api/users/me/', {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          }).then(Response => {
           this.setState({
             imagePath: Response.data.image_path,
           })
         }).catch(err => {
           console.log(err);
-        })
-
-      axios
-        .get('api/posts', {
-          headers: {
-            Authorization: `TOKEN ${storedToken}`
-          }
-        })
-        .then(Response => {
-          // console.log(Response.data);
-          var zweets = Response.data;
-          this.setState({
-            zweetList: zweets,
-            nowLoadiong: false,
-          })
-        })
-        .catch(err => {
-          console.log(err);
         });
+
+        axios
+          .get('api/posts/', {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          })
+          .then(Response => {
+            let replyList = Response.data.map((result) => {
+              return result.bef_post;
+            });
+            let replyCount = {};
+            for(var i = 0; i < replyList.length; i++){
+              if(replyList.indexOf(replyList[i]) === i ){
+                if(isNaN(replyCount[String(replyList[i])])){
+                  replyCount[String(replyList[i])] = 1;
+                }
+                replyCount[String(replyList[i])] += 1;
+              }
+            }
+            this.setState({
+              zweetList: Response.data,
+              nowLoadiong: false,
+              replyCount: replyCount,
+            })
+          })
+          .catch(err => {
+            console.log(err);
+          });
+
+        axios
+          .get('api/likes/',{
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          })
+          .then(Response => {
+            let likeList = Response.data.map((result) => {
+              return result.post.pk;
+            });
+            let likeCount = {};
+            for(var i = 0; i < likeList.length; i++){
+              if(likeList.indexOf(likeList[i]) === i ){
+                if(isNaN(likeCount[String(likeList[i])])){
+                  likeCount[String(likeList[i])] = 0;
+                }
+                likeCount[String(likeList[i])] += 1;
+              }
+            }
+            this.setState({
+              likeCount: likeCount,
+            })
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    }
+  }
+
+  UNSAFE_componentWillMount() {
+    if (this.props.history.location.pathname !== "/Zwitter") {
+      this.props.history.push(`/Zwitter`);
     }
   }
 
@@ -275,14 +347,14 @@ class Zwitter extends React.Component {
                       this.TimeLine()
                     )}
                   />
-                  <Route
-                    exact
-                    path={`/${this.state.zweetPk}`}
-                    render={() => (
-                      this.ZweetDetail()
-                    )
-                    }
-                  />
+                  {this.state.zweetList.map((zweet, index) =>
+                    <Route
+                      key={index}
+                      exact
+                      path={`/${zweet.pk}`}
+                      render={() => this.ZweetDetail(zweet.pk)}
+                    />
+                  )}
                   <Route Component={AppIndex} />
                 </Switch>
               </Router>
