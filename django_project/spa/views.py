@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from config.settings import BASE_DIR
 import mimetypes
 import os
 
 
-def index(request):
+def index(request, arg=None):
     return render(request, 'index.html')
 
 
