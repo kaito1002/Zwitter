@@ -6,6 +6,7 @@ import {
   withRouter,
   Link,
 } from 'react-router-dom';
+// import Querystring from 'query-string';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { Spinner } from './AppIndex.js';
@@ -105,6 +106,8 @@ class Zwitter extends React.Component {
     console.log(this.state.replyText)
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
+    // const params = Querystring.stringfy({
+    // });
     axios
       .post('api/posts', {
         headers: {
