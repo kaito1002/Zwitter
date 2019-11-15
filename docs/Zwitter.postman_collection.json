@@ -23,7 +23,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8000/api/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						""
+					]
 				}
 			},
 			"response": []
@@ -33,14 +43,44 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "Koshikawa",
+							"type": "text"
+						},
+						{
+							"key": "number",
+							"value": "s1250134",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "koshikawakashiko",
+							"type": "text"
+						}
+					]
+				},
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8000/api/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						""
+					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "/api/users/",
+			"name": "/api/users/<pk>/",
 			"request": {
 				"method": "PATCH",
 				"header": [],
@@ -55,15 +95,15 @@
 					]
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/users/11/",
+					"raw": "http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/api/users/11/",
 					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"ec2-18-219-184-183",
+						"us-east-2",
+						"compute",
+						"amazonaws",
+						"com"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"users",
@@ -75,7 +115,7 @@
 			"response": []
 		},
 		{
-			"name": "/api/users/",
+			"name": "/api/users/<pk>/",
 			"request": {
 				"method": "DELETE",
 				"header": [],
@@ -91,15 +131,15 @@
 					]
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/users/11/",
+					"raw": "http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/api/users/11/",
 					"protocol": "http",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"ec2-18-219-184-183",
+						"us-east-2",
+						"compute",
+						"amazonaws",
+						"com"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"users",
@@ -192,6 +232,222 @@
 						"api",
 						"comments",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/comments/<pk>/",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "exam",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "bef_comment",
+							"value": "-1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "data",
+							"value": "Test Comment Updated",
+							"type": "text"
+						},
+						{
+							"key": "sender",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://ec2-18-219-184-183.us-east-2.compute.amazonaws.com/api/comments/5/",
+					"protocol": "http",
+					"host": [
+						"ec2-18-219-184-183",
+						"us-east-2",
+						"compute",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"api",
+						"comments",
+						"5",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/comments/<pk>/",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "exam",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "bef_comment",
+							"value": "-1",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "Test Comment",
+							"type": "text"
+						},
+						{
+							"key": "sender",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/comments/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"comments",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/comments?exam=<pk>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "exam",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "bef_comment",
+							"value": "-1",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "Test Comment",
+							"type": "text"
+						},
+						{
+							"key": "sender",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/comments?exam=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "exam",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/comments?bef_comment=<pk>",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "exam",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "bef_comment",
+							"value": "-1",
+							"type": "text"
+						},
+						{
+							"key": "data",
+							"value": "Test Comment",
+							"type": "text"
+						},
+						{
+							"key": "sender",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/comments?exam=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "exam",
+							"value": "1"
+						}
 					]
 				}
 			},
