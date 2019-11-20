@@ -18,6 +18,22 @@
     color: #555;
     text-decoration: none;
   }
+  .ZweetDetail{
+    a, a:visited{
+      color: #555;
+    }
+    .BackButton{
+      background-color: transparent;
+      border: none;
+      display: block;
+      font-size: 2rem;
+      padding: 15px;
+      transition: .2s;
+    }
+    .BackButton:hover{
+      transform: scale(1.1);
+    }
+  }
 }
 
 .ZweetContent {
@@ -38,7 +54,7 @@
     }
   }
   .UserName {
-    display: block;
+    display: inline-block;
     font-size: 1.5rem;
   }
   .ContentText {
@@ -59,9 +75,14 @@
     padding: 15px;
     transition: .2s;
   }
-
   .Button:hover{
     transform: scale(1.1);
+  }
+  .Unliked{
+    color: #aaa;
+  }
+  .Liked{
+    color: #f55;
   }
 }
 

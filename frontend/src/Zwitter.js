@@ -20,9 +20,11 @@ class Zwitter extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      user: undefined,
       nowLoadiong: true,
-      zweetList: undefined,
-      replyList: undefined,
+      zweetList: [],
+      replyList: [],
+      likeList: [],
       zweet: undefined,
       zweetText: "",
       zweetPk: 0,
@@ -40,6 +42,8 @@ class Zwitter extends React.Component {
     this.changeReplyText = this.changeReplyText.bind(this);
     this.sendReply = this.sendReply.bind(this);
     this.backToZweetTop = this.backToZweetTop.bind(this);
+    this.likeZweet = this.likeZweet.bind(this);
+    this.checkExistLiked = this.checkExistLiked.bind(this);
 
     this.TimeLine = this.TimeLine.bind(this);
     this.ZweetDetail = this.ZweetDetail.bind(this);
@@ -121,6 +125,83 @@ class Zwitter extends React.Component {
     this.props.history.push("/Zwitter");
   }
 
+  likeZweet(pk){
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+    let params = Querystring.stringify({
+      "post": parseInt(pk, 10),
+    }, { arrayFormat: 'bracket' });
+
+    axios
+      .post('/api/likes/', params, {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`
+        }
+      },)
+      .then(Response => {
+        if(!Response.data.success){
+          let target = this.state.likeList.find(result => {
+            return result.post.pk === pk;
+          });
+          axios
+            .delete(`/api/likes/${target.pk}`, {
+              headers: {
+                Authorization: `TOKEN ${storedToken}`
+              }
+            })
+            .then(Response => {
+            })
+            .catch(error => {
+              console.log(error)
+            });
+        }
+        axios
+          .get('/api/likes/',{
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          })
+          .then(Response => {
+            let likeList = Response.data.map((result) => {
+              return result.post.pk;
+            });
+            let likeCount = {};
+            for(var i = 0; i < likeList.length; i++){
+              if(likeList.indexOf(likeList[i]) === i ){
+                if(isNaN(likeCount[String(likeList[i])])){
+                  likeCount[String(likeList[i])] = 0;
+                }
+                likeCount[String(likeList[i])] += 1;
+              }
+            }
+            this.setState({
+              likeList: Response.data,
+              likeCount: likeCount,
+            });
+            console.log("DONE");
+          })
+          .catch(err => {
+            console.log(err);
+          });
+
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  checkExistLiked(pk){
+    console.log(this.state.user.pk);
+    let result = this.state.likeList.find(result => {
+      return result.post.pk === pk && result.user.pk === this.state.user.pk;
+    });
+    if(result === undefined){
+      return false;
+    }else{
+      return true
+    }
+  }
+
   TimeLine() {
     return (
       <span>
@@ -157,8 +238,8 @@ class Zwitter extends React.Component {
               this.state.replyCount[zweet.pk]
             }
           </button>
-          <button className="LikeButton Button">
-            <FontAwesomeIcon icon={['far', 'heart']} />
+          <button className="LikeButton Button" onClick={() => this.likeZweet(zweet.pk)}>
+            <FontAwesomeIcon icon={['far', 'heart']} className={[this.checkExistLiked(zweet.pk) ? 'Liked' : 'Unliked'].join(' ')}/>
             {isNaN(this.state.likeCount[zweet.pk]) ?
               0
               :
@@ -184,6 +265,9 @@ class Zwitter extends React.Component {
     });
     return (
       <div className="ZweetDetail">
+        <Link to="/">
+          <FontAwesomeIcon className="BackButton" icon={['fas', 'arrow-left']}/>
+        </Link>
         <span>
           {this.ShowZweet(zweet)}
           {this.ButtonList(zweet)}
@@ -202,7 +286,6 @@ class Zwitter extends React.Component {
             })}
           </span>
         }
-        <button onClick={() => this.backToZweetTop()}>トップに戻る</button>
       </div>
     )
   }
@@ -256,7 +339,7 @@ class Zwitter extends React.Component {
             }
           }).then(Response => {
           this.setState({
-            imagePath: Response.data.image_path,
+            user: Response.data,
           })
         }).catch(err => {
           console.log(err);
@@ -311,6 +394,7 @@ class Zwitter extends React.Component {
               }
             }
             this.setState({
+              likeList: Response.data,
               likeCount: likeCount,
             })
           })
@@ -360,7 +444,7 @@ class Zwitter extends React.Component {
               </Router>
             </div>
             <div className="RightSideMenu">
-              <p><img className="UserImage" src={`${this.state.imagePath}`} alt="UserImage" /></p>
+              <p><img className="UserImage" src={`${this.state.user.image_path}`} alt="UserImage" /></p>
               <p>
                 <Link to="/Config">
                   Setting
