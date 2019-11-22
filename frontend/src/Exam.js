@@ -12,6 +12,10 @@ import {
   Link
 } from "react-router-dom";
 import Querystring from 'query-string';
+import { FontAwesomeIcon }from '@fortawesome/react-fontawesome'
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root');
 
 class Exam extends React.Component {
   constructor(props) {
@@ -36,14 +40,6 @@ class Exam extends React.Component {
     this.setState({
       selectSubject: subject,
     });
-
-    // if (subject.latest === null) {
-    //   this.setState({
-    //     selectSubject: {
-    //       latest: undefined,
-    //     }
-    //   })
-    // }
   }
 
   setSearchWord(searchWord) {
@@ -242,18 +238,48 @@ class ExamLists extends React.Component {
       contents: [],
       nowLoading: true,
       commentText: undefined,
-      latestPk: undefined,
+      latest: undefined,
       existContents: true,
       comments: [],
+      modalIsOpen: false,
+      replyText: "",
+      commentPk: undefined,
+      replyPk: undefined,
     };
     this.changeCommentText = this.changeCommentText.bind(this);
     this.sendComment = this.sendComment.bind(this);
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.changeReplyText = this.changeReplyText.bind(this);
+    this.sendReply = this.sendReply.bind(this);
   }
 
   changeCommentText(commentText) {
     this.setState({
       commentText: commentText
     });
+  }
+
+  openModal(pk, reopen=false){
+    reopen ?
+      this.setState({
+        commentPk: pk,
+        replyPk: pk,
+        modalIsOpen: true,
+      })
+      :
+      this.setState({
+        commentPk: pk,
+        modalIsOpen: true,
+      })
+  }
+
+  closeModal(){
+    this.setState({
+      commentPk: undefined,
+      replyPk: undefined,
+      modalIsOpen: false,
+    })
   }
 
   sendComment() {
@@ -286,6 +312,90 @@ class ExamLists extends React.Component {
     }
   }
 
+  changeReplyText(replyText){
+    this.setState({
+      replyText: replyText,
+    })
+  }
+
+  sendReply(){
+    var storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+
+    var exam = this.state.exams.find((result) => {
+      return result.year === this.props.year
+    });
+
+    const params = Querystring.stringify({
+      "exam": parseInt(exam.pk, 10),
+      "data": this.state.replyText,
+      "bef_comment": this.state.commentPk,
+    }, { arrayFormat: 'bracket'});
+
+    axios
+      .post("/api/comments/", params, {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`
+        },
+      })
+      .then(Response => {
+        axios
+          .get(`/api/comments/?exam=${this.state.latest.pk}`, {
+            headers: {
+              Authorization: `TOKEN ${storedToken}`
+            }
+          })
+          .then(Response => {
+            this.setState({
+              comments: Response.data,
+            })
+          })
+          .catch(err => {
+            console.log(err);
+          });
+        console.log(Response)
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  ShowComment(comment, reply=false, reopen=false){
+    return(
+      <div className="CommentContent">
+        {reply ?
+          <FontAwesomeIcon className="BackButton" icon={['fas', 'arrow-left']} onClick={() => this.closeModal()} />
+        :
+          null
+        }
+        <span className="UserImage"><img src={`${comment.sender.image_path}`}
+                                         alt={`${comment.sender.name}のユーザー画像`}/></span>
+        <span className="UserName">{comment.sender.name}</span>
+        <span className="CommentText">{comment.data}</span>
+        {reply ?
+          <p>
+            <input type="text" onChange={(e) => this.changeReplyText(e.target.value)} placeholder="コメントを入力" />
+            <button type="submit" onClick={() => this.sendReply()}>コメントを返信</button>
+          </p>
+          :
+          reopen ?
+            <span className="ButtonList">
+              <button className="ReplyButton Button" onClick={() => this.openModal(comment.pk, true)}>
+                <FontAwesomeIcon icon={['far', 'comment-dots']}/>
+              </button>
+            </span>
+            :
+            <span className="ButtonList">
+              <button className="ReplyButton Button" onClick={() => this.openModal(comment.pk)}>
+                <FontAwesomeIcon icon={['far', 'comment-dots']}/>
+              </button>
+            </span>
+        }
+        <hr />
+      </div>
+    )
+  }
+
   componentDidMount() {
     var storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
@@ -316,7 +426,7 @@ class ExamLists extends React.Component {
               return result.year === this.props.year;
             });
             this.setState({
-              latestPk: latest,
+              latest: latest,
             })
             // console.log(latest);
             // コンテンツを読み込みたい
@@ -386,9 +496,57 @@ class ExamLists extends React.Component {
                 ))}
                 <div className="CommentList">
                   {this.state.comments.map((comment, index) =>
-                    <p key={index}>
-                      {comment.sender.name}:{comment.data}
-                    </p>
+                    comment.bef_comment === null ?
+                      <span key={index}>
+                        {this.ShowComment(comment)}
+                        {comment.pk === this.state.commentPk ?
+                          <Modal
+                            isOpen={this.state.modalIsOpen}
+                            onRequestClose={this.closeModal}
+                          >
+                            {this.ShowComment(comment, true)}
+                            <div className="CommentReplyList">
+                              {this.state.comments.map((reply, index_nest) => {
+                                return(
+                                  <div key={index_nest}>
+                                    {reply.bef_comment === comment.pk ?
+                                      this.ShowComment(reply, false, true)
+                                      :
+                                      null
+                                    }
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </Modal>
+                          :
+                          null
+                        }
+                      </span>
+                      :
+                      comment.pk === this.state.replyPk ?
+                        <Modal
+                          isOpen={this.state.modalIsOpen}
+                          onRequestClose={this.closeModal}
+                          key={index}
+                        >
+                          {this.ShowComment(comment, true)}
+                          <div className="CommentReplyList">
+                            {this.state.comments.map((reply, index_nest) => {
+                              return(
+                                <div key={index_nest}>
+                                  {reply.bef_comment === comment.pk ?
+                                    this.ShowComment(reply, false, true)
+                                    :
+                                    null
+                                  }
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </Modal>
+                        :
+                        null
                   )}
                 </div>
                 <div className="CommentForm">

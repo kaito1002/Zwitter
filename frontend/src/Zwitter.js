@@ -150,6 +150,7 @@ class Zwitter extends React.Component {
               }
             })
             .then(Response => {
+              console.log(Response.data);
             })
             .catch(error => {
               console.log(error)
@@ -191,10 +192,10 @@ class Zwitter extends React.Component {
   }
 
   checkExistLiked(pk){
-    console.log(this.state.user.pk);
     let result = this.state.likeList.find(result => {
       return result.post.pk === pk && result.user.pk === this.state.user.pk;
     });
+    console.log(pk + " " + result);
     if(result === undefined){
       return false;
     }else{
@@ -381,18 +382,23 @@ class Zwitter extends React.Component {
             }
           })
           .then(Response => {
+            console.log(Response.data);
             let likeList = Response.data.map((result) => {
               return result.post.pk;
             });
+            let likeUserList = Response.data.map((result) => {
+              return result.user.pk;
+            });
             let likeCount = {};
             for(var i = 0; i < likeList.length; i++){
-              if(likeList.indexOf(likeList[i]) === i ){
+              if(likeList.indexOf(likeList[i]) === i && likeUserList[i] === this.state.user.pk){
                 if(isNaN(likeCount[String(likeList[i])])){
                   likeCount[String(likeList[i])] = 0;
                 }
                 likeCount[String(likeList[i])] += 1;
               }
             }
+            console.log(likeCount);
             this.setState({
               likeList: Response.data,
               likeCount: likeCount,
