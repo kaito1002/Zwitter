@@ -33,7 +33,9 @@ class AppIndex extends React.Component {
           <Spinner />
           :
           <span>
-            <h1>App Index</h1>
+            <h1>Zwitter</h1>
+            <p>会津大学の学生専用のSNSです</p>
+            <p>過去問と回答の共有ができます！</p>
             <p>
               <Link to="/Login">
                 Login page

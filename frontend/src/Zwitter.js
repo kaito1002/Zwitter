@@ -208,7 +208,7 @@ class Zwitter extends React.Component {
       <span>
         <div className="ZweetForm">
           <textarea
-            defaultValue="いまなにしてる？"
+            placeholder="いまなにしてる？"
             onChange={(e) => this.changeZweetText(e.target.value)} />
           <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
         </div>
@@ -299,7 +299,7 @@ class Zwitter extends React.Component {
           onRequestClose={this.closeModal}
         >
           {this.ShowZweet(zweet, true)}
-          <textarea defaultValue="いまなにしてる？" onChange={(e) => this.changeReplyText(e.target.value)}></textarea>
+          <textarea placeholder="リプライの文章を入力" onChange={(e) => this.changeReplyText(e.target.value)}></textarea>
           <button type="submit" onClick={() => this.sendReply(zweet)}>リプライ！</button>
         </Modal>
         :
@@ -386,12 +386,9 @@ class Zwitter extends React.Component {
             let likeList = Response.data.map((result) => {
               return result.post.pk;
             });
-            let likeUserList = Response.data.map((result) => {
-              return result.user.pk;
-            });
             let likeCount = {};
             for(var i = 0; i < likeList.length; i++){
-              if(likeList.indexOf(likeList[i]) === i && likeUserList[i] === this.state.user.pk){
+              if(likeList.indexOf(likeList[i]) === i){
                 if(isNaN(likeCount[String(likeList[i])])){
                   likeCount[String(likeList[i])] = 0;
                 }
