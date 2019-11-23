@@ -2,12 +2,19 @@
 @import "./Sidebar.scss";
 
 :root {
-  --MainColor: #00d9d2;
-  --SubColor: #e0a353;
+  //--MainColor: #00d9d2;
+  --MainColor: #33b6c8;
+  --SubColor: #c27378;
+  --BackColor: #fcf9ea;
+}
+
+body{
+  background-color: var(--BackColor);
 }
 
 /* 全体的なレイアウト関連 */
 .Exam {
+  background-color: var(--BackColor);
   width: calc(100vw - 5px);
 }
 
@@ -16,7 +23,7 @@
 }
 
 .LinkToZwitter :visited {
-  color: #555;
+  color: #fff;
 }
 
 /* 真ん中のコンテンツ */
@@ -33,11 +40,11 @@
   }
 
   a {
-    background-color: var(--SubColor);
-    border: solid 1px var(--SubColor);
+    background-color: var(--BackColor);
+    border: solid 1px var(--MainColor);
     border-radius: 5px;
     box-sizing: border-box;
-    color: #fff;
+    color: var(--MainColor);
     display: inline-block;
     padding: 10px;
     text-decoration: none;
@@ -48,10 +55,15 @@
   a:hover {
     background-color: var(--MainColor);
     border: solid 1px var(--MainColor);
+    color: var(--BackColor);
   }
 
   a:visited {
-    color: #fff;
+    color: var(--MainColor);
+  }
+
+  a:visited:hover{
+    color: var(--BackColor);
   }
 }
 

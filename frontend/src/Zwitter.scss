@@ -2,8 +2,14 @@
 @import "./Sidebar.scss";
 
 :root {
-  --MainColor: #00d9d2;
-  --SubColor: #e0a353;
+  //--MainColor: #00d9d2;
+  --MainColor: #33b6c8;
+  --SubColor: #c27378;
+  --BackColor: #fcf9ea;
+}
+
+body{
+  background-color: var(--BackColor);
 }
 
 .ZwitterContents {
@@ -62,7 +68,7 @@
   }
 }
 .ZweetContent:hover {
-  background-color: #eee;
+  background-color: #ece9da;
 }
 .ButtonList {
   margin: 0;

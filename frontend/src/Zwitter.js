@@ -22,6 +22,7 @@ class Zwitter extends React.Component {
     this.state = {
       user: undefined,
       nowLoadiong: true,
+      allZweetList: [],
       zweetList: [],
       replyList: [],
       likeList: [],
@@ -34,6 +35,8 @@ class Zwitter extends React.Component {
       imagePath: "",
       likeCount: {},
       replyCount: {},
+      searchZweetText: "",
+      showSearchResult: false,
     };
     this.changeZweetText = this.changeZweetText.bind(this);
     this.sendZweet = this.sendZweet.bind(this);
@@ -44,6 +47,8 @@ class Zwitter extends React.Component {
     this.backToZweetTop = this.backToZweetTop.bind(this);
     this.likeZweet = this.likeZweet.bind(this);
     this.checkExistLiked = this.checkExistLiked.bind(this);
+    this.changeSearchZweetText = this.changeSearchZweetText.bind(this);
+    this.sendZweet = this.sendZweet.bind(this);
 
     this.TimeLine = this.TimeLine.bind(this);
     this.ZweetDetail = this.ZweetDetail.bind(this);
@@ -195,12 +200,37 @@ class Zwitter extends React.Component {
     let result = this.state.likeList.find(result => {
       return result.post.pk === pk && result.user.pk === this.state.user.pk;
     });
-    console.log(pk + " " + result);
+    // console.log(pk + " " + result);
     if(result === undefined){
       return false;
     }else{
       return true
     }
+  }
+
+  changeSearchZweetText(searchZweetText){
+    this.setState({
+      searchZweetText: searchZweetText,
+    })
+  }
+
+  searchZweet(){
+    let zweetList = this.state.allZweetList.filter((result) => {
+      if(result.content.match(`${this.state.searchZweetText}`)){
+        return result;
+      }
+    });
+    this.setState({
+      showSearchResult: true,
+      zweetList: zweetList,
+    });
+  }
+
+  backToTimeline(){
+    this.setState({
+      showSearchResult: false,
+      zweetList: this.state.allZweetList,
+    })
   }
 
   TimeLine() {
@@ -211,18 +241,36 @@ class Zwitter extends React.Component {
             placeholder="いまなにしてる？"
             onChange={(e) => this.changeZweetText(e.target.value)} />
           <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
+          <input type="text" placeholder="zweetを検索" onChange={(e) => this.changeSearchZweetText(e.target.value)}/>
+          <button type="submit" onClick={() => this.searchZweet()}>検索！</button>
         </div>
-        {this.state.zweetList.map((zweet, index) => {
-          return (
-            zweet.bef_post === null ?
-              <span key={index}>
-                {this.ShowZweet(zweet)}
-                {this.ButtonList(zweet)}
-              </span>
-              :
-              <span key={index}/>
-          )
-        })}
+        {this.state.showSearchResult ?
+          <div>
+            <FontAwesomeIcon className="BackButton" icon={['fas', 'arrow-left']} onClick={() => this.backToTimeline()}/>
+            {this.state.zweetList.map((zweet, index) => {
+              return(
+                <span key={index}>
+                  {this.ShowZweet(zweet)}
+                  {this.ButtonList(zweet)}
+                </span>
+              )
+            })}
+          </div>
+          :
+          <div>
+            {this.state.zweetList.map((zweet, index) => {
+              return(
+                zweet.bef_post === null ?
+                  <span key={index}>
+                    {this.ShowZweet(zweet)}
+                    {this.ButtonList(zweet)}
+                  </span>
+                  :
+                  null
+              )
+            })}
+          </div>
+        }
       </span>
     )
   }
@@ -358,15 +406,14 @@ class Zwitter extends React.Component {
             });
             let replyCount = {};
             for(var i = 0; i < replyList.length; i++){
-              if(replyList.indexOf(replyList[i]) === i ){
-                if(isNaN(replyCount[String(replyList[i])])){
-                  replyCount[String(replyList[i])] = 1;
-                }
-                replyCount[String(replyList[i])] += 1;
+              if(isNaN(replyCount[String(replyList[i])])){
+                replyCount[String(replyList[i])] = 1;
               }
+              replyCount[String(replyList[i])] += 1;
             }
             this.setState({
               zweetList: Response.data,
+              allZweetList: Response.data,
               nowLoadiong: false,
               replyCount: replyCount,
             })
@@ -382,7 +429,6 @@ class Zwitter extends React.Component {
             }
           })
           .then(Response => {
-            console.log(Response.data);
             let likeList = Response.data.map((result) => {
               return result.post.pk;
             });
