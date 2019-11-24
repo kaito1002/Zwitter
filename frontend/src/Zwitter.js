@@ -236,13 +236,17 @@ class Zwitter extends React.Component {
   TimeLine() {
     return (
       <span>
-        <div className="ZweetForm">
-          <textarea
-            placeholder="いまなにしてる？"
-            onChange={(e) => this.changeZweetText(e.target.value)} />
-          <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
-          <input type="text" placeholder="zweetを検索" onChange={(e) => this.changeSearchZweetText(e.target.value)}/>
-          <button type="submit" onClick={() => this.searchZweet()}>検索！</button>
+        <div className="ZweetFormBox">
+          <div className="ZweetForm">
+            <textarea
+              placeholder="いまなにしてる？"
+              onChange={(e) => this.changeZweetText(e.target.value)} />
+            <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
+          </div>
+          <div className="ZweetSearchForm">
+            <input type="text" placeholder="zweetを検索" onChange={(e) => this.changeSearchZweetText(e.target.value)}/>
+            <button type="submit" onClick={() => this.searchZweet()}>検索！</button>
+          </div>
         </div>
         {this.state.showSearchResult ?
           <div>
@@ -468,7 +472,9 @@ class Zwitter extends React.Component {
           :
           <span className="ZwitterContents">
             <div className="LeftSideMenu">
-              <Link to="/Exam">Exam</Link>
+              <div className="LinkToExam">
+                <Link to="/Exam">Exam</Link>
+              </div>
             </div>
             <div className="MainContents">
               <Router basename="/Zwitter">
@@ -493,8 +499,10 @@ class Zwitter extends React.Component {
               </Router>
             </div>
             <div className="RightSideMenu">
-              <p><img className="UserImage" src={`${this.state.user.image_path}`} alt="UserImage" /></p>
               <p>
+                <img className="UserImage" src={`${this.state.user.image_path}`} alt="UserImage" />
+              </p>
+              <p className="LinkToConfig">
                 <Link to="/Config">
                   Setting
                 </Link>

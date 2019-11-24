@@ -192,7 +192,6 @@ class Exam extends React.Component {
               </Router>
             </div>
             <div className="RightSideMenu">
-              <p>RightSideMenu</p>
             </div>
           </span>
         ) : (

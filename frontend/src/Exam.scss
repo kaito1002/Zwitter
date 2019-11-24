@@ -12,94 +12,175 @@ body{
   background-color: var(--BackColor);
 }
 
-/* 全体的なレイアウト関連 */
-.Exam {
-  background-color: var(--BackColor);
-  width: calc(100vw - 5px);
-}
-
-.ExamContents {
-  display: flex;
-}
-
-.LinkToZwitter :visited {
-  color: #fff;
-}
-
-/* 真ん中のコンテンツ */
-.MainContents {
-  width: 80vw;
-}
-
-/* SubjectLists */
-.SubjectLists {
-  p {
-    margin: 30px 0px 30px 30px;
-    padding: 0;
-    width: 90%;
-  }
-
-  a {
+@media screen and (min-width: 419px) {
+  /* 全体的なレイアウト関連 */
+  .Exam {
     background-color: var(--BackColor);
-    border: solid 1px var(--MainColor);
-    border-radius: 5px;
-    box-sizing: border-box;
-    color: var(--MainColor);
-    display: inline-block;
-    padding: 10px;
-    text-decoration: none;
-    transition: 0.5s;
-    width: 100%;
+    width: calc(100vw - 5px);
   }
 
-  a:hover {
-    background-color: var(--MainColor);
-    border: solid 1px var(--MainColor);
-    color: var(--BackColor);
+  .ExamContents {
+    display: flex;
   }
 
-  a:visited {
-    color: var(--MainColor);
-  }
+  /* SubjectLists */
+  .SubjectLists {
+    p {
+      margin: 30px 0px 30px 30px;
+      padding: 0;
+      width: 90%;
+    }
 
-  a:visited:hover{
-    color: var(--BackColor);
-  }
-}
+    a {
+      background-color: var(--BackColor);
+      border: solid 1px var(--MainColor);
+      border-radius: 5px;
+      box-sizing: border-box;
+      color: var(--MainColor);
+      display: inline-block;
+      padding: 10px;
+      text-decoration: none;
+      transition: 0.5s;
+      width: 100%;
+    }
 
-.ExamLists{
-  .Content {
-    border: solid 1px #555;
-    box-sizing: border-box;
-    margin: 10px;
-    padding: 10px;
-  }
+    a:hover {
+      background-color: var(--MainColor);
+      border: solid 1px var(--MainColor);
+      color: var(--BackColor);
+    }
 
-  .CommentContent {
-    color: #555;
-    margin: 0 0 20px 0;
-    a, a:visited{
-    color: #555;
+    a:visited {
+      color: var(--MainColor);
+    }
+
+    a:visited:hover {
+      color: var(--BackColor);
     }
   }
-}
 
-.UserImage{
-  display: block;
-  height: 100px;
-  width: 100px;
-  img{
-    border-radius: 50% 50%;
+  .ExamLists {
+    .Content {
+      border: solid 1px #555;
+      box-sizing: border-box;
+      margin: 10px;
+      padding: 10px;
+    }
+
+    .CommentContent {
+      color: #555;
+      margin: 0 0 20px 0;
+
+      a, a:visited {
+        color: #555;
+      }
+    }
+  }
+
+  .UserImage {
+    display: block;
     height: 100px;
     width: 100px;
-    background-size: 100% 100%;
+
+    img {
+      border-radius: 50% 50%;
+      height: 100px;
+      width: 100px;
+      background-size: 100% 100%;
+    }
+  }
+  .UserName {
+    display: inline-block;
+    font-size: 1.5rem;
+  }
+  .CommentText {
+    display: block;
   }
 }
-.UserName {
-  display: inline-block;
-  font-size: 1.5rem;
-}
-.CommentText {
-  display: block;
+
+@media screen and (max-width: 419px){
+  /* 全体的なレイアウト関連 */
+  .Exam {
+    background-color: var(--BackColor);
+    width: 100vw;
+  }
+
+  .ExamContents {
+    display: flex;
+  }
+
+  /* SubjectLists */
+  .SubjectLists {
+    padding: 64px 0 0 0 ;
+    p {
+      margin: 30px;
+      padding: 0;
+    }
+
+    a{
+      background-color: var(--BackColor);
+      border: solid 1px var(--MainColor);
+      border-radius: 5px;
+      box-sizing: border-box;
+      color: var(--MainColor);
+      display: inline-block;
+      padding: 10px;
+      text-decoration: none;
+      transition: 0.5s;
+      width: 100%;
+    }
+
+    a:hover {
+      background-color: var(--MainColor);
+      border: solid 1px var(--MainColor);
+      color: var(--BackColor);
+    }
+
+    a:visited {
+      color: var(--MainColor);
+    }
+
+    a:visited:hover {
+      color: var(--BackColor);
+    }
+  }
+
+  .ExamLists {
+    .Content {
+      border: solid 1px #555;
+      box-sizing: border-box;
+      margin: 10px;
+      padding: 10px;
+    }
+
+    .CommentContent {
+      color: #555;
+      margin: 0 0 20px 0;
+
+      a, a:visited {
+        color: #555;
+      }
+    }
+  }
+
+  .UserImage {
+    display: block;
+    height: 100px;
+    width: 100px;
+
+    img {
+      border-radius: 50% 50%;
+      height: 100px;
+      width: 100px;
+      background-size: 100% 100%;
+    }
+  }
+  .UserName {
+    display: inline-block;
+    font-size: 1.5rem;
+  }
+  .CommentText {
+    display: block;
+  }
 }
 

@@ -1,26 +1,121 @@
-/* 左サイドバー */
-.LeftSideMenu {
-  background-color: var(--MainColor);
-  box-sizing: border-box;
-  padding: 0px 10px;
-  text-align: center;
-  width: 10vw;
+@media screen and (min-width: 419px) {
+  /* 左サイドバー */
+  .LeftSideMenu {
+    background-color: var(--MainColor);
+    box-sizing: border-box;
+    padding: 0px 10px;
+    text-align: center;
+    width: 10vw;
+  }
+
+  .LinkToZwitter {
+    a, a:visited {
+      border: solid 1px #fff;
+      border-radius: 5px;
+      color: #fff;
+      display: block;
+      padding: 10px;
+      margin: 10px auto;
+      text-decoration: none;
+      width: 50px;
+    }
+  }
+
+  .LinkToExam {
+    a, a:visited {
+      border: solid 1px #fff;
+      border-radius: 5px;
+      color: #fff;
+      display: block;
+      padding: 10px;
+      margin: 10px auto;
+      text-decoration: none;
+      width: 50px;
+    }
+  }
+
+  /* 右サイドバー */
+  .RightSideMenu {
+    background-color: var(--MainColor);
+    box-sizing: border-box;
+    padding: 0 10px;
+    width: 10vw;
+    .LinkToConfig{
+      a, a:visited{
+        border: solid 1px #fff;
+        border-radius: 5px;
+        color: #fff;
+        display: block;
+        padding: 10px;
+        margin: 10px 0;
+        text-decoration: none;
+      }
+    }
+  }
 }
 
-.LinkToZwitter a {
-  border: solid 1px #555;
-  border-radius: 15px;
-  font-size: 1rem;
-  margin: 0px auto;
-  padding: 15px;
-  text-align: center;
-  text-decoration: none;
-}
+@media screen and (max-width: 420px) {
+  /* 左サイドバー */
+  .LeftSideMenu {
+    background-color: var(--MainColor);
+    box-sizing: border-box;
+    height: 64px;
+    position: fixed;
+    text-align: center;
+    width: 50vw;
 
-/* 右サイドバー */
-.RightSideMenu {
-  background-color: var(--MainColor);
-  box-sizing: border-box;
-  padding: 0px 10px;
-  width: 10vw;
+    .LinkToZwitter {
+      a, a:visited {
+        border: solid 1px #fff;
+        border-radius: 5px;
+        color: #fff;
+        display: block;
+        padding: 10px;
+        margin: 10px 0;
+        text-decoration: none;
+        width: 50px;
+      }
+    }
+
+    .LinkToExam {
+      a, a:visited {
+        border: solid 1px #fff;
+        border-radius: 5px;
+        color: #fff;
+        display: block;
+        padding: 10px;
+        margin: 10px 0;
+        text-decoration: none;
+        width: 50px;
+      }
+    }
+  }
+
+  /* 右サイドバー */
+  .RightSideMenu {
+    background-color: var(--MainColor);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 64px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    vertical-align: bottom;
+    width: 50vw;
+    p{
+      margin: 0;
+    }
+    .LinkToConfig{
+      a, a:visited{
+        border: solid 1px #fff;
+        border-radius: 5px;
+        color: #fff;
+        display: block;
+        padding: 10px;
+        margin: 10px 0;
+        text-decoration: none;
+      }
+    }
+  }
 }

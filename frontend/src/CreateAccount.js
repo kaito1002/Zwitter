@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import Querystring from 'query-string'
 import { withRouter } from 'react-router-dom';
 
 class CreateAccount extends React.Component {
@@ -38,18 +37,18 @@ class CreateAccount extends React.Component {
   }
 
   createAccount() {
-    // axios
-    //   .post('/api/users/', {
-    //     "name": this.state.name,
-    //     "number": this.state.number,
-    //     "password": this.state.pass,
-    //   })
-    //   .then(Response => {
-    //     console.log(Response.data)
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+    axios
+      .post('/api/users/', {
+        "name": this.state.name,
+        "number": this.state.number,
+        "password": this.state.pass,
+      })
+      .then(Response => {
+        console.log(Response.data)
+      })
+      .catch(error => {
+        console.log(error);
+      });
 
     // let params = Querystring.stringify({
     //   "username": this.state.name,

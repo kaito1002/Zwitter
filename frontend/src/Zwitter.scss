@@ -11,91 +11,205 @@
 body{
   background-color: var(--BackColor);
 }
-
-.ZwitterContents {
-  display: flex;
-}
-
-.MainContents {
-  width: 80vw;
-
-  a,
-  a:visited {
-    color: #555;
-    text-decoration: none;
+@media screen and (min-width: 419px) {
+  .ZwitterContents {
+    display: flex;
   }
-  .ZweetDetail{
+
+  .MainContents {
+    width: 80vw;
+
+    a, a:visited {
+      color: #555;
+      text-decoration: none;
+    }
+    .ZweetDetail{
+      a, a:visited{
+        color: #555;
+      }
+      .BackButton{
+        background-color: transparent;
+        border: none;
+        display: block;
+        font-size: 2rem;
+        padding: 15px;
+        transition: .2s;
+      }
+      .BackButton:hover{
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .ZweetContent {
+    color: #555;
+    margin: 0 0 20px 0;
     a, a:visited{
       color: #555;
     }
-    .BackButton{
+    .UserImage{
+      display: block;
+      height: 100px;
+      width: 100px;
+      img{
+        border-radius: 50% 50%;
+        height: 100px;
+        width: 100px;
+        background-size: 100% 100%;
+      }
+    }
+    .UserName {
+      display: inline-block;
+      font-size: 1.5rem;
+    }
+    .ContentText {
+      display: block;
+    }
+  }
+  .ZweetContent:hover {
+    background-color: #ece9da;
+  }
+  .ButtonList {
+    margin: 0;
+    .Button {
       background-color: transparent;
       border: none;
-      display: block;
+      color: #aaa;
       font-size: 2rem;
+      outline: none;
       padding: 15px;
       transition: .2s;
     }
-    .BackButton:hover{
+    .Button:hover{
       transform: scale(1.1);
     }
-  }
-}
-
-.ZweetContent {
-  color: #555;
-  margin: 0 0 20px 0;
-  a, a:visited{
-    color: #555;
-  }
-  .UserImage{
-    display: block;
-    height: 100px;
-    width: 100px;
-    img{
-      border-radius: 50% 50%;
-      height: 100px;
-      width: 100px;
-      background-size: 100% 100%;
+    .Unliked{
+      color: #aaa;
+    }
+    .Liked{
+      color: #f55;
     }
   }
-  .UserName {
-    display: inline-block;
-    font-size: 1.5rem;
-  }
-  .ContentText {
-    display: block;
-  }
-}
-.ZweetContent:hover {
-  background-color: #ece9da;
-}
-.ButtonList {
-  margin: 0;
-  .Button {
-    background-color: transparent;
-    border: none;
-    color: #aaa;
-    font-size: 2rem;
-    outline: none;
-    padding: 15px;
-    transition: .2s;
-  }
-  .Button:hover{
-    transform: scale(1.1);
-  }
-  .Unliked{
-    color: #aaa;
-  }
-  .Liked{
-    color: #f55;
-  }
-}
 
-.RightSideMenu {
-  .UserImage {
-    border-radius: 50% 50%;
-    height: 100%;
-    width: 100%;
+  .RightSideMenu {
+    .UserImage {
+      border-radius: 50% 50%;
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+@media screen and (max-width: 420px){
+  .ZwitterContents {
+
+  }
+
+  .MainContents {
+    margin: 0;
+    width: 100vw;
+
+    a,
+    a:visited {
+      color: #555;
+      text-decoration: none;
+    }
+    .ZweetFormBox{
+      box-sizing: border-box;
+      padding: 64px 0 0 0;
+      .ZweetForm{
+        display: flex;
+        textarea{
+          border: solid 1px #aaa;
+          border-radius: 5px;
+          margin: 10px;
+          outline: 0;
+          resize: none;
+          width: 70%;
+        }
+        button{
+          height: 36px;
+          margin: auto 10px;
+          width: 30%;
+        }
+      }
+      .ZweetSearchForm{
+        text-align: center;
+        margin: 0 auto;
+      }
+    }
+    .ZweetDetail{
+      a, a:visited{
+        color: #555;
+      }
+      .BackButton{
+        background-color: transparent;
+        border: none;
+        display: block;
+        font-size: 2rem;
+        padding: 15px;
+        transition: .2s;
+      }
+      .BackButton:hover{
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .ZweetContent {
+    color: #555;
+    margin: 0 0 20px 0;
+    a, a:visited{
+      color: #555;
+    }
+    .UserImage{
+      display: block;
+      height: 100px;
+      width: 100px;
+      img{
+        border-radius: 50% 50%;
+        height: 100px;
+        width: 100px;
+        background-size: 100% 100%;
+      }
+    }
+    .UserName {
+      display: inline-block;
+      font-size: 1.5rem;
+    }
+    .ContentText {
+      display: block;
+    }
+  }
+  .ZweetContent:hover {
+    background-color: #ece9da;
+  }
+  .ButtonList {
+    margin: 0;
+    .Button {
+      background-color: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 2rem;
+      outline: none;
+      padding: 15px;
+      transition: .2s;
+    }
+    .Button:hover{
+      transform: scale(1.1);
+    }
+    .Unliked{
+      color: #aaa;
+    }
+    .Liked{
+      color: #f55;
+    }
+  }
+
+  .RightSideMenu {
+    .UserImage {
+      border-radius: 50% 50%;
+      height: 64px;
+      width: 64px;
+    }
   }
 }
