@@ -48,13 +48,16 @@ class Zwitter extends React.Component {
     this.likeZweet = this.likeZweet.bind(this);
     this.checkExistLiked = this.checkExistLiked.bind(this);
     this.changeSearchZweetText = this.changeSearchZweetText.bind(this);
-    this.sendZweet = this.sendZweet.bind(this);
+    this.deleteZweet = this.deleteZweet.bind(this);
+
+    this.reloadZweetList = this.reloadZweetList.bind(this);
 
     this.TimeLine = this.TimeLine.bind(this);
     this.ZweetDetail = this.ZweetDetail.bind(this);
     this.ReplyModal = this.ReplyModal.bind(this);
     this.ShowZweet = this.ShowZweet.bind(this);
     this.ButtonList = this.ButtonList.bind(this);
+    this.ShowUser = this.ShowUser.bind(this);
   }
 
   changeZweetText(zweetText) {
@@ -64,7 +67,7 @@ class Zwitter extends React.Component {
   }
 
   sendZweet() {
-    var storedToken = localStorage.getItem("storedToken");
+    let storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     const params = Querystring.stringify({
       "bef_post": -1,
@@ -77,12 +80,12 @@ class Zwitter extends React.Component {
         }
       })
       .then(Response => {
-        console.log(Response)
-        this.backToZweetTop();
+        console.log(Response);
+        this.reloadZweetList();
       })
       .catch(err => {
         console.log(err)
-      })
+      });
   }
 
   openModal(pk) {
@@ -106,7 +109,7 @@ class Zwitter extends React.Component {
   }
 
   sendReply(zweet) {
-    var storedToken = localStorage.getItem("storedToken");
+    let storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     const params = Querystring.stringify({
       "bef_post": zweet.pk,
@@ -131,7 +134,7 @@ class Zwitter extends React.Component {
   }
 
   likeZweet(pk){
-    var storedToken = localStorage.getItem("storedToken");
+    let storedToken = localStorage.getItem("storedToken");
     storedToken = JSON.parse(storedToken);
     let params = Querystring.stringify({
       "post": parseInt(pk, 10),
@@ -161,34 +164,10 @@ class Zwitter extends React.Component {
               console.log(error)
             });
         }
-        axios
-          .get('/api/likes/',{
-            headers: {
-              Authorization: `TOKEN ${storedToken}`
-            }
-          })
-          .then(Response => {
-            let likeList = Response.data.map((result) => {
-              return result.post.pk;
-            });
-            let likeCount = {};
-            for(var i = 0; i < likeList.length; i++){
-              if(likeList.indexOf(likeList[i]) === i ){
-                if(isNaN(likeCount[String(likeList[i])])){
-                  likeCount[String(likeList[i])] = 0;
-                }
-                likeCount[String(likeList[i])] += 1;
-              }
-            }
-            this.setState({
-              likeList: Response.data,
-              likeCount: likeCount,
-            });
-            console.log("DONE");
-          })
-          .catch(err => {
-            console.log(err);
-          });
+
+        this.reloadZweetList();
+
+        console.log("DONE")
 
       })
       .catch(error => {
@@ -200,12 +179,7 @@ class Zwitter extends React.Component {
     let result = this.state.likeList.find(result => {
       return result.post.pk === pk && result.user.pk === this.state.user.pk;
     });
-    // console.log(pk + " " + result);
-    if(result === undefined){
-      return false;
-    }else{
-      return true
-    }
+    return result !== undefined;
   }
 
   changeSearchZweetText(searchZweetText){
@@ -231,6 +205,60 @@ class Zwitter extends React.Component {
       showSearchResult: false,
       zweetList: this.state.allZweetList,
     })
+  }
+
+  deleteZweet(pk){
+    let res= window.confirm("ヅイートを削除します\nよろしいでしょうか？");
+    if(res){
+      let storedToken = localStorage.getItem("storedToken");
+      storedToken = JSON.parse(storedToken);
+
+      axios
+        .delete(`/api/posts/${pk}`, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        },)
+        .then(Response => {
+          console.log(Response.data);
+          this.reloadZweetList();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  }
+
+  reloadZweetList(){
+    let storedToken = localStorage.getItem("storedToken");
+    storedToken = JSON.parse(storedToken);
+
+    axios
+      .get('api/posts/', {
+        headers: {
+          Authorization: `TOKEN ${storedToken}`
+        }
+      })
+      .then(Response => {
+        let replyList = Response.data.map((result) => {
+          return result.bef_post;
+        });
+        let replyCount = {};
+        for(let i = 0; i < replyList.length; i++){
+          if(isNaN(replyCount[String(replyList[i])])){
+            replyCount[String(replyList[i])] = 1;
+          }
+          replyCount[String(replyList[i])] += 1;
+        }
+        this.setState({
+          zweetList: Response.data.slice().reverse(),
+          allZweetList: Response.data.slice().reverse(),
+          replyCount: replyCount,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   TimeLine() {
@@ -302,6 +330,11 @@ class Zwitter extends React.Component {
           <button className="ShareButton Button">
             <FontAwesomeIcon icon={['fas', 'retweet']} />
           </button>
+          {zweet.user.pk === this.state.user.pk ?
+            <button className="DeleteZweetButton" onClick={() => this.deleteZweet(zweet.pk)}>ヅイートを削除する</button>
+            :
+            null
+          }
         </p>
         {this.ReplyModal(zweet)}
         <hr />
@@ -329,7 +362,7 @@ class Zwitter extends React.Component {
           <span/>
           :
           <span>
-            {replys.map((reply, index) => {
+            {replys.reverse().map((reply, index) => {
               return (
                 <span key={index}>
                   {this.ShowZweet(reply)}
@@ -370,7 +403,11 @@ class Zwitter extends React.Component {
         :
         <p className="ZweetContent">
           <Link to={`/${zweet.pk}`}>
-            <span className="UserImage"><img src={`${zweet.user.image_path}`} alt={`${zweet.user.name}のユーザー画像`}/></span>
+            <button className="UserImage">
+              <Link to={this.state.user.name}>
+                <img src={`${zweet.user.image_path}`} alt={`${zweet.user.name}のユーザー画像`}/>
+              </Link>
+            </button>
             <span className="UserName">{zweet.user.name}</span>
             <span className="ContentText">{zweet.content}</span>
           </Link>
@@ -378,8 +415,16 @@ class Zwitter extends React.Component {
     )
   }
 
+  ShowUser(user){
+    return(
+      <div className="ShowUser">
+        <h1>{user.name}</h1>
+      </div>
+    )
+  }
+
   componentDidMount() {
-    var storedToken = localStorage.getItem('storedToken');
+    let storedToken = localStorage.getItem('storedToken');
     storedToken = JSON.parse(storedToken);
     if (!storedToken) {
       this.props.history.push('/');
@@ -409,15 +454,15 @@ class Zwitter extends React.Component {
               return result.bef_post;
             });
             let replyCount = {};
-            for(var i = 0; i < replyList.length; i++){
+            for(let i = 0; i < replyList.length; i++){
               if(isNaN(replyCount[String(replyList[i])])){
                 replyCount[String(replyList[i])] = 1;
               }
               replyCount[String(replyList[i])] += 1;
             }
             this.setState({
-              zweetList: Response.data,
-              allZweetList: Response.data,
+              zweetList: Response.data.slice().reverse(),
+              allZweetList: Response.data.slice().reverse(),
               nowLoadiong: false,
               replyCount: replyCount,
             })
@@ -437,7 +482,7 @@ class Zwitter extends React.Component {
               return result.post.pk;
             });
             let likeCount = {};
-            for(var i = 0; i < likeList.length; i++){
+            for(let i = 0; i < likeList.length; i++){
               if(likeList.indexOf(likeList[i]) === i){
                 if(isNaN(likeCount[String(likeList[i])])){
                   likeCount[String(likeList[i])] = 0;
@@ -494,6 +539,11 @@ class Zwitter extends React.Component {
                       render={() => this.ZweetDetail(zweet.pk)}
                     />
                   )}
+                  <Route
+                    exact
+                    path={`${this.state.user.name}`}
+                    render={() => this.ShowUser(this.state.user)}
+                  />
                   <Route Component={AppIndex} />
                 </Switch>
               </Router>
@@ -506,6 +556,11 @@ class Zwitter extends React.Component {
                 <Link to="/Config">
                   Setting
                 </Link>
+              </p>
+              <p>
+                <button className="LogoutButton">
+                  Logout
+                </button>
               </p>
             </div>
           </span>
