@@ -38,6 +38,7 @@ class Zwitter extends React.Component {
       searchZweetText: "",
       showSearchResult: false,
     };
+    this.getStoredToken = this.getStoredToken.bind(this);
     this.changeZweetText = this.changeZweetText.bind(this);
     this.sendZweet = this.sendZweet.bind(this);
     this.openModal = this.openModal.bind(this);
@@ -49,6 +50,9 @@ class Zwitter extends React.Component {
     this.checkExistLiked = this.checkExistLiked.bind(this);
     this.changeSearchZweetText = this.changeSearchZweetText.bind(this);
     this.deleteZweet = this.deleteZweet.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
+    this.moveToUserDetail = this.moveToUserDetail.bind(this);
+    this.keydownEnter = this.keydownEnter.bind(this);
 
     this.reloadZweetList = this.reloadZweetList.bind(this);
 
@@ -58,6 +62,15 @@ class Zwitter extends React.Component {
     this.ShowZweet = this.ShowZweet.bind(this);
     this.ButtonList = this.ButtonList.bind(this);
     this.ShowUser = this.ShowUser.bind(this);
+
+    this.zweetForm = React.createRef();
+    this.searchZweetForm = React.createRef();
+  }
+
+  getStoredToken(){
+    let result = localStorage.getItem("storedToken");
+    result = JSON.parse(result);
+    return result;
   }
 
   changeZweetText(zweetText) {
@@ -67,25 +80,29 @@ class Zwitter extends React.Component {
   }
 
   sendZweet() {
-    let storedToken = localStorage.getItem("storedToken");
-    storedToken = JSON.parse(storedToken);
-    const params = Querystring.stringify({
-      "bef_post": -1,
-      "content": this.state.zweetText,
-    }, { arrayFormat: 'bracket' });
-    axios
-      .post('/api/posts/', params, {
-        headers: {
-          Authorization: `TOKEN ${storedToken}`
-        }
-      })
-      .then(Response => {
-        console.log(Response);
-        this.reloadZweetList();
-      })
-      .catch(err => {
-        console.log(err)
-      });
+    if(this.state.zweetText === "" || !this.state.zweetText.match(/\S/g)){
+      window.alert("何か入力してください");
+    }else{
+      let storedToken = this.getStoredToken();
+      const params = Querystring.stringify({
+        "bef_post": -1,
+        "content": this.state.zweetText,
+      }, { arrayFormat: 'bracket' });
+      axios
+        .post('/api/posts/', params, {
+          headers: {
+            Authorization: `TOKEN ${storedToken}`
+          }
+        })
+        .then(Response => {
+          console.log(Response);
+          this.reloadZweetList();
+          this.zweetForm.current.value = "";
+        })
+        .catch(err => {
+          console.log(err)
+        });
+    }
   }
 
   openModal(pk) {
@@ -109,8 +126,7 @@ class Zwitter extends React.Component {
   }
 
   sendReply(zweet) {
-    let storedToken = localStorage.getItem("storedToken");
-    storedToken = JSON.parse(storedToken);
+    let storedToken = this.getStoredToken();
     const params = Querystring.stringify({
       "bef_post": zweet.pk,
       "content": this.state.replyText,
@@ -134,8 +150,7 @@ class Zwitter extends React.Component {
   }
 
   likeZweet(pk){
-    let storedToken = localStorage.getItem("storedToken");
-    storedToken = JSON.parse(storedToken);
+    let storedToken = this.getStoredToken();
     let params = Querystring.stringify({
       "post": parseInt(pk, 10),
     }, { arrayFormat: 'bracket' });
@@ -192,6 +207,8 @@ class Zwitter extends React.Component {
     let zweetList = this.state.allZweetList.filter((result) => {
       if(result.content.match(`${this.state.searchZweetText}`)){
         return result;
+      }else{
+        return null;
       }
     });
     this.setState({
@@ -210,8 +227,7 @@ class Zwitter extends React.Component {
   deleteZweet(pk){
     let res= window.confirm("ヅイートを削除します\nよろしいでしょうか？");
     if(res){
-      let storedToken = localStorage.getItem("storedToken");
-      storedToken = JSON.parse(storedToken);
+      let storedToken = this.getStoredToken();
 
       axios
         .delete(`/api/posts/${pk}`, {
@@ -230,8 +246,7 @@ class Zwitter extends React.Component {
   }
 
   reloadZweetList(){
-    let storedToken = localStorage.getItem("storedToken");
-    storedToken = JSON.parse(storedToken);
+    let storedToken = this.getStoredToken();
 
     axios
       .get('api/posts/', {
@@ -261,19 +276,59 @@ class Zwitter extends React.Component {
       });
   }
 
+  logoutUser(){
+    let res = window.confirm("ログアウトします\nよろしいですか？");
+    if(res){
+      localStorage.clear();
+      this.props.history.push('/');
+    }
+  }
+
+  moveToUserDetail(){
+    this.props.history.push(`/${this.state.user.name}`);
+  }
+
+  keydownEnter(e, searchZweetForm=false){
+    const ENTER = 13;
+    if(e.keyCode === ENTER){
+      if(searchZweetForm){
+        this.searchZweet();
+      }
+    }
+  }
+
   TimeLine() {
     return (
-      <span>
+      <div>
         <div className="ZweetFormBox">
           <div className="ZweetForm">
             <textarea
               placeholder="いまなにしてる？"
-              onChange={(e) => this.changeZweetText(e.target.value)} />
-            <button type="submit" onClick={() => this.sendZweet()}>ヅイート！</button>
+              onChange={(e) => this.changeZweetText(e.target.value)}
+              ref={this.zweetForm}
+              className="Input"
+            />
+            <button
+              type="submit"
+              onClick={() => this.sendZweet()}
+              className="Button"
+            >
+              ヅイート！
+            </button>
           </div>
           <div className="ZweetSearchForm">
-            <input type="text" placeholder="zweetを検索" onChange={(e) => this.changeSearchZweetText(e.target.value)}/>
-            <button type="submit" onClick={() => this.searchZweet()}>検索！</button>
+            <input type="text" placeholder="zweetを検索"
+                   onChange={(e) => this.changeSearchZweetText(e.target.value)}
+                   onKeyDown={(e) => this.keydownEnter(e,true)}
+                   ref={this.searchZweetForm}
+                   className="Input"
+            />
+            <button type="submit"
+                    onClick={() => this.searchZweet()}
+                    className="Button"
+            >
+              検索！
+            </button>
           </div>
         </div>
         {this.state.showSearchResult ?
@@ -303,7 +358,7 @@ class Zwitter extends React.Component {
             })}
           </div>
         }
-      </span>
+      </div>
     )
   }
 
@@ -361,7 +416,7 @@ class Zwitter extends React.Component {
         {replys === [] ?
           <span/>
           :
-          <span>
+          <div>
             {replys.reverse().map((reply, index) => {
               return (
                 <span key={index}>
@@ -370,7 +425,7 @@ class Zwitter extends React.Component {
                 </span>
               )
             })}
-          </span>
+          </div>
         }
       </div>
     )
@@ -403,10 +458,10 @@ class Zwitter extends React.Component {
         :
         <p className="ZweetContent">
           <Link to={`/${zweet.pk}`}>
-            <button className="UserImage">
-              <Link to={this.state.user.name}>
+            <button className="UserImage" onClick={() => this.moveToUserDetail()}>
+              {/*<Link to={this.state.user.name}>*/}
                 <img src={`${zweet.user.image_path}`} alt={`${zweet.user.name}のユーザー画像`}/>
-              </Link>
+              {/*</Link>*/}
             </button>
             <span className="UserName">{zweet.user.name}</span>
             <span className="ContentText">{zweet.content}</span>
@@ -424,8 +479,7 @@ class Zwitter extends React.Component {
   }
 
   componentDidMount() {
-    let storedToken = localStorage.getItem('storedToken');
-    storedToken = JSON.parse(storedToken);
+    let storedToken = this.getStoredToken();
     if (!storedToken) {
       this.props.history.push('/');
     } else {
@@ -550,7 +604,11 @@ class Zwitter extends React.Component {
             </div>
             <div className="RightSideMenu">
               <p>
-                <img className="UserImage" src={`${this.state.user.image_path}`} alt="UserImage" />
+                <button className="UserImage">
+                  <Link to={`/Zwitter/${this.state.user.name}`}>
+                    <img className="UserImage" src={`${this.state.user.image_path}`} alt="UserImage" />
+                  </Link>
+                </button>
               </p>
               <p className="LinkToConfig">
                 <Link to="/Config">
@@ -558,7 +616,7 @@ class Zwitter extends React.Component {
                 </Link>
               </p>
               <p>
-                <button className="LogoutButton">
+                <button className="LogoutButton" onClick={() => this.logoutUser()}>
                   Logout
                 </button>
               </p>

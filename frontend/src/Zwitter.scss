@@ -1,15 +1,6 @@
 @import "./Loading.scss";
 @import "./Sidebar.scss";
 
-:root {
-  --MainColor: #33b6c8;
-  --SubColor: #c27378;
-  --BackColor: #fcf9ea;
-}
-
-body{
-  background-color: var(--BackColor);
-}
 @media screen and (min-width: 419px) {
   .ZwitterContents {
     display: flex;
