@@ -11,7 +11,7 @@ body{
   padding: 0;
 }
 
-@media screen and (min-width: 419px) {
+@media screen and (min-width: 429px) {
   .AppIndex {
     background-image: url("./BackgroundImage.png");
     box-sizing: border-box;
@@ -96,13 +96,26 @@ body{
     background-color: var(--BackColor);
     border: solid 1px var(--BackColor);
     border-radius: 5px;
+    box-sizing: border-box;
     cursor: pointer;
     color: var(--MainColor);
     font-size: 1rem;
-    margin: 0;
+    margin: 10px;
     outline: none;
     padding: 10px;
     transition: .2s;
+    width: auto;
+    a{
+      text-decoration: none;
+      &:visited{
+        color: var(--MainColor)
+      }
+      &:visited:active{
+        background-color: var(--MainColor);
+        border: solid 1px var(--MainColor);
+        color: var(--BackColor);
+      }
+    }
     &:hover{
       transform: scale(1.05);
     }
@@ -113,7 +126,7 @@ body{
     }
   }
 }
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 430px) {
   .AppIndex {
     //background-image: url("./BackgroundImage.png");
     box-sizing: border-box;
@@ -168,6 +181,40 @@ body{
       .ZwitterMockupList {
         display: flex;
       }
+    }
+  }
+  //  このへんに全体に共通して使いたいcssを記述すれば非常によい設計になるのでは？
+  .Button{
+    background-color: var(--BackColor);
+    border: solid 1px var(--BackColor);
+    border-radius: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    color: var(--MainColor);
+    font-size: 1rem;
+    margin: 5px;
+    outline: none;
+    padding: 5px;
+    transition: .2s;
+    width: auto;
+    a{
+      text-decoration: none;
+      &:visited{
+        color: var(--MainColor)
+      }
+      &:visited:active{
+        background-color: var(--MainColor);
+        border: solid 1px var(--MainColor);
+        color: var(--BackColor);
+      }
+    }
+    &:hover{
+      transform: scale(1.05);
+    }
+    &:active{
+      background-color: var(--MainColor);
+      border: solid 1px var(--MainColor);
+      color: var(--BackColor);
     }
   }
 }

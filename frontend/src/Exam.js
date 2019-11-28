@@ -120,7 +120,9 @@ class Exam extends React.Component {
           <span className="ExamContents">
             <div className="LeftSideMenu">
               <div className="LinkToZwitter">
-                <Link to="/Zwitter">Zwitter</Link>
+                <button className="Button">
+                  <Link to="/Zwitter">Zwitter</Link>
+                </button>
               </div>
             </div>
             <div className="MainContents">
