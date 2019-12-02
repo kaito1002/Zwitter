@@ -586,7 +586,7 @@ class Zwitter extends React.Component {
             <div className="LeftSideMenu">
               <div className="LinkToExam">
                 <button className="Button">
-                  <Link to="/Exam">Exam</Link>
+                  <Link to="/exam">Exam</Link>
                 </button>
               </div>
             </div>

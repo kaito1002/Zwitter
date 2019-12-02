@@ -15,7 +15,7 @@ class AppIndex extends React.Component {
   }
 
   componentDidMount() {
-    var storedToken = localStorage.getItem('storedToken');
+    let storedToken = localStorage.getItem('storedToken');
     storedToken = JSON.parse(storedToken);
     if (storedToken) {
       this.props.history.push('/Zwitter');
