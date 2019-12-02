@@ -38,10 +38,12 @@ class AppIndex extends React.Component {
           <div className="ZwitterDescriptionWrapper">
             <div className="ZwitterDescription">
               <img src={ZwitterLogo} alt="Zwitterのロゴです" className="ZwitterLogo0"/>
-              <p className="ZwitterDescriptionText">会津大学生専用のSNSです。</p>
-              <p className="ZwitterDescriptionText">過去問と回答が共有できるサービスです。</p>
-              <p className="ZwitterDescriptionText">出題問題の傾向を掴んで</p>
-              <p className="ZwitterDescriptionText">効率よく勉強しましょう！</p>
+              <p className="ZweetDescriptionText Mobile">さあ、会津大学生だけのコミュニティで</p>
+              <p className="ZweetDescriptionText Mobile">大学内情報を共有しよう</p>
+              <p className="ZwitterDescriptionText PC">会津大学生専用のSNSです。</p>
+              <p className="ZwitterDescriptionText PC">過去問と回答が共有できるサービスです。</p>
+              <p className="ZwitterDescriptionText PC">出題問題の傾向を掴んで</p>
+              <p className="ZwitterDescriptionText PC">効率よく勉強しましょう！</p>
               <p className="ButtonWrapper">
                 <Link to="/CreateAccount" className="Button CreateUser">
                   無料ではじめる！
