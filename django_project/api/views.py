@@ -206,7 +206,7 @@ class ContentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'poster',)
 
-    @action(methods=['GET'], detail=True, url_path='images')
+    @action(methods=['POST'], detail=True, url_path='images')
     def images(self, request, pk):
         success = True
         files = []
