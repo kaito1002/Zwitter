@@ -1,6 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { withRouter } from 'react-router-dom';
+import {
+  withRouter,
+  Link
+} from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import './CreateAccount.scss';
 
 class CreateAccount extends React.Component {
   constructor(props) {
@@ -9,11 +15,13 @@ class CreateAccount extends React.Component {
       name: undefined,
       number: undefined,
       pass: undefined,
+      isShowPass: "password"
     };
     this.changeName = this.changeName.bind(this);
     this.changeNumber = this.changeNumber.bind(this);
     this.changePass = this.changePass.bind(this);
     this.createAccount = this.createAccount.bind(this);
+    this.changeVisibilityPass = this.changeVisibilityPass.bind(this);
 
     this.fileInput = React.createRef();
   }
@@ -50,13 +58,6 @@ class CreateAccount extends React.Component {
         console.log(error);
       });
 
-    // let params = Querystring.stringify({
-    //   "username": this.state.name,
-    //   "password": this.state.pass,
-    // }, {arrayFormat: 'bracket'});
-    //
-    // console.log(params);
-
     axios
       .post('/api-token-auth/', {
         "username": this.state.number,
@@ -87,6 +88,18 @@ class CreateAccount extends React.Component {
       });
   }
 
+  changeVisibilityPass(){
+    if(this.state.isShowPass === "password"){
+      this.setState({
+        isShowPass: "text"
+      });
+    }else{
+      this.setState({
+        isShowPass: "password"
+      });
+    }
+  }
+
   updateLocalStorage(data, name) {
     localStorage.setItem(name, JSON.stringify(data));
   }
@@ -94,21 +107,40 @@ class CreateAccount extends React.Component {
   render() {
     return (
       <div className="CreateAccount">
-        <h1>Create Account</h1>
-        <p>
-          名前<input type="text" onChange={(e) => this.changeName(e.target.value)} />
+        <Link to="/">
+          <FontAwesomeIcon className="BackButton" icon={['fas', 'arrow-left']}/>
+        </Link>
+        <h1 className="CardTitle">Create Account</h1>
+        <p className="InputFormWrapper">
+          <input type="text"
+                 onChange={(e) => this.changeName(e.target.value)}
+                 placeholder="名前"
+                 className="Input"/>
         </p>
-        <p>
-          学籍番号<input type="text" onChange={(e) => this.changeNumber(e.target.value)} />
+        <p className="InputFormWrapper">
+          <input type="text"
+                 onChange={(e) => this.changeNumber(e.target.value)}
+                 placeholder="学籍番号"
+                 className="Input"/>
         </p>
-        <p>
-          パスワード<input type="password" onChange={(e) => this.changePass(e.target.value)} />
+        <p className="InputFormWrapper">
+          <input type={this.state.isShowPass}
+                 onChange={(e) => this.changePass(e.target.value)}
+                 placeholder="パスワード"
+                 className="Input"/>
+          <button onClick={this.changeVisibilityPass} className="ChangeVisibilityPassButton">
+            {this.state.isShowPass === "password" ?
+              <FontAwesomeIcon icon={['far', 'eye-slash']} />
+              :
+              <FontAwesomeIcon icon={['far', 'eye']} />
+            }
+          </button>
         </p>
-        <p>
+        <p className="InputFormWrapper">
           プロフィール画像<input ref={this.fileInput} type="file" />
         </p>
-        <p>
-          <button onClick={() => this.createAccount()}>アカウントを作成！</button>
+        <p className="InputFormWrapper">
+          <button onClick={() => this.createAccount()} className="CreateAccountButton">アカウントを作成！</button>
         </p>
       </div>
     )

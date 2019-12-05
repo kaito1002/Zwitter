@@ -1,83 +1,60 @@
-@media screen and (min-width: 419px) {
+@media screen and (min-width: 429px) {
   /* 左サイドバー */
   .LeftSideMenu {
     background-color: var(--MainColor);
     box-sizing: border-box;
+    height: 100%;
     padding: 0px 10px;
+    position: fixed;
     text-align: center;
-    width: 10vw;
-  }
-
-  .LinkToZwitter {
-    a, a:visited {
-      border: solid 1px #fff;
-      border-radius: 5px;
-      color: #fff;
-      display: block;
-      padding: 10px;
-      margin: 10px auto;
-      text-decoration: none;
-      width: 50px;
-    }
-  }
-
-  .LinkToExam {
-    a, a:visited {
-      border: solid 1px #fff;
-      border-radius: 5px;
-      color: #fff;
-      display: block;
-      padding: 10px;
-      margin: 10px auto;
-      text-decoration: none;
-      width: 50px;
-    }
+    width: 20vw;
   }
 
   /* 右サイドバー */
   .RightSideMenu {
     background-color: var(--MainColor);
     box-sizing: border-box;
+    height: 100%;
     padding: 0 10px;
-    width: 10vw;
-    .LinkToConfig{
-      a, a:visited{
-        border: solid 1px #fff;
-        border-radius: 5px;
-        color: #fff;
-        display: block;
-        margin: 10px 0;
-        padding: 10px;
-        text-align: center;
-        text-decoration: none;
-      }
-    }
-    .LogoutButton{
+    position: fixed;
+    right: 0;
+    text-align: center;
+    width: 20vw;
+    .UserImage{
       background-color: transparent;
-      border: solid 1px #fff;
+      border: none;
       border-radius: 5px;
-      color: #fff;
-      display: block;
-      font-size: 1rem;
-      margin: 10px 0;
+      height: auto;
       outline: none;
-      padding: 10px;
-      text-align: center;
-      text-decoration: none;
+      padding: 0;
       width: 100%;
+    }
+    .Config{
+      background-color: transparent;
+      border: none;
+      font-size: 3rem;
+      a{
+        color: var(--BackColor);
+        &:visited{
+          color: var(--BackColor);
+        }
+      }
     }
   }
 }
 
-@media screen and (max-width: 420px) {
+@media screen and (max-width: 430px) {
   /* 左サイドバー */
   .LeftSideMenu {
+    align-items: center;
     background-color: var(--MainColor);
     box-sizing: border-box;
+    display: flex;
+    justify-content: center;
     height: 64px;
     position: fixed;
     text-align: center;
-    width: 50vw;
+    width: 30%;
 
     .LinkToZwitter {
       a, a:visited {
@@ -91,61 +68,44 @@
         width: 50px;
       }
     }
-
-    .LinkToExam {
-      a, a:visited {
-        border: solid 1px #fff;
-        border-radius: 5px;
-        color: #fff;
-        display: block;
-        padding: 10px;
-        margin: 10px 0;
-        text-decoration: none;
-        width: 50px;
-      }
-    }
   }
 
   /* 右サイドバー */
   .RightSideMenu {
+    align-items: center;
     background-color: var(--MainColor);
     box-sizing: border-box;
     display: flex;
     flex-direction: row-reverse;
     height: 64px;
+    justify-content: flex-start;
     position: fixed;
     right: 0;
     top: 0;
     vertical-align: bottom;
-    width: 50vw;
-    p{
-      margin: 0;
+    width: 70%;
+    .RightSideMenuItem{
+      width: auto;
     }
-    .LinkToConfig{
-      a, a:visited{
-        border: solid 1px #fff;
-        border-radius: 5px;
-        color: #fff;
-        display: block;
-        margin: 10px 0;
-        padding: 10px;
-        text-align: center;
-        text-decoration: none;
-      }
-    }
-    .LogoutButton{
+    .UserImage{
       background-color: transparent;
-      border: solid 1px #fff;
-      border-radius: 5px;
-      color: #fff;
-      display: block;
-      font-size: 1rem;
-      margin: 10px 0;
+      border: none;
+      border-radius: 50% 50%;
+      height: 64px;
       outline: none;
-      padding: 10px;
-      text-align: center;
-      text-decoration: none;
-      width: 100%;
+      padding: 0;
+      width: 64px;
+    }
+    .Config{
+      background-color: transparent;
+      border: none;
+      font-size: 2rem;
+      a{
+        color: var(--BackColor);
+        &:visited{
+          color: var(--BackColor);
+        }
+      }
     }
   }
 }
