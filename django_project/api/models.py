@@ -270,6 +270,18 @@ class File(models.Model):
     __str__ = __repr__
 
 
+# class ContentFileList(models.Model):
+#     content = models.ForeignKey(
+#         Content,
+#         related_name='file_list',
+#         on_delete=models.CASCADE
+#     )
+#     file = models.ForeignKey(
+#         File,
+#         related_name='files',
+#         on_delete=models.CASCADE
+#     )
+
 class ContentFileList(models.Model):
     content = models.ForeignKey(
         Content,
@@ -280,7 +292,6 @@ class ContentFileList(models.Model):
         max_length=140,
         validators=[MinLengthValidator(1)]
     )
-
 
 class Comment(models.Model):
     exam = models.ForeignKey(

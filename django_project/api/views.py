@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Subject, Exam, Content, Comment
-from .models import Post, Like, Share, ContentFileList, File
+from .models import Post, Like, Share, ContentFileList
 from .models import Grade, Quarter
 from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
