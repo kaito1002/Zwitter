@@ -34,6 +34,31 @@
 					"response": []
 				},
 				{
+					"name": "/api/users/timeline",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/users/timeline",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"users",
+								"timeline"
+							]
+						},
+						"description": "ログインユーザーからタイムラインを取得するエンドポイント.\nフォロー機能がないので全部拾ってきてるだけ,"
+					},
+					"response": []
+				},
+				{
 					"name": "/api/users/",
 					"request": {
 						"method": "GET",
