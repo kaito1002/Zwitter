@@ -26,6 +26,17 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(methods=['GET'], detail=False, url_path='me')
+    def profile(self, request):
+        return Response({
+            "pk": request.user.pk,
+            "name": request.user.name,
+            "number": request.user.number,
+            "image_path": request.user.image_path,
+            "email": request.user.email,
+            "coin": request.user.coin,
+        })
+
     @action(methods=['POST'], detail=False, url_path='img')
     def image_upload(self, request):
         file = request.FILES['file']
@@ -138,40 +149,35 @@ class SubjectViewSet(viewsets.ModelViewSet):
         subjects = Subject.objects.all().filter(name__contains=request.GET['keyword'])
         return Response(subjects.values())
 
-    @action(methods=['GET'], detail=False, url_path='search_user_related')
-    def search(self, request):
-        exams = Exam.objects.all().filter(
-            subject__name__contains=request.GET['keyword']
-        ).filter(
-            reduce(lambda s, t: s | Q(subject_id=t), get_subjects(user=request.user), Q())
-        ).values()
+    @action(methods=['GET'], detail=False, url_path='search_v2')
+    def search_v2(self, request):
+        subjects = Subject.objects.all().filter(
+            name__contains=request.GET['keyword']
+        )
 
-        subjects = {}
+        results = []
 
-        for exam in exams:
-            if exam['subject_id'] in subjects.keys():
-                # 既存
-                subjects[exam['subject_id']]['years'].append(exam['year'])
-                if subjects[exam['subject_id']]['latest'] < exam['year']:
-                    subjects[exam['subject_id']]['latest'] = exam['year']
+        for subject in subjects:
+            data = {
+                'id': subject.id,
+                'name': subject.name,
+                'latest': None,
+                'years': []
+            }
 
-            else:
-                # 新規
-                subjects[exam['subject_id']] = {
-                    'id': exam['subject_id'],
-                    'name': Subject.objects.all().get(id=exam['subject_id']).name,
-                    'latest': exam['year'],
-                    'years': [exam['year'], ]
-                }
+            for exam in subject.exams.all():
+                # latest 更新
+                if data['latest'] is None:
+                    data['latest'] = exam.year
+                elif data['latest'] < exam.year:
+                    data['latest'] = exam.year
 
-        # sort
-        for key in subjects.keys():
-            subjects[key]['years'].sort(reverse=True)
+                # years更新
+                data['years'].append(exam.year)
 
-        res = {
-            'subjects': list(subjects.values()),
-        }
-        return Response(subjects.values())
+            data['years'].sort(reverse=True)
+            results.append(data)
+        return Response(results)
 
 
 class GradeViewSet(viewsets.ModelViewSet):
@@ -214,28 +220,54 @@ class ContentViewSet(viewsets.ModelViewSet):
         ).values())
 
     def create(self, request):
-        user = request.user
-        subject_pk = int(request.POST.get('subject'))
+        try:
+            subject = Subject.objects.get(pk=int(request.POST.get('subject')))
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Subject not found.'
+            })
         year = int(request.POST.get('year'))
         _type = int(request.POST.get('type'))
         data = request.POST.get('data')
 
         exam = Exam.objects.get_or_create(
-            subject=Subject.objects.get(pk=subject_pk),
+            subject=subject,
             year=year
         )[0]
-        Content.objects.create(
-            exam=exam,
-            type=_type,
-            data=data,
-            poster=user,
-        )
-        return Response({'success': True})
+
+        try:
+            content = Content.objects.create(
+                exam=exam,
+                type=_type,
+                data=data,
+                poster=request.user,
+            )
+        except Exception:
+            return Response({
+                'success': False,
+                'message': "Fail to create content"
+            })
+        return Response({'success': True, 'created': content.get_dict()})
 
     def partial_update(self, request, pk):
-        content = Content.objects.get(pk=pk)
+        try:
+            content = Content.objects.get(pk=pk)
+        except Exception:
+            return {
+                'success': False,
+                'message': 'Content not found.'
+            }
+        try:
+            subject = Subject.objects.get(content.exam.subject.pk)
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Subject not found.'
+            })
+
         params = {
-            'subject': content.exam.subject.pk,
+            'subject': subject,
             'year': content.exam.year,
             'type': content.type,
             'data': content.data,
@@ -255,30 +287,55 @@ class ContentViewSet(viewsets.ModelViewSet):
             content.type = params['type']
             content.data = params['data']
             content.save()
-            return Response({'success': True})
+            return Response({'success': True, 'updated': content.get_dict()})
         else:
-            return Response({'success': False, 'reason': 'Permission denied.'})
+            return Response({'success': False, 'message': 'Permission denied.'})
 
     def update(self, request, pk):
-        content = Content.objects.get(pk=pk)
+        try:
+            content = Content.objects.get(pk=pk)
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Content not found.'
+            })
+
         if request.user != content.user:
-            return Response({'success': False, 'reason': 'Permission denied.'})
+            return Response({'success': False, 'message': 'Permission denied.'})
+
+        try:
+            subject = Subject.objects.get(pk=request.data['subject'])
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Subject not found.'
+            })
+
         exam = Exam.objects.get_or_create(
-            subject=request.data['subject'],
+            subject=subject,
             year=request.data['year'],
         )[0]
         content.exam = exam
         content.type = request.data['type']
         content.data = request.data['data']
         content.save()
-        return Response({'success': True})
+        return Response({'success': True, 'updated': content.get_dict()})
 
     def destroy(self, request, pk):
-        content = Content.objects.get(pk=pk)
+        try:
+            content = Content.objects.get(pk=pk)
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Content not found.'
+            })
+
         if content.poster != request.user:
-            return Response({'success': False})
+            return Response({'success': False, 'message': 'Permission denied.'})
+
+        deleted = content.get_dict()
         content.delete()
-        return Response({'success': True})
+        return Response({'success': True, 'deleted': deleted})
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -288,31 +345,32 @@ class CommentViewSet(viewsets.ModelViewSet):
     filterset_fields = ('exam', 'sender', 'bef_comment')
 
     def create(self, request):
-        exam = Exam.objects.get_or_create(
-            subject=Subject.objects.get(pk=int(request.POST.get('subject'))),
-            year=request.POST.get('year')
-        )[0]
         try:
             bef_comment = request.POST.get('bef_comment')
         except Exception as e:
             print(e)
             bef_comment = -1
 
-        bef_comment = bef_comment if bef_comment == -1 else None
-        Comment.objects.create(
-            exam=exam,
-            bef_comment=bef_comment,
-            data=request.POST.get('data'),
-            sender=request.user
-        )
-        return Response({'success': True})
+        bef_comment = None if bef_comment == -1 or bef_comment == '' else bef_comment
+        try:
+            comment = Comment.objects.create(
+                exam=Exam.objects.get(pk=int(request.POST.get('exam'))),
+                bef_comment=Comment.objects.get(pk=bef_comment),
+                data=request.POST.get('data'),
+                sender=request.user
+            )
+        except Exception as e:
+            return Response({'success': False, 'message': e})
+        return Response({'success': True, 'created': comment.get_dict()})
 
     def destroy(self, request, pk):
         comment = Comment.objects.get(pk=pk)
+        deleted = comment.get_dict()
+
         if comment.sender != request.user:
             return Response({'success': False, 'reason': 'Permission denied.'})
         comment.delete()
-        return Response({'success': True})
+        return Response({'success': True, 'deleted': deleted})
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -323,25 +381,29 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
-            bef_post = request.POST.get('bef_post')
+            key = request.POST.get('bef_post')
+            bef_post = Post.objects.get(pk=key)
+        except Exception:
+            bef_post = None
+
+        try:
+            post = Post.objects.create(
+                bef_post=bef_post,
+                content=request.POST.get('content'),
+                user=request.user
+            )
         except Exception as e:
             print(e)
-            bef_post = -1
-
-        bef_post = bef_post if bef_post == -1 else None
-        Post.objects.create(
-            bef_post=bef_post,
-            content=Content.objects.get(pk=int(request.POST.get('content'))),
-            user=request.user
-        )
-        return Response({'success': True})
+            return Response({'success': False, 'message': e})
+        return Response({'success': True, 'created': post.get_dict()})
 
     def destroy(self, request, pk):
         post = Post.objects.get(pk=pk)
+        deleted = post.get_dict()
         if post.user != request.user:
             return Response({'success': False, 'reason': 'Permission denied.'})
         post.delete()
-        return Response({'success': True})
+        return Response({'success': True, 'deleted': deleted})
 
 
 class LikeViewSet(viewsets.ModelViewSet):
@@ -350,12 +412,74 @@ class LikeViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post', )
 
+    def create(self, request):
+        try:
+            post = request.POST.get('post')
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postがきてないよ'})
+
+        try:
+            like = Like.objects.create(
+                post_id=int(post),
+                user=request.user
+            )
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postが見つからないかすでにしてるよ'})
+        return Response({'success': True, 'created': like.get_dict()})
+
+    def destroy(self, request, pk):
+        try:
+            post = Like.objects.get(pk=pk)
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Like objects not found.'
+            })
+        deleted = post.get_dict()
+        if post.user != request.user:
+            return Response({'success': False, 'message': 'Permission denied.'})
+        post.delete()
+        return Response({'success': True, 'deleted': deleted})
+
 
 class ShareViewSet(viewsets.ModelViewSet):
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('post', )
+
+    def create(self, request):
+        try:
+            post = request.POST.get('post')
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postがきてないよ'})
+
+        try:
+            Share.objects.create(
+                post_id=int(post),
+                user=request.user
+            )
+        except Exception as e:
+            print(e)
+            return Response({'success': False, 'message': 'postが見つからないかすでにしてるよ'})
+        return Response({'success': True, 'created': post.get_dict()})
+
+    def destroy(self, request, pk):
+        try:
+            share = Share.objects.get(pk=pk)
+        except Exception:
+            return Response({
+                'success': False,
+                'message': 'Share not found.'
+            })
+        deleted = share.get_dict()
+        if share.user != request.user:
+            return Response({'success': False, 'reason': 'Permission denied.'})
+        share.delete()
+        return Response({'success': True, 'deleted': deleted})
 
 
 def get_subjects(user) -> list:

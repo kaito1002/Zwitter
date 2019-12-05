@@ -1,0 +1,78 @@
+
+.CreateAccount{
+  background-color: var(--MainColor);
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 70%;
+  margin: 64px auto;
+  padding: 50px 20%;
+  position: relative;
+  width: 70%;
+  a{
+    color: var(--BackColor);
+    &:visited{
+      color: var(--BackColor);
+    }
+  }
+  .BackButton {
+    background-color: transparent;
+    border: none;
+    display: block;
+    font-size: 2rem;
+    left: 20px;
+    padding: 15px;
+    position: absolute;
+    top: 20px;
+    transition: .2s;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+  .CardTitle{
+    color: var(--BackColor);
+    font-weight: 900;
+    text-align: center;
+  }
+  .Input {
+    background-color: #fff;
+    border: solid 3px #fff;
+    border-radius: 5px;
+    box-sizing: border-box;
+    outline: none;
+    padding: 10px;
+  }
+  .InputFormWrapper{
+    display: block;
+    margin: 10px auto;
+    position: relative;
+    text-align: center;
+    width: 50%;
+    .ChangeVisibilityPassButton {
+      background-color: transparent;
+      border: none;
+      color: #aaa;
+      font-size: 1rem;
+      outline: none;
+      padding: 13px;
+      position: absolute;
+      right: 5%;
+      top: 0;
+      width: auto;
+    }
+    .CreateAccountButton{
+      background-color: var(--BackColor);
+      border: none;
+      border-radius: 5px;
+      color: var(--MainColor);
+      font-size: 1rem;
+      font-weight: 500;
+      outline: none;
+      padding: 15px;
+      transition: .2s;
+      &:hover{
+        transform: scale(1.05);
+      }
+    }
+  }
+}

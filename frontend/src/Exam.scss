@@ -1,59 +1,178 @@
 @import "./Loading.scss";
 @import "./Sidebar.scss";
 
-:root {
-  --MainColor: #00d9d2;
-  --SubColor: #e0a353;
-}
-
-/* 全体的なレイアウト関連 */
-.Exam {
-  width: calc(100vw - 5px);
-}
-
-.ExamContents {
-  display: flex;
-}
-
-.LinkToZwitter :visited {
-  color: #555;
-}
-
-/* 真ん中のコンテンツ */
-.MainContents {
-  width: 80vw;
-}
-
-/* SubjectLists */
-.SubjectLists {
-  p {
-    margin: 30px 0px 30px 30px;
-    padding: 0;
-    width: 90%;
+@media screen and (min-width: 419px) {
+  /* 全体的なレイアウト関連 */
+  .Exam {
+    background-color: var(--BackColor);
+    width: calc(100vw - 5px);
   }
 
-  a {
-    background-color: var(--SubColor);
-    border: solid 1px var(--SubColor);
-    border-radius: 5px;
-    box-sizing: border-box;
-    color: #fff;
+  .ExamContents {
+    display: flex;
+  }
+  /* SelectSubjects */
+  .SelectSubject {
+    .SubjectLists {
+      p {
+        margin: 30px 0px 30px 30px;
+        padding: 0;
+        width: 90%;
+      }
+
+      a {
+        background-color: var(--BackColor);
+        border: solid 1px var(--MainColor);
+        border-radius: 5px;
+        box-sizing: border-box;
+        color: var(--MainColor);
+        display: inline-block;
+        padding: 10px;
+        text-decoration: none;
+        transition: 0.5s;
+        width: 100%;
+      }
+
+      a:hover {
+        background-color: var(--MainColor);
+        border: solid 1px var(--MainColor);
+        color: var(--BackColor);
+      }
+
+      a:visited {
+        color: var(--MainColor);
+      }
+
+      a:visited:hover {
+        color: var(--BackColor);
+      }
+    }
+  }
+
+  .ExamLists {
+    .ContentsList {
+      .Content {
+        border: solid 1px #555;
+        box-sizing: border-box;
+        margin: 10px;
+        padding: 10px;
+      }
+
+      .CommentContent {
+        color: #555;
+        margin: 0 0 20px 0;
+
+        a, a:visited {
+          color: #555;
+        }
+      }
+    }
+  }
+
+  .UserImage {
+    display: block;
+    height: 100px;
+    width: 100px;
+
+    img {
+      border-radius: 50% 50%;
+      height: 100px;
+      width: 100px;
+      background-size: 100% 100%;
+    }
+  }
+  .UserName {
     display: inline-block;
-    padding: 10px;
-    text-decoration: none;
-    transition: 0.5s;
-    width: 100%;
+    font-size: 1.5rem;
   }
-
-  a:hover {
-    background-color: var(--MainColor);
-    border: solid 1px var(--MainColor);
+  .CommentText {
+    display: block;
   }
 }
-
-.Content {
-  border: solid 1px #555;
-  box-sizing: border-box;
-  margin: 10px;
-  padding: 10px;
-}
+//
+//@media screen and (max-width: 419px){
+//  /* 全体的なレイアウト関連 */
+//  .Exam {
+//    background-color: var(--BackColor);
+//    width: 100vw;
+//  }
+//
+//  .ExamContents {
+//    display: flex;
+//  }
+//
+//  /* SubjectLists */
+//  .SubjectLists {
+//    padding: 64px 0 0 0 ;
+//    p {
+//      margin: 30px;
+//      padding: 0;
+//    }
+//
+//    a{
+//      background-color: var(--BackColor);
+//      border: solid 1px var(--MainColor);
+//      border-radius: 5px;
+//      box-sizing: border-box;
+//      color: var(--MainColor);
+//      display: inline-block;
+//      padding: 10px;
+//      text-decoration: none;
+//      transition: 0.5s;
+//      width: 100%;
+//    }
+//
+//    a:hover {
+//      background-color: var(--MainColor);
+//      border: solid 1px var(--MainColor);
+//      color: var(--BackColor);
+//    }
+//
+//    a:visited {
+//      color: var(--MainColor);
+//    }
+//
+//    a:visited:hover {
+//      color: var(--BackColor);
+//    }
+//  }
+//
+//  .ExamLists {
+//    .Content {
+//      border: solid 1px #555;
+//      box-sizing: border-box;
+//      margin: 10px;
+//      padding: 10px;
+//    }
+//
+//    .CommentContent {
+//      color: #555;
+//      margin: 0 0 20px 0;
+//
+//      a, a:visited {
+//        color: #555;
+//      }
+//    }
+//  }
+//
+//  .UserImage {
+//    display: block;
+//    height: 100px;
+//    width: 100px;
+//
+//    img {
+//      border-radius: 50% 50%;
+//      height: 100px;
+//      width: 100px;
+//      background-size: 100% 100%;
+//    }
+//  }
+//  .UserName {
+//    display: inline-block;
+//    font-size: 1.5rem;
+//  }
+//  .CommentText {
+//    display: block;
+//  }
+//}
+//

@@ -20,15 +20,17 @@ from api.views import test_upload
 from rest_framework.authtoken import views as auth_views
 from api.urls import router
 from django.conf.urls.static import static
+from django.views.generic.base import TemplateView
 from . import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api-token-auth/', auth_views.obtain_auth_token),
-    path('', views.index, name='index'),
     path('test_upload', test_upload, name='upload'),
-    path('<filename>', views.file, name='file'),
+    path('', views.index, name='index'),
+    path('<str:arg>', views.index, name='index'),
+    path('<filename>', views.file, name='file'),  # 未到達?
 ]
 
 if settings.DEBUG:

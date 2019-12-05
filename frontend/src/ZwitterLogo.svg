@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="671" height="222" viewBox="0 0 671 222">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #33b6c8;
+        stroke: #33b6c8;
+        font-size: 162px;
+        font-family: Tahoma-Bold, Tahoma;
+        font-weight: 700;
+      }
+
+      .cls-2 {
+        fill: #33b5c7;
+      }
+    </style>
+  </defs>
+  <g id="グループ_17" data-name="グループ 17" transform="translate(-130 -319)">
+    <text id="witter" class="cls-1" transform="translate(305 345)"><tspan x="0" y="162">witter</tspan></text>
+    <g id="グループ_1" data-name="グループ 1" transform="translate(-1136.427 53.145)">
+      <g id="pen" transform="translate(1267.468 281.387)">
+        <path id="パス_1" data-name="パス 1" class="cls-2" d="M160.3,12.566a43.474,43.474,0,0,0-61.145,0L.168,110.734,0,171.548H61.145L160.3,73.208A42.619,42.619,0,0,0,160.3,12.566ZM52.194,150.1H43.243V128.661h-21.5l.022-9.006,92.675-91.928h0l30.573,30.321h0Z" transform="translate(0 0)"/>
+      </g>
+      <rect id="長方形_3" data-name="長方形 3" class="cls-2" width="173" height="28" transform="translate(1266.427 265.855)"/>
+      <rect id="長方形_4" data-name="長方形 4" class="cls-2" width="57" height="44" rx="10" transform="translate(1383.427 409.855)"/>
+      <rect id="長方形_5" data-name="長方形 5" class="cls-2" width="174" height="21" transform="translate(1266.427 433.855)"/>
+      <rect id="長方形_6" data-name="長方形 6" class="cls-2" width="67" height="44" rx="10" transform="translate(1266.427 265.855)"/>
+      <rect id="長方形_11" data-name="長方形 11" class="cls-2" width="14" height="57" transform="translate(1426.427 265.855)"/>
+      <rect id="長方形_12" data-name="長方形 12" class="cls-2" width="15" height="61" transform="translate(1266.427 392.855)"/>
+    </g>
+  </g>
+</svg>

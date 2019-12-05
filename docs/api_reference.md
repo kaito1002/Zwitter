@@ -23,6 +23,7 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/users/ | ユーザー一覧の取得 |
 | POST | /api/users/ | 新規ユーザーの追加 |
 | GET | /api/users/<user_id>/ | ユーザー情報の取得 |
+| GET | /api/users/me | ログインユーザー情報の取得 |
 | PUT | /api/users/<user_id>/ | ユーザー情報の更新 |
 | DELETE | /api/users/<user_id>/ | ユーザーの削除 |
 
@@ -40,7 +41,7 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/subjects/user_related_exists/ | 認証ユーザーに関連しデータの存在する科目一覧を取得 |
 | GET | /api/subjects/<subject_id>/years/ | データが存在する年度を取得 |
 | GET | /api/subjects/search/?keyword=<検索ワード> | 科目の検索API |
-| GET | /api/subjects/search_user_related/?keyword=<検索ワード> | ユーザー関連の科目の検索API |
+| GET | /api/subjects/search_v2/?keyword=<検索ワード> | ユーザー関連の科目の検索API |
 | POST | /api/comments/ | コメントを投稿 |
 | GET | /api/comments/?exam=<exam_id>/ | Examに紐付いたコメント一覧を取得 |
 | GET | /api/comments/?bef_comment=<comment_id>/ | コメントに対する返信一覧を取得 |

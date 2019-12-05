@@ -75,6 +75,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'name': self.name,
+            'number': self.number,
+            'email': self.email,
+            'image_path': self.image_path,
+            'is_staff': self.is_staff,
+            'is_superuser': self.is_superuser,
+            'coin': self.coin
+        }
+
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
 
@@ -104,6 +116,12 @@ class Subject(models.Model):
     @property
     def related_quarters(self):
         return [_.quarter for _ in Quarter.objects.filter(subject=self).all()]
+
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'name': self.name,
+        }
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
@@ -149,6 +167,13 @@ class Exam(models.Model):
         )
     year = models.IntegerField()
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'subject': self.subject.get_dict(),
+            'year': self.year
+        }
+
     def __repr__(self):
         return "{}: {}({})".format(self.pk, self.subject.name, self.year)
 
@@ -183,6 +208,16 @@ class Content(models.Model):
     )
     posted_at = models.DateTimeField(default=timezone.now)
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'exam': self.exam.get_dict(),
+            'type': self.type,
+            'data': self.data,
+            'poster': self.poster.get_dict(),
+            'posted_at': self.posted_at
+        }
+
     def __repr__(self):
         _type = {
             0: '問題',
@@ -192,6 +227,25 @@ class Content(models.Model):
         _subname = self.exam.subject.name
         _year = self.exam.year
         return "{}: {}({})<{}>".format(self.pk, _subname, _year, _type)
+
+    __str__ = __repr__
+
+
+class File(models.Model):
+    file_path = models.CharField(
+        max_length=140,
+        validators=[MinLengthValidator(1)],
+        blank=True,
+        null=True,
+    )
+    content = models.ForeignKey(
+        Content,
+        related_name='files',
+        on_delete=models.CASCADE,
+    )
+
+    def __repr__(self):
+        return "{}: {}, {}".format(self.pk, self.content.exam, self.file_path)
 
     __str__ = __repr__
 
@@ -221,6 +275,16 @@ class Comment(models.Model):
         null=True
         )
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'exam': self.exam.pk,
+            'posted_at': self.posted_at,
+            'bef_comment': None if self.bef_comment is None else self.bef_comment.get_dict(),
+            'data': self.data,
+            'sender': self.sender.get_dict()
+        }
+
     def __repr__(self):
         return "{}: {} on {}".format(
             self.pk,
@@ -249,6 +313,15 @@ class Post(models.Model):
         validators=[MinLengthValidator(1)]
     )
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'user': self.user.get_dict(),
+            'posted_at': self.posted_at,
+            'bef_post': None if self.bef_post is None else self.bef_post.get_dict(),
+            'content': self.content
+        }
+
     def __repr__(self):
         return "{}: {} says {}".format(
             self.pk,
@@ -259,6 +332,9 @@ class Post(models.Model):
 
 
 class Like(models.Model):
+    class Meta:
+        unique_together = (('user', 'post'), )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -272,6 +348,14 @@ class Like(models.Model):
     )
     liked_at = models.DateTimeField(default=timezone.now)
 
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'user': self.user.get_dict(),
+            'post': self.post.get_dict(),
+            'liked_at': self.liked_at
+        }
+
     def __repr__(self):
         return "{}: {} likes ({} says {})".format(
             self.pk,
@@ -284,6 +368,9 @@ class Like(models.Model):
 
 
 class Share(models.Model):
+    class Meta:
+        unique_together = (('user', 'post'), )
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -296,6 +383,14 @@ class Share(models.Model):
         blank=False
     )
     shared_at = models.DateTimeField(default=timezone.now)
+
+    def get_dict(self):
+        return {
+            'pk': self.pk,
+            'user': self.user.get_dict(),
+            'post': None if self.post is None else self.post.get_dict(),
+            'shared_at': self.shared_at
+        }
 
     def __repr__(self):
         return "{}: {} shares ({} says {})".format(
