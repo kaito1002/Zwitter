@@ -50,12 +50,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         unique=True,
         blank=False
-        )
+    )
     password = models.CharField(
         _('password'),
         max_length=128,
         validators=[MinLengthValidator(5)]
-        )
+    )
     image_path = models.CharField(
         max_length=1024,
         null=True,
@@ -74,6 +74,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+
+    def get_timeline(self):
+        try:
+            posts = Post.objects.all()
+            shares = Share.objects.all()
+        except Exception:
+            return []
+
+        timeline = [post.get_dict() for post in posts]
+        timeline.extend([share.post_dict() for share in shares])
+
+        return sorted(
+            timeline,
+            key=lambda x: x["posted_at"].timestamp()
+        )
 
     def get_dict(self):
         return {
@@ -134,7 +149,7 @@ class Grade(models.Model):
         Subject,
         related_name='grades',
         on_delete=models.CASCADE
-        )
+    )
     grade = models.IntegerField()
 
     def __repr__(self):
@@ -148,7 +163,7 @@ class Quarter(models.Model):
         Subject,
         related_name='quarters',
         on_delete=models.CASCADE
-        )
+    )
     quarter = models.CharField(
         max_length=255
     )
@@ -164,7 +179,7 @@ class Exam(models.Model):
         Subject,
         related_name='exams',
         on_delete=models.CASCADE
-        )
+    )
     year = models.IntegerField()
 
     def get_dict(self):
@@ -193,11 +208,11 @@ class Content(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False
-        )
+    )
     type = models.IntegerField(
         validators=[MinValueValidator(0),
                     MaxValueValidator(2)]
-        )
+    )
     # とりあえず文字列
     data = models.TextField()
     poster = models.ForeignKey(
@@ -257,7 +272,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=False
-        )
+    )
     posted_at = models.DateTimeField(default=timezone.now)
     bef_comment = models.ForeignKey(
         'self',
@@ -265,7 +280,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True
-        )
+    )
     data = models.TextField()
     sender = models.ForeignKey(
         User,
@@ -273,7 +288,7 @@ class Comment(models.Model):
         on_delete=models.SET_NULL,
         blank=False,
         null=True
-        )
+    )
 
     def get_dict(self):
         return {
@@ -316,6 +331,7 @@ class Post(models.Model):
     def get_dict(self):
         return {
             'pk': self.pk,
+            "is_share": False,
             'user': self.user.get_dict(),
             'posted_at': self.posted_at,
             'bef_post': None if self.bef_post is None else self.bef_post.get_dict(),
@@ -333,7 +349,7 @@ class Post(models.Model):
 
 class Like(models.Model):
     class Meta:
-        unique_together = (('user', 'post'), )
+        unique_together = (('user', 'post'),)
 
     user = models.ForeignKey(
         User,
@@ -362,14 +378,14 @@ class Like(models.Model):
             self.user.name,
             self.post.user.name,
             self.post.content
-            )
+        )
 
     __str__ = __repr__
 
 
 class Share(models.Model):
     class Meta:
-        unique_together = (('user', 'post'), )
+        unique_together = (('user', 'post'),)
 
     user = models.ForeignKey(
         User,
@@ -383,6 +399,18 @@ class Share(models.Model):
         blank=False
     )
     shared_at = models.DateTimeField(default=timezone.now)
+
+    def post_dict(self):
+        post = self.post
+        post_dict = {
+            "pk": post.pk,
+            "is_share": True,
+            "user": post.user.get_dict(),
+            "posted_at": post.posted_at,
+            "bef_post": None if post.bef_post is None else post.bef_post.get_dict(),
+            "content": post.content
+        }
+        return post_dict
 
     def get_dict(self):
         return {

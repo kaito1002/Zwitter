@@ -26,6 +26,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(methods=['GET'], detail=False, url_path='timeline')
+    def timeline(self, request):
+        user = request.user
+        return Response(user.get_timeline())
+
     @action(methods=['GET'], detail=False, url_path='me')
     def profile(self, request):
         return Response({
@@ -184,21 +189,21 @@ class GradeViewSet(viewsets.ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('subject', 'grade', )
+    filterset_fields = ('subject', 'grade',)
 
 
 class QuarterViewSet(viewsets.ModelViewSet):
     queryset = Quarter.objects.all()
     serializer_class = QuarterSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('subject', 'quarter', )
+    filterset_fields = ('subject', 'quarter',)
 
 
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('subject', )
+    filterset_fields = ('subject',)
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def exam_list_user_related(self, request):
@@ -211,7 +216,7 @@ class ContentViewSet(viewsets.ModelViewSet):
     queryset = Content.objects.all()
     serializer_class = ContentSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('exam', 'poster', )
+    filterset_fields = ('exam', 'poster',)
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def content_list_user_related(self, request):
@@ -410,7 +415,7 @@ class LikeViewSet(viewsets.ModelViewSet):
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post', )
+    filterset_fields = ('post',)
 
     def create(self, request):
         try:
@@ -448,7 +453,7 @@ class ShareViewSet(viewsets.ModelViewSet):
     queryset = Share.objects.all()
     serializer_class = ShareSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ('post', )
+    filterset_fields = ('post',)
 
     def create(self, request):
         try:
@@ -513,13 +518,13 @@ def get_period(user: User, now=datetime.now()):
 def get_quarters(now):
     month = now.month
     quarters = []
-    if month > 10:   # 4 Quarter
+    if month > 10:  # 4 Quarter
         quarters = ["後期", "4学期"]
     elif month > 6:  # 3 Quarter
         quarters = ["後期", "3学期"]
     elif month > 4:  # 2 Quarter
         quarters = ["前期", "2学期"]
-    else:            # 1 Quarter
+    else:  # 1 Quarter
         quarters = ["期", "1学期"]
     return quarters
 
