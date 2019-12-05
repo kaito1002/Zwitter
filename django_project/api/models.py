@@ -223,12 +223,17 @@ class Content(models.Model):
     )
     posted_at = models.DateTimeField(default=timezone.now)
 
+    @property
+    def files(self):
+        return [file for file in ContentFileList.objects.filter(content=self)]
+
     def get_dict(self):
         return {
             'pk': self.pk,
             'exam': self.exam.get_dict(),
             'type': self.type,
             'data': self.data,
+            'files': self.files,
             'poster': self.poster.get_dict(),
             'posted_at': self.posted_at
         }
@@ -263,6 +268,18 @@ class File(models.Model):
         return "{}: {}, {}".format(self.pk, self.content.exam, self.file_path)
 
     __str__ = __repr__
+
+
+class ContentFileList(models.Model):
+    content = models.ForeignKey(
+        Content,
+        related_name='file_list',
+        on_delete=models.CASCADE
+    )
+    file_path = models.CharField(
+        max_length=140,
+        validators=[MinLengthValidator(1)]
+    )
 
 
 class Comment(models.Model):

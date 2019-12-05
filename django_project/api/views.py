@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import User, Subject, Exam, Content, Comment
-from .models import Post, Like, Share
+from .models import Post, Like, Share, ContentFileList, File
 from .models import Grade, Quarter
 from .serializer import UserSerializer, SubjectSerializer, ExamSerializer
 from .serializer import ContentSerializer, CommentSerializer
@@ -45,28 +45,16 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail=False, url_path='img')
     def image_upload(self, request):
         file = request.FILES['file']
-        while True:
-            filename = determine_file_name(file)
-            path = os.path.join(MEDIA_ROOT, filename)
-            if not os.path.exists(path):
-                break
-        with open(path, 'wb') as f:
-            for chunk in file.chunks():
-                f.write(chunk)
+        res = image_upload(file)
 
-        success = False
-        if os.path.exists(path):
-            success = True
-
-        image_path = None
+        success = res['success']
         if not request.user.is_anonymous:
-            image_path = MEDIA_URL + filename
-            request.user.image_path = image_path
+            request.user.image_path = res['image_path']
             request.user.save()
         else:
             success = False
 
-        return Response({'success': success, 'path': image_path})
+        return Response({'success': success, 'path': res['image_path']})
 
 
 class SubjectViewSet(viewsets.ModelViewSet):
@@ -217,6 +205,32 @@ class ContentViewSet(viewsets.ModelViewSet):
     serializer_class = ContentSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ('exam', 'poster',)
+
+    @action(methods=['GET'], detail=True, url_path='images')
+    def images(self, request, pk):
+        success = True
+        files = []
+        for file in request.FILES.getlist('file'):
+            res = image_upload(file)
+            if res['success']:
+                try:
+                    ContentFileList.objects.create(
+                        content_id=pk,
+                        file_path=res['image_path']
+                    )
+                except Exception as e:
+                    print(e)
+                    res['success'] = False
+
+            success = success and res['success']
+
+            if success:
+                files.append(res['image_path'])
+
+        return Response({
+            'success': success,
+            'files': files
+        })
 
     @action(methods=['GET'], detail=False, url_path='user_related')
     def content_list_user_related(self, request):
@@ -544,3 +558,22 @@ def determine_file_name(file):
     file_type = file.name.split('.')[-1]
     now = int(time() * 10 ** 6)
     return f"{now}.{file_type}"
+
+
+def image_upload(file):
+    while True:
+        filename = determine_file_name(file)
+        path = os.path.join(MEDIA_ROOT, filename)
+        if not os.path.exists(path):
+            break
+    with open(path, 'wb') as f:
+        for chunk in file.chunks():
+            f.write(chunk)
+
+    success = False
+    if os.path.exists(path):
+        success = True
+
+    image_path = MEDIA_URL + filename
+
+    return {'success': success, 'path': image_path}
