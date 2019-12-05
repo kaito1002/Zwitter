@@ -34,6 +34,7 @@ Authorization: TOKEN <authorization token>'
 | GET | /api/contents/ | 試験関連の一覧を取得 |
 | POST | /api/contents/ | コンテンツを投稿 |
 | GET | /api/contents/user_related/ | 認証ユーザーに関連する試験の投稿一覧を取得 |
+| POST| /api/content/images | コンテンツに添付するファイルの投稿 |
 | GET | /api/exams/ | 試験一覧を取得 |
 | GET | /api/exams/user_related/ | 認証ユーザーに関連する試験一覧を取得 |
 | GET | /api/subjects/ | 科目一覧を取得 |
